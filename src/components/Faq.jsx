@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ArrowRight } from 'lucide-react';
+import { ChevronDown, ArrowRight, HelpCircle } from 'lucide-react';
 
 export const Faq = ({ onRequestDemo }) => {
   const [openIndex, setOpenIndex] = useState(0);
@@ -28,15 +28,23 @@ export const Faq = ({ onRequestDemo }) => {
     {
       q: "Can we export reports to SAP or work order systems?",
       a: "Yes. SENSORSAE generates 1-click PDF shift handover summaries and standard maintenance tickets compatible with SAP PM and Maximo."
+    },
+    {
+      q: "What sensors are included in each pod?",
+      a: "Each wireless pod houses a high-frequency triaxial accelerometer, ultrasonic acoustic microphone, and infrared surface temperature sensor."
+    },
+    {
+      q: "Is specialized staff training required?",
+      a: "None. SENSORSAE translates complex waveforms into plain instructions so any technician can troubleshoot equipment immediately."
     }
   ];
 
   return (
     <section id="faq" className="py-24 bg-[#06080d] border-b border-slate-900">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 space-y-16">
         
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
           <span className="font-mono text-xs uppercase tracking-widest text-blue-400 font-semibold">
             FREQUENTLY ASKED QUESTIONS
           </span>
@@ -48,8 +56,8 @@ export const Faq = ({ onRequestDemo }) => {
           </p>
         </div>
 
-        {/* Accordion FAQ Items */}
-        <div className="space-y-3">
+        {/* 2-Column Wide FAQ Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
           {faqs.map((item, idx) => {
             const isOpen = openIndex === idx;
             return (
@@ -58,7 +66,7 @@ export const Faq = ({ onRequestDemo }) => {
                 className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                   isOpen 
                     ? 'bg-[#0b0f19] border-blue-500/50 shadow-glow-sm' 
-                    : 'bg-[#0b0f19]/40 border-slate-900 hover:border-slate-800'
+                    : 'bg-[#0b0f19]/50 border-slate-800/80 hover:border-slate-700'
                 }`}
               >
                 <button
@@ -80,13 +88,26 @@ export const Faq = ({ onRequestDemo }) => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 pt-1 text-slate-300 text-sm leading-relaxed border-t border-slate-800/80 animate-in fade-in duration-200">
+                  <div className="px-6 pb-6 pt-1 text-slate-300 text-sm leading-relaxed border-t border-slate-800/80 font-sans animate-in fade-in duration-200">
                     {item.a}
                   </div>
                 )}
               </div>
             );
           })}
+        </div>
+
+        {/* Bottom Contact Help Link */}
+        <div className="text-center pt-4">
+          <p className="text-slate-400 text-sm">
+            Have a question about specific plant machinery?{' '}
+            <button
+              onClick={onRequestDemo}
+              className="text-blue-400 hover:text-blue-300 font-semibold underline underline-offset-4"
+            >
+              Ask our engineering team directly &rarr;
+            </button>
+          </p>
         </div>
 
       </div>

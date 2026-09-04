@@ -49,11 +49,11 @@ export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
           </button>
 
           <button
-            onClick={onOpenDashboard}
+            onClick={onExploreProducts}
             className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 text-slate-200 hover:text-white font-semibold text-sm border border-blue-900/60 hover:border-blue-500/50 transition-all flex items-center justify-center gap-2"
           >
-            <LayoutDashboard className="w-4 h-4 text-blue-400" />
-            <span>View Live Dashboard</span>
+            <span>Explore Product Line</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

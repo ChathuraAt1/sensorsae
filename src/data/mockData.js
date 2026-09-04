@@ -87,6 +87,17 @@ export const marketingCaseStudies = [
     role: "Head of Turbine Reliability",
     metric: "$2.1M Saved / Year",
     badge: "Continuous Energy"
+  },
+  {
+    id: "petrochemical",
+    client: "EuroChem Energy Refining",
+    location: "Baton Rouge, Louisiana",
+    headline: "Zero pump seal blowouts across 18 months of high-pressure cracking",
+    story: "Automated cavitation suppression on our hydrocarbon feed pumps extended our mean time between rebuilds from 9 months to 34 months. The system paid for itself on our first scheduled turnaround.",
+    author: "Robert H.",
+    role: "Chief Reliability Engineer",
+    metric: "+320% MTBF Extension",
+    badge: "Petrochemical"
   }
 ];
 
