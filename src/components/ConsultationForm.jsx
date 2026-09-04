@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send, CheckCircle2, MapPin, Mail, Phone, Clock, ShieldCheck, Sparkles } from 'lucide-react';
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAEnOVjqrpsm3StEA';
 
 export const ConsultationForm = () => {
   const [formData, setFormData] = useState({
@@ -12,13 +14,69 @@ export const ConsultationForm = () => {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileContainerRef = useRef(null);
+  const widgetIdRef = useRef(null);
+
+  useEffect(() => {
+    let intervalId = null;
+
+    const renderWidget = () => {
+      if (window.turnstile && turnstileContainerRef.current && widgetIdRef.current === null) {
+        try {
+          widgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+            sitekey: TURNSTILE_SITE_KEY,
+            action: 'consultation',
+            theme: 'dark',
+            callback: (token) => {
+              setTurnstileToken(token);
+            },
+            'expired-callback': () => {
+              setTurnstileToken('');
+            },
+            'error-callback': () => {
+              setTurnstileToken('');
+            },
+          });
+        } catch (err) {
+          console.warn('Turnstile render warning:', err);
+        }
+      }
+    };
+
+    if (window.turnstile) {
+      renderWidget();
+    } else {
+      intervalId = setInterval(() => {
+        if (window.turnstile) {
+          clearInterval(intervalId);
+          renderWidget();
+        }
+      }, 200);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      if (widgetIdRef.current !== null && window.turnstile) {
+        try {
+          window.turnstile.remove(widgetIdRef.current);
+        } catch (_) {}
+        widgetIdRef.current = null;
+      }
+    };
+  }, [isSubmitted]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!turnstileToken) {
+      alert('Please complete the verification check before submitting.');
+      return;
+    }
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
+      setTurnstileToken('');
     }, 800);
   };
 
@@ -235,13 +293,32 @@ export const ConsultationForm = () => {
                   </div>
                 </div>
 
+                {/* Cloudflare Turnstile Verification */}
+                <div className="pt-2 flex flex-col items-center justify-center space-y-2">
+                  <div 
+                    ref={turnstileContainerRef} 
+                    className="min-h-[65px] flex items-center justify-center"
+                    data-action="consultation"
+                  ></div>
+                  <input type="hidden" name="cf-turnstile-response" value={turnstileToken} />
+                </div>
+
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-glow-sm hover:shadow-glow-md transition-all flex items-center justify-center gap-2"
+                  disabled={isSubmitting || !turnstileToken}
+                  className={`w-full py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                    !turnstileToken
+                      ? 'bg-slate-800/80 text-slate-400 border border-slate-700 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-glow-sm hover:shadow-glow-md'
+                  }`}
                 >
                   {isSubmitting ? (
                     <span>Processing Reservation...</span>
+                  ) : !turnstileToken ? (
+                    <span className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-blue-400" />
+                      <span>Complete Verification Above to Reserve</span>
+                    </span>
                   ) : (
                     <>
                       <span>Ship 30-Day Risk-Free Trial Kit</span>
