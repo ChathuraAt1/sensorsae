@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Cpu, ArrowUp, Send, CheckCircle2, ShieldCheck, Mail, Phone, MapPin } from 'lucide-react';
+import { Cpu, ArrowUp, Send, CheckCircle2, Building2, FileText, Download } from 'lucide-react';
+import { FaLinkedinIn, FaXTwitter, FaYoutube, FaGithub } from 'react-icons/fa6';
 
 export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
   const [emailInput, setEmailInput] = useState('');
@@ -153,29 +154,95 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             </ul>
           </div>
 
-          {/* Standards & Security Column (Spans 3 cols) */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
-              Security &amp; Standards
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>IEC 62443 Industrial Cybersecurity</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>ISO 10816 / 20816 Vibration Limits</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>ATEX Zone 2 / IECEx Certified</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>100% Air-Gapped / Zero Cloud Exposure</span>
-              </li>
-            </ul>
+          {/* Company Profile & Social Channels Column (Spans 3 cols) */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Company Profile Section */}
+            <div className="space-y-3">
+              <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+                Company Profile
+              </h4>
+              <ul className="space-y-2.5 text-xs">
+                <li>
+                  <button 
+                    onClick={() => onNavigate('about-company')} 
+                    className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors group text-left"
+                  >
+                    <Building2 className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <span>Executive Overview &amp; Story</span>
+                  </button>
+                </li>
+                <li>
+                  <a 
+                    href="#download-factsheet"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert('SENSORSAE Enterprise Factsheet & Profile is being prepared for download.');
+                    }}
+                    className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors group text-left"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <span>Download Company Factsheet</span>
+                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-blue-950 border border-blue-500/30 text-blue-400">PDF</span>
+                  </a>
+                </li>
+                <li className="text-[11px] text-slate-500 flex items-center gap-1.5 pt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>HQ: Austin, TX • R&amp;D: Detroit, MI</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Social Channels Section */}
+            <div className="space-y-3 pt-3 border-t border-slate-900">
+              <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+                Social Channels
+              </h4>
+              <div className="flex items-center gap-2.5">
+                <a
+                  href="https://www.linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="SENSORSAE LinkedIn"
+                  title="LinkedIn"
+                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                >
+                  <FaLinkedinIn className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </a>
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="SENSORSAE X (Twitter)"
+                  title="X (Twitter)"
+                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                >
+                  <FaXTwitter className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </a>
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="SENSORSAE YouTube"
+                  title="YouTube"
+                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                >
+                  <FaYoutube className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </a>
+                <a
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="SENSORSAE GitHub"
+                  title="GitHub"
+                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                >
+                  <FaGithub className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </a>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                Engineering dispatches &amp; firmware updates.
+              </p>
+            </div>
           </div>
 
         </div>
