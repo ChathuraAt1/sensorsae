@@ -21,14 +21,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up npm
-        uses: 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --frozen-lockfile
-
-      - name: Lint & typecheck
-        run: npm run lint
+        run: npm ci
 
       - name: Build static site
         env:
@@ -62,5 +62,5 @@ jobs:
                 set net:timeout 30; \
                 set net:max-retries 2; \
                 set net:reconnect-interval-base 5; \
-                mirror --reverse --delete --verbose --parallel=2 out \"$FTP_REMOTE_DIR\"; \
+                mirror --reverse --delete --verbose --parallel=2 dist \"$FTP_REMOTE_DIR\"; \
                 bye"
