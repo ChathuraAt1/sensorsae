@@ -101,19 +101,20 @@ export function App() {
               onExploreProducts={handleExploreProducts}
             />
 
-            {/* 3. Broken-Out Product Feature Sections with Industrial Photography */}
+            {/* 3. Interactive Capabilities Studio */}
             <ProductFeatures 
               onRequestDemo={handleRequestDemo}
               onExploreProducts={handleExploreProducts}
             />
 
-            {/* 4. Creative Masonry / Bento Grid Feature Showcase */}
-            <MasonryBento 
+            {/* 4. Dedicated About Company Section */}
+            <AboutCompany 
               onRequestDemo={handleRequestDemo}
+              onExploreProducts={handleExploreProducts}
             />
 
-            {/* 5. Dedicated About Company Section */}
-            <AboutCompany 
+            {/* 5. Creative Masonry / Bento Grid Feature Showcase */}
+            <MasonryBento 
               onRequestDemo={handleRequestDemo}
             />
 
