@@ -1,20 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { Cpu, Menu, X, ArrowRight, Package } from 'lucide-react';
 
+const NAV_ITEMS = [
+  { id: 'how-it-works', label: 'How It Works' },
+  { id: 'features', label: 'Features' },
+  { id: 'testimonials', label: 'Testimonials' },
+  { id: 'about-company', label: 'About Us' },
+  { id: 'faq', label: 'FAQ' },
+  { id: 'consultation', label: 'Contact' },
+];
+
 export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
 
+  // Track scroll state and active section in viewport
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+
+      if (currentView !== 'home') {
+        setActiveSection('');
+        return;
+      }
+
+      // If at the very top (Hero section), no section pill is highlighted
+      if (window.scrollY < 260) {
+        setActiveSection('');
+        return;
+      }
+
+      // Near page bottom, highlight contact
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      if (documentHeight - scrollPosition < 120) {
+        setActiveSection('consultation');
+        return;
+      }
+
+      // Calculate which section currently sits beneath the top navigation offset
+      const headerOffset = 160;
+      let currentActive = '';
+
+      for (const item of NAV_ITEMS) {
+        const el = document.getElementById(item.id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= headerOffset && rect.bottom > headerOffset) {
+            currentActive = item.id;
+            break;
+          }
+        }
+      }
+
+      // Fallback: closest section above header
+      if (!currentActive) {
+        for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
+          const el = document.getElementById(NAV_ITEMS[i].id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= headerOffset) {
+              currentActive = NAV_ITEMS[i].id;
+              break;
+            }
+          }
+        }
+      }
+
+      setActiveSection(currentActive);
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [currentView]);
 
   const handleNavClick = (sectionId) => {
     setMobileMenuOpen(false);
+    setActiveSection(sectionId);
     if (currentView !== 'home') {
       setCurrentView('home');
       setTimeout(() => {
@@ -38,7 +103,11 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Brand Logo */}
         <div 
-          onClick={() => { setCurrentView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          onClick={() => { 
+            setCurrentView('home'); 
+            setActiveSection('');
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+          }}
           className="flex items-center gap-3 cursor-pointer group"
         >
           <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-950/70 border border-blue-500/40 group-hover:border-blue-400 group-hover:shadow-glow-md transition-all duration-300">
@@ -60,44 +129,24 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
           </div>
         </div>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#0b0f19]/80 backdrop-blur-md px-5 py-1.5 rounded-full border border-blue-900/50 shadow-sm">
-          <button 
-            onClick={() => handleNavClick('how-it-works')}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-full transition-all"
-          >
-            How It Works
-          </button>
-          <button 
-            onClick={() => handleNavClick('features')}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-full transition-all"
-          >
-            Features
-          </button>
-          <button 
-            onClick={() => handleNavClick('testimonials')}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-full transition-all"
-          >
-            Testimonials
-          </button>
-          <button 
-            onClick={() => handleNavClick('about-company')}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-full transition-all"
-          >
-            About Us
-          </button>
-          <button 
-            onClick={() => handleNavClick('faq')}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-full transition-all"
-          >
-            FAQ
-          </button>
-          <button 
-            onClick={() => handleNavClick('consultation')}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-full transition-all"
-          >
-            Contact
-          </button>
+        {/* Desktop Navigation Links with Active Scroll Highlighting */}
+        <nav className="hidden md:flex items-center gap-1 bg-[#0b0f19]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-blue-900/50 shadow-sm">
+          {NAV_ITEMS.map((item) => {
+            const isActive = currentView === 'home' && activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 relative ${
+                  isActive
+                    ? 'text-white bg-blue-600 shadow-glow-sm font-bold scale-105 border border-blue-400/40'
+                    : 'text-slate-300 hover:text-white hover:bg-blue-950/50'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
 
         {/* MAIN HEADER CTA: Product Page Toggle */}
@@ -153,46 +202,29 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer Menu with Active Highlighting */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#06080d]/98 border-b border-blue-900/60 px-6 py-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col space-y-3 font-medium text-base">
-            <button 
-              onClick={() => handleNavClick('how-it-works')} 
-              className="text-left py-1 text-slate-200 hover:text-blue-400 transition-colors"
-            >
-              How It Works
-            </button>
-            <button 
-              onClick={() => handleNavClick('features')} 
-              className="text-left py-1 text-slate-200 hover:text-blue-400 transition-colors"
-            >
-              Features
-            </button>
-            <button 
-              onClick={() => handleNavClick('testimonials')} 
-              className="text-left py-1 text-slate-200 hover:text-blue-400 transition-colors"
-            >
-              Testimonials
-            </button>
-            <button 
-              onClick={() => handleNavClick('about-company')} 
-              className="text-left py-1 text-slate-200 hover:text-blue-400 transition-colors"
-            >
-              About SENSORSAE
-            </button>
-            <button 
-              onClick={() => handleNavClick('faq')} 
-              className="text-left py-1 text-slate-200 hover:text-blue-400 transition-colors"
-            >
-              FAQ
-            </button>
-            <button 
-              onClick={() => handleNavClick('consultation')} 
-              className="text-left py-1 text-slate-200 hover:text-blue-400 transition-colors"
-            >
-              Contact &amp; Location
-            </button>
+          <div className="flex flex-col space-y-2 font-medium text-sm">
+            {NAV_ITEMS.map((item) => {
+              const isActive = currentView === 'home' && activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`text-left py-2.5 px-3 rounded-xl transition-all flex items-center justify-between ${
+                    isActive
+                      ? 'bg-blue-950/80 border border-blue-500/40 text-blue-400 font-bold'
+                      : 'text-slate-200 hover:text-blue-400'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {isActive && (
+                    <span className="w-2 h-2 rounded-full bg-blue-400 shadow-glow-sm"></span>
+                  )}
+                </button>
+              );
+            })}
             
             {/* Primary Mobile CTA */}
             <button 
