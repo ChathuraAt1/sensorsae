@@ -1,35 +1,28 @@
 import React from 'react';
-import { ArrowRight, ShieldCheck, Cpu, Building2, MapPin, Award, CheckCircle2, FileText } from 'lucide-react';
+import { ArrowRight, Building2, MapPin, FileText } from 'lucide-react';
 
-export const AboutCompany = ({ onRequestDemo, onExploreProducts }) => {
-  const companyMetrics = [
-    { value: "148,000+", label: "Monitored Machines Globally", note: "+14% MoM Deployment" },
-    { value: "3.84 ms", label: "Local Edge Inference Latency", note: "Nvidia Orin™ Powered" },
-    { value: "99.98%", label: "Root-Cause Accuracy", note: "Zero False Positives / Wk" },
-    { value: "$42.8M", label: "Customer Downtime Avoided", note: "Verified ROI in 2025" },
-  ];
-
+export const AboutCompany = ({ onRequestDemo }) => {
   const pillars = [
     {
       kicker: "OUR ORIGIN",
       title: "Born on the Assembly Line",
-      description: "Founded by veteran plant engineers who lived through midnight gearbox seizures, scrambled repair shifts, and lost production quotas. We built SENSORSAE to give plant leaders the exact tool we wished we had 10 years ago.",
+      description: "Founded by veteran plant maintenance engineers who experienced the frustration of midnight bearing seizures and halted production shifts. We built SENSORSAE to give operations leaders simple, early warnings before damage spreads.",
       image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80",
       tag: "Engineered by Operators",
     },
     {
       kicker: "SECURITY POSTURE",
       title: "100% Air-Gapped & Sovereign",
-      description: "We believe industrial telemetry belongs exclusively to the manufacturer. Our system operates completely on-premises with zero mandatory internet uplinks, TPM 2.0 cryptographic trust, and total air-gap compliance.",
+      description: "Industrial telemetry belongs exclusively to the manufacturer. Our system operates entirely on-premises inside your OT network, with zero mandatory cloud uplinks and full air-gap compliance.",
       image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
       tag: "Zero Cloud Exposure",
     },
     {
       kicker: "PRAGMATIC SIMPLICITY",
-      title: "Plain English, Not Pure Math",
-      description: "You shouldn't need a PhD in FFT harmonic analysis to maintain a pump. SENSORSAE automatically converts 2.4 million sensor readings per second into clear, prioritized work orders sent directly to maintenance radios.",
+      title: "Plain English Work Orders",
+      description: "You shouldn't need a specialist in vibration physics to maintain a motor. SENSORSAE automatically converts complex machine frequencies into clear, prioritized work orders sent directly to maintenance radios.",
       image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
-      tag: "Actionable Work Orders",
+      tag: "Actionable Maintenance",
     }
   ];
 
@@ -46,18 +39,18 @@ export const AboutCompany = ({ onRequestDemo, onExploreProducts }) => {
     },
     {
       city: "San Jose, California",
-      role: "Optics & Edge Compute Innovation",
-      detail: "Nvidia Industrial Ecosystem Partner Hub",
+      role: "Optics & Sensor Fusion Center",
+      detail: "High-Speed Hardware Testing Lab",
     }
   ];
 
   return (
-    <section id="about-company" className="py-24 bg-[#06080d] border-t border-b border-blue-950/40 relative overflow-hidden">
+    <section id="about-company" className="py-20 bg-[#06080d] border-t border-b border-blue-950/40 relative overflow-hidden">
       {/* Ambient Lighting */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-6 space-y-20 relative">
+      <div className="max-w-7xl mx-auto px-6 space-y-16 relative">
         
         {/* Editorial Section Header */}
         <div className="max-w-3xl space-y-4">
@@ -70,31 +63,11 @@ export const AboutCompany = ({ onRequestDemo, onExploreProducts }) => {
             Built to End Emergency Breakdowns.
           </h2>
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-            We are reliability engineers, embedded hardware specialists, and edge AI researchers dedicated to making industrial machinery self-diagnosing, autonomous, and 100% dependable.
+            We are reliability engineers, hardware designers, and industrial technicians dedicated to making manufacturing machinery dependable, predictable, and simple to monitor.
           </p>
         </div>
 
-        {/* 4-Stat Credibility Metric Ticker */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {companyMetrics.map((stat, idx) => (
-            <div 
-              key={idx}
-              className="p-6 rounded-2xl bg-[#0b0f19] border border-blue-950/80 hover:border-blue-500/40 transition-all group shadow-sm"
-            >
-              <span className="text-3xl sm:text-4xl font-black text-white font-mono block tracking-tight group-hover:text-blue-400 transition-colors">
-                {stat.value}
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-200 block mt-1">
-                {stat.label}
-              </span>
-              <span className="font-mono text-[11px] text-blue-400/80 block mt-2">
-                {stat.note}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* 3 Core Pillars with Photography */}
+        {/* 3 Core Pillars with Clean Photography */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {pillars.map((pillar, idx) => (
             <div 
@@ -139,10 +112,10 @@ export const AboutCompany = ({ onRequestDemo, onExploreProducts }) => {
                 ENGINEERING FACILITIES &amp; LABS
               </span>
               <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Designed, assembled, and validated in North America.
+                Designed, assembled, and supported in North America.
               </h3>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                From high-speed acoustic test benches in Detroit to edge tensor optimization labs in Austin, our multidisciplinary team supports 24/7 manufacturing plants across the Americas, Europe, and Asia-Pacific.
+                From high-speed acoustic test benches in Detroit to sensor engineering labs in Austin, our team supports continuous plant reliability across operating facilities.
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -157,7 +130,7 @@ export const AboutCompany = ({ onRequestDemo, onExploreProducts }) => {
                   href="#download-factsheet"
                   onClick={(e) => {
                     e.preventDefault();
-                    alert('SENSORSAE Enterprise Factsheet & 2026 Company Profile is ready for download.');
+                    alert('SENSORSAE Enterprise Factsheet is ready for download.');
                   }}
                   className="px-5 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-mono text-xs border border-slate-800 transition-all flex items-center gap-2"
                 >

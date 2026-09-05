@@ -124,7 +124,7 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
             <span className="font-mono text-[9px] tracking-widest text-slate-400 uppercase -mt-1 flex items-center gap-1">
               <span>PREDICTIVE IOT</span>
               <span className="text-blue-500">•</span>
-              <span className="text-blue-400">NVIDIA ORIN</span>
+              <span className="text-blue-400">SENSOR INTELLIGENCE</span>
             </span>
           </div>
         </div>

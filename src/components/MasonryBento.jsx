@@ -97,31 +97,32 @@ export const MasonryBento = () => {
           </div>
 
           {/* Card 4: Economic ROI (Spans 2 cols on lg) */}
+          {/* Card 4: Practical Operational Value (Spans 2 cols on lg) */}
           <div className="lg:col-span-2 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 hover:border-blue-500/40 transition-all">
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="text-2xl font-bold text-white">
-                $14.2M in Prevented Equipment Damage
+                Protect Critical Drive Trains &amp; Spindles
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed max-w-xl">
-                Preventing just one catastrophic bearing seizure typically recoups the entire SENSORSAE investment within the first 60 days.
+                Preventing a single unexpected machine seizure protects production schedules and pays for your monitoring hardware during your very first maintenance cycle.
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800/80 font-mono text-center">
               <div>
-                <div className="text-xl font-bold text-white">&lt; 90 Days</div>
-                <div className="text-[10px] text-slate-400 uppercase">Avg Payback</div>
+                <div className="text-sm font-bold text-white">Fast Deployment</div>
+                <div className="text-[10px] text-slate-400 uppercase">Magnetic Mount</div>
               </div>
               <div>
-                <div className="text-xl font-bold text-blue-400">-78%</div>
-                <div className="text-[10px] text-slate-400 uppercase">Micro-Stoppages</div>
+                <div className="text-sm font-bold text-blue-400">Early Warning</div>
+                <div className="text-[10px] text-slate-400 uppercase">Acoustic Triaxial</div>
               </div>
               <div>
-                <div className="text-xl font-bold text-white">100%</div>
-                <div className="text-[10px] text-slate-400 uppercase">On-Time Orders</div>
+                <div className="text-sm font-bold text-white">Zero Cloud</div>
+                <div className="text-[10px] text-slate-400 uppercase">Local On-Prem</div>
               </div>
             </div>
           </div>

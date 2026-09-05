@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Activity, BrainCircuit, Eye, Zap, CheckCircle2, Sparkles, Shield, ChevronRight } from 'lucide-react';
+import { ArrowRight, Activity, BrainCircuit, Eye, Zap, CheckCircle2 } from 'lucide-react';
 
 export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -7,41 +7,37 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
   const capabilities = [
     {
       id: "ultrasonic",
-      tabTitle: "24/7 Ultrasonic Mesh",
+      tabTitle: "Acoustic & Vibration",
       icon: Activity,
       kicker: "01 / CONTINUOUS VISIBILITY",
       title: "High-Frequency Acoustic & Vibration Telemetry",
-      tagline: "Hear micro-friction 30 days before parts overheat or seize.",
-      description: "Standard vibration sensors only alert you after bearing damage causes heavy oscillations. SENSORSAE's 192 kHz ultrasonic listening arrays capture micro-acoustic friction at the earliest stage of lubrication breakdown, giving your team weeks of notice to schedule regular maintenance.",
+      tagline: "Detect micro-friction weeks before parts overheat or seize.",
+      description: "Standard sensors only alert you after bearing damage causes heavy oscillations. SENSORSAE's high-frequency acoustic listening arrays capture micro-friction at early stages of lubrication breakdown, giving your team time to schedule maintenance during regular shift transitions.",
       highlights: [
-        "192 kHz / 24-bit high-resolution ultrasonic sampling",
-        "Sub-micron precision displacement & harmonic tracking",
-        "Tri-axial accelerometer + internal piezoelectric acoustic mic",
-        "Automated ISO 10816 / 20816 velocity severity scoring"
+        "High-resolution vibration and acoustic sampling",
+        "Continuous displacement and harmonic frequency tracking",
+        "Tri-axial accelerometer with integrated acoustic sensor",
+        "Automated ISO 10816 / 20816 velocity severity guidelines"
       ],
-      metric: "+30 Days",
-      metricLabel: "Earliest Anomaly Warning Window",
-      badge: "STREAMING: 192 kHz NOMINAL",
+      benefitSummary: "Tri-Axial Vibration • Acoustic Sensor • Early Wear Detection",
       image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80",
-      imageAlt: "Ultrasonic vibration monitoring on precision machinery"
+      imageAlt: "Vibration monitoring on precision industrial machinery"
     },
     {
       id: "ai-copilot",
-      tabTitle: "AI Root-Cause Copilot",
+      tabTitle: "Plain-English Alerts",
       icon: BrainCircuit,
-      kicker: "02 / ROOT-CAUSE INTELLIGENCE",
+      kicker: "02 / ACTIONABLE INTELLIGENCE",
       title: "Plain-English Diagnostics Instead of Complex Charts",
-      tagline: "Translating 2.4 million sensor points into 1 clear repair action.",
-      description: "Factory technicians shouldn't need a PhD in signal processing to understand machine alerts. SENSORSAE's edge neural models interpret harmonic spectrums locally and dispatch clear, actionable repair recommendations directly to maintenance radios and smartphones.",
+      tagline: "Translates complex frequency spectrums into clear work orders.",
+      description: "Factory technicians shouldn't need a specialist in digital signal processing to understand machine alerts. SENSORSAE's local diagnostic engine interprets vibration signatures and dispatches clear, actionable repair recommendations directly to maintenance tablets and smartphones.",
       highlights: [
-        "Zero raw waveform decoding required by field technicians",
-        "Instant WhatsApp, SMS, Slack, and SAP CMMS dispatch",
-        "Deterministic root cause: cavitation vs unbalance vs misalignment",
-        "100% on-premise local inference with zero cloud dependency"
+        "No manual waveform decoding required by field technicians",
+        "Instant SMS, WhatsApp, Slack, and email notifications",
+        "Clear fault isolation: cavitation, unbalance, or shaft misalignment",
+        "100% on-premise evaluation with zero cloud dependence"
       ],
-      metric: "99.98%",
-      metricLabel: "Zero False-Alarm Confidence",
-      badge: "LOCAL INFERENCE: < 3.8ms",
+      benefitSummary: "Actionable Work Orders • Multi-Channel Dispatch • Zero Cloud Required",
       image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
       imageAlt: "Technician reviewing plain-English alert on mobile tablet"
     },
@@ -51,37 +47,33 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
       icon: Eye,
       kicker: "03 / NON-CONTACT OPTICS",
       title: "Radiometric Hot-Spot & Thermal Boundary Inspection",
-      tagline: "Safely monitor high-voltage lines and pump seals from 30 meters.",
-      description: "Continuous long-wave infrared (LWIR) optical cameras detect overheating motor windings, loose electrical busbars, and pump seal leaks safely from a distance. Spatial AI automatically tracks regions of interest without requiring physical contact with hazardous machinery.",
+      tagline: "Safely monitor high-voltage lines and pump seals from a distance.",
+      description: "Continuous long-wave infrared (LWIR) optical cameras detect overheating motor windings, loose electrical busbars, and pump seal leaks safely from a standoff distance without requiring physical contact with dangerous or moving machinery.",
       highlights: [
-        "-40°C to +1,200°C calibrated radiometric temperature range",
-        "±0.5°C thermal precision with differential delta thresholding",
-        "Automated hot-spot bounding boxes & thermal runaway alerts",
-        "ATEX Zone 2 hazardous environment rated enclosures"
+        "Calibrated radiometric temperature tracking across wide operating ranges",
+        "Continuous thermal delta and differential thresholding",
+        "Automated hot-spot bounding boxes and temperature boundary alerts",
+        "Designed for hazardous industrial plant environments"
       ],
-      metric: "30 Meters",
-      metricLabel: "Safe Non-Contact Standoff Distance",
-      badge: "OPTICAL RADIOMETRY: CALIBRATED",
+      benefitSummary: "Non-Contact Stand-Off • Hot-Spot Tracking • Thermal Boundary Alerts",
       image: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80",
       imageAlt: "Radiometric thermal inspection of electrical and pump systems"
     },
     {
       id: "magnetic-pods",
-      tabTitle: "Magnetic Edge Pods",
+      tabTitle: "Magnetic Snap-On",
       icon: Zap,
       kicker: "04 / RAPID DEPLOYMENT",
-      title: "Snap-On Deployment in 45 Minutes with Zero Downtime",
+      title: "Quick Snap-On Deployment with Zero Downtime",
       tagline: "No conduit routing, no drilling, and no production line pauses.",
-      description: "Engineered specifically for operating factory floors where halting a production line costs tens of thousands of dollars per minute. Neodymium magnetic bases snap firmly onto any cast iron or steel motor housing, immediately meshing with your plant network.",
+      description: "Engineered specifically for operating factory floors where halting a production line is costly. High-strength magnetic bases attach securely onto cast iron or steel motor housings, communicating immediately with your local plant hub.",
       highlights: [
-        "120 kg high-strength neodymium magnetic breakaway mount",
-        "5+ Year field-replaceable lithium thionyl chloride battery",
-        "IP67 sealed waterproof, chemical, and vibration-proof chassis",
-        "Sub-GHz industrial wireless mesh with 1.2 km line-of-sight range"
+        "High-strength industrial magnetic breakaway mount",
+        "Multi-year field-replaceable battery for untethered operation",
+        "IP67 sealed waterproof, chemical, and vibration-resistant chassis",
+        "Industrial wireless mesh with long-range plant coverage"
       ],
-      metric: "< 45 Min",
-      metricLabel: "Turnkey Plant Setup Window",
-      badge: "MESH LINK: 100% NOMINAL",
+      benefitSummary: "Magnetic Mount • Multi-Year Battery • IP67 Industrial Chassis",
       image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
       imageAlt: "Industrial technician mounting magnetic edge sensor pod"
     }
@@ -91,27 +83,24 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
   const IconComponent = current.icon;
 
   return (
-    <section id="features" className="py-24 bg-[#080c14] border-y border-blue-950/40 relative">
-      {/* Background Ambience */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="max-w-7xl mx-auto px-6 space-y-16 relative">
+    <section id="features" className="py-20 bg-[#080c14] border-y border-blue-950/40 relative">
+      <div className="max-w-7xl mx-auto px-6 space-y-12 relative">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
           <span className="font-mono text-xs uppercase tracking-widest text-blue-400 font-semibold px-3 py-1 rounded-full bg-blue-950/50 border border-blue-500/30">
             SYSTEM CAPABILITIES
           </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-            Engineered for Zero Downtime.
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+            Built for Practical Plant Operations.
           </h2>
           <p className="text-slate-400 text-base max-w-xl mx-auto">
-            Explore the 4 core pillars that make SENSORSAE the industry standard for predictive plant reliability.
+            Explore the core monitoring capabilities designed to keep factory equipment running smoothly.
           </p>
         </div>
 
-        {/* Interactive Capability Navigation Tabs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl mx-auto">
+        {/* Interactive Capability Tabs */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
           {capabilities.map((cap, idx) => {
             const TabIcon = cap.icon;
             const isSelected = activeTab === idx;
@@ -119,13 +108,13 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
               <button
                 key={cap.id}
                 onClick={() => setActiveTab(idx)}
-                className={`p-4 rounded-2xl border text-left transition-all duration-300 flex items-center gap-3 relative group ${
+                className={`p-3.5 rounded-2xl border text-left transition-all duration-300 flex items-center gap-3 relative group ${
                   isSelected
                     ? 'bg-blue-950/70 border-blue-400 shadow-glow-sm text-white'
                     : 'bg-[#0b0f19]/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-blue-900/60'
                 }`}
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all ${
                   isSelected 
                     ? 'bg-blue-600 text-white shadow-glow-sm' 
                     : 'bg-slate-900 text-blue-400 group-hover:bg-blue-950/80'
@@ -133,45 +122,42 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
                   <TabIcon className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="font-mono text-[10px] text-blue-400/80 block font-semibold">
-                    0{idx + 1}
-                  </span>
                   <span className="text-xs font-bold block leading-snug">
                     {cap.tabTitle}
                   </span>
                 </div>
                 {isSelected && (
-                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-400 rounded-full"></span>
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-1 bg-blue-400 rounded-full"></span>
                 )}
               </button>
             );
           })}
         </div>
 
-        {/* Feature Interactive Showcase Console */}
-        <div className="rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-8 lg:p-12 shadow-glow-sm overflow-hidden relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+        {/* Feature Presentation Console */}
+        <div className="rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-8 lg:p-10 shadow-glow-sm overflow-hidden relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* Left Content Column */}
-            <div className="lg:col-span-6 space-y-6">
-              <div className="space-y-3">
+            <div className="lg:col-span-6 space-y-5">
+              <div className="space-y-2.5">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950 border border-blue-500/30 text-blue-400 font-mono text-xs">
                   <IconComponent className="w-3.5 h-3.5" />
                   <span>{current.kicker}</span>
                 </div>
-                <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
                   {current.title}
                 </h3>
                 <p className="text-blue-300 font-medium text-sm">
                   {current.tagline}
                 </p>
-                <p className="text-slate-400 text-sm leading-relaxed pt-1">
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed pt-1">
                   {current.description}
                 </p>
               </div>
 
-              {/* Technical Highlights Checklist */}
-              <div className="space-y-2.5 pt-2">
+              {/* Technical Highlights */}
+              <div className="space-y-2 pt-1">
                 {current.highlights.map((point, pIdx) => (
                   <div key={pIdx} className="flex items-start gap-2.5 text-xs text-slate-300">
                     <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
@@ -180,15 +166,10 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
                 ))}
               </div>
 
-              {/* Impact Metric Card & CTAs */}
-              <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-slate-800">
-                <div className="space-y-1">
-                  <span className="text-3xl font-black text-white font-mono text-glow">
-                    {current.metric}
-                  </span>
-                  <span className="text-xs text-slate-400 block font-mono">
-                    {current.metricLabel}
-                  </span>
+              {/* Clean Benefit Summary & CTAs */}
+              <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-slate-800">
+                <div className="font-mono text-xs text-slate-400">
+                  {current.benefitSummary}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -217,20 +198,14 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
                 <img 
                   src={current.image} 
                   alt={current.imageAlt}
-                  className="w-full h-80 sm:h-[420px] object-cover object-center brightness-95 group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-72 sm:h-96 object-cover object-center brightness-95 group-hover:scale-105 transition-transform duration-500"
                 />
 
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#06080d]/90 via-[#06080d]/20 to-transparent pointer-events-none"></div>
+                {/* Subtle Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#06080d]/80 via-transparent to-transparent pointer-events-none"></div>
 
-                {/* Live Telemetry Floating Status Tag */}
-                <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#06080d]/80 backdrop-blur-md border border-blue-500/40 text-slate-200 font-mono text-[11px]">
-                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
-                  <span>{current.badge}</span>
-                </div>
-
-                {/* Bottom Quick Indicator Switcher */}
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between bg-[#06080d]/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 text-xs">
+                {/* Bottom Quick Switcher */}
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between bg-[#06080d]/85 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-800 text-xs">
                   <span className="text-slate-400 font-mono text-[11px]">
                     Viewing capability <strong className="text-white">{activeTab + 1} of 4</strong>
                   </span>
