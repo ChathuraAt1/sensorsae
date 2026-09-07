@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowLeft, ArrowRight, CheckCircle2, LayoutDashboard, 
-  Cpu, Layers, ShieldCheck, Eye, Activity, Zap, Radio, Box, Network, HardDrive, Terminal
+  Cpu, Layers, ShieldCheck, Eye, Activity, Zap, Radio, Box, Network, HardDrive, Terminal,
+  Sliders, Wrench, Settings, AlertTriangle, FileText, Check, RotateCcw, Compass, Server, Workflow,
+  Thermometer, Volume2, HelpCircle
 } from 'lucide-react';
 
 export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) => {
+  const [activeAppIndex, setActiveAppIndex] = useState(0);
+  const [pilotMachines, setPilotMachines] = useState(5);
+  const [pilotEquipment, setPilotEquipment] = useState('Pumps & Motors');
+  const [expandedFaq, setExpandedFaq] = useState(null);
+
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -16,11 +23,99 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
     { label: "AI Copilot", id: "prod-copilot" },
     { label: "Thermal Guard", id: "prod-thermal" },
     { label: "Nvidia Orin Stack", id: "prod-orin" },
+    { label: "Signal DSP & Physics", id: "prod-dsp" },
+    { label: "Target Machinery", id: "prod-applications" },
+    { label: "Installation Flow", id: "prod-installation" },
     { label: "Protocols & SCADA", id: "prod-protocols" },
     { label: "Cybersecurity", id: "prod-security" },
+    { label: "Environmental Specs", id: "prod-environmental" },
     { label: "Evaluation Kit", id: "prod-starter-kit" },
-    { label: "Specifications", id: "prod-comparison" }
+    { label: "Pilot Sizing Tool", id: "prod-calculator" },
+    { label: "Specifications", id: "prod-comparison" },
+    { label: "Engineering FAQ", id: "prod-faq" }
   ];
+
+  const machineApplications = [
+    {
+      id: "pumps",
+      name: "Centrifugal & Slurry Pumps",
+      category: "Fluid Handling",
+      failureModes: "Impeller cavitation, seal friction, shaft deflection, bearing race fatigue.",
+      earlySymptom: "High-frequency ultrasonic noise spikes (20 kHz–80 kHz) indicative of micro-bubble collapse 3–6 weeks before thermal rise.",
+      sensorSetup: "2x Wireless Magnetic Pods (drive-end & non-drive-end bearings) + 1x Thermal Guard camera pointed at mechanical seal gland.",
+      photo: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      id: "motors",
+      name: "AC Induction Motors & VFDs",
+      category: "Rotary Power",
+      failureModes: "Stator winding hotspots, rotor bar cracking, phase unbalance, electrical bearing fluting.",
+      earlySymptom: "Sideband harmonic modulation around 2x line frequency (120 Hz) and high-frequency EDM discharge signatures.",
+      sensorSetup: "1x Wireless Magnetic Pod on motor drive-end casing + integration with motor drive current telemetry over Modbus TCP.",
+      photo: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      id: "gearboxes",
+      name: "Helical & Planetary Gearboxes",
+      category: "Power Transmission",
+      failureModes: "Gear tooth micro-pitting, gear backlash, shaft misalignment, lubricating oil breakdown.",
+      earlySymptom: "Gear mesh frequency (GMF) sideband energy elevation and high crest factor time-waveform peaks.",
+      sensorSetup: "2x Wireless Magnetic Pods positioned orthogonal to gear mesh plane + 1x Pt100 RTD oil sump probe.",
+      photo: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      id: "cnc",
+      name: "CNC High-Speed Spindles",
+      category: "Precision Machining",
+      failureModes: "Ceramic hybrid ball bearing spalling, toolholder runout, drawbar spring degradation.",
+      earlySymptom: "Sub-harmonic vibration emergence in 5 kHz–15 kHz band causing micro-chatter on finished surface tolerances.",
+      sensorSetup: "1x Hardwired IEPE accelerometer on spindle nose + 1x Thermal Guard inspecting tool changer collets.",
+      photo: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      id: "compressors",
+      name: "Screw & Reciprocating Compressors",
+      category: "Gas & Air Compression",
+      failureModes: "Rotor lobe wear, valve plate flutter, cylinder lubrication starvation, stage pressure surge.",
+      earlySymptom: "Transient acoustic emission clicks during intake stroke prior to discharge temperature rise.",
+      sensorSetup: "4x Wireless Magnetic Pods monitoring both compression stages and motor bearings.",
+      photo: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      id: "conveyors",
+      name: "Conveyors & Overhead Monorails",
+      category: "Material Logistics",
+      failureModes: "Idler roller seizure, drive sprocket tooth wear, carrier bearing overheating.",
+      earlySymptom: "Localized thermal friction delta-T above 15°C detected by automated optical patrol camera.",
+      sensorSetup: "Thermal Vision Guard with continuous multi-point region-of-interest (ROI) monitoring.",
+      photo: "https://images.unsplash.com/photo-158109226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80"
+    }
+  ];
+
+  const engineeringFaqs = [
+    {
+      q: "How does SENSORSAE handle Variable Frequency Drives (VFD) where motor speed changes continuously?",
+      a: "Standard vibration systems fail on VFDs because fixed frequency bins smear across speeds. SENSORSAE's edge algorithms compute automated order tracking, normalizing vibration frequencies relative to real-time rotational speed (1X, 2X, 3X running speed). Whether your motor operates at 400 RPM or 3,600 RPM, baseline anomaly thresholds automatically adjust."
+    },
+    {
+      q: "Can SENSORSAE monitor slow-speed rotating machinery (under 60 RPM)?",
+      a: "Yes. For slow-speed equipment such as kiln drives, clarifiers, and slew rings, conventional velocity metrics produce low energy signals. SENSORSAE utilizes high-frequency acoustic demodulation (PeakVue / stress wave detection up to 192 kHz) to detect the micro-shocks of metal-on-metal impact long before low-frequency vibration emerges."
+    },
+    {
+      q: "What happens during a plant power failure or temporary network outage?",
+      a: "The Edge-X1 Hub contains an industrial solid-state NVMe ring buffer and onboard supercapacitor backup. If network connectivity to the plant SCADA or local LAN is lost, the hub continues ingesting, timestamping, and processing all wireless pod streams autonomously for up to 90 days. When network connectivity restores, all historical logs synchronize seamlessly."
+    },
+    {
+      q: "Does any machine telemetry ever leave our physical plant network?",
+      a: "No. The entire system is engineered for 100% on-premises, air-gapped security. All neural model inferences, FFT transformations, and LLM Copilot reasoning run directly on the local Nvidia Jetson Orin silicon inside the Edge-X1 hardware. There are zero mandatory outbound ports, zero cloud sync requirements, and zero third-party telemetry exposure."
+    },
+    {
+      q: "How difficult is it to integrate with our existing SAP PM or IBM Maximo CMMS?",
+      a: "SENSORSAE includes native REST and webhook connectors for major maintenance software including SAP Plant Maintenance (PM), IBM Maximo, eMaint, and MaintainX. When a verified failure threshold is breached, SENSORSAE automatically generates a draft work order containing the equipment ID, fault classification, suggested replacement part numbers, and severity level."
+    }
+  ];
+
+  const currentApp = machineApplications[activeAppIndex];
 
   return (
     <div className="min-h-screen pt-32 pb-24 bg-[#06080d] text-slate-100 font-sans">
@@ -69,7 +164,7 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
               <button
                 key={idx}
                 onClick={() => scrollToSection(item.id)}
-                className="px-4 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-xs font-mono text-slate-300 hover:text-white transition-all"
+                className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-xs font-mono text-slate-300 hover:text-white transition-all"
               >
                 {item.label}
               </button>
@@ -406,7 +501,194 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
         </section>
 
         {/* ============================================================ */}
-        {/* SECTION 6: INDUSTRIAL PROTOCOLS & SCADA INTEGRATION */}
+        {/* SECTION 6: SIGNAL DSP & VIBRATION PHYSICS (NEW) */}
+        {/* ============================================================ */}
+        <section id="prod-dsp" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
+          <div className="max-w-3xl space-y-3">
+            <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
+              MATHEMATICAL &amp; PHYSICAL METHODOLOGY
+            </span>
+            <h2 className="text-3xl font-bold text-white tracking-tight">
+              Acoustic Demodulation &amp; Harmonic Order DSP
+            </h2>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              How SENSORSAE isolates sub-surface fatigue weeks before conventional vibration sensors notice bulk oscillations.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 font-sans text-xs">
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-2.5">
+              <Volume2 className="w-5 h-5 text-blue-400" />
+              <h3 className="font-bold text-white text-sm">Envelope Demodulation</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Filters out low-frequency structural machine noise, isolating repetitive micro-impacts generated by rolling elements striking microscopic race fissures.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-2.5">
+              <Activity className="w-5 h-5 text-blue-400" />
+              <h3 className="font-bold text-white text-sm">ISO 10816 / 20816 Scoring</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Calculates true root-mean-square (RMS) vibration velocity (mm/s and in/s) against ISO severity charts for Class I, II, III, and IV machinery.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-2.5">
+              <Compass className="w-5 h-5 text-blue-400" />
+              <h3 className="font-bold text-white text-sm">Automated Order Tracking</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Normalizes dynamic machine speed variations on VFDs into exact shaft rotational multiples (1X unbalance, 2X misalignment, GMF gear mesh).
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-2.5">
+              <Sliders className="w-5 h-5 text-blue-400" />
+              <h3 className="font-bold text-white text-sm">Kurtosis &amp; Crest Factor</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Statistical wave-shape analysis calculating peak-to-RMS ratios to distinguish sharp cavitation impacts from normal background motor hum.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* SECTION 7: TARGET MACHINERY DIRECTORY (NEW) */}
+        {/* ============================================================ */}
+        <section id="prod-applications" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-3">
+              <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
+                APPLICATION DIRECTORY
+              </span>
+              <h2 className="text-3xl font-bold text-white tracking-tight">
+                Engineered for Critical Factory Equipment
+              </h2>
+              <p className="text-slate-400 text-sm max-w-xl">
+                Select an equipment family below to explore typical failure modes and recommended sensor deployment.
+              </p>
+            </div>
+
+            <span className="font-mono text-xs text-blue-400 shrink-0">
+              {activeAppIndex + 1} of {machineApplications.length} Equipment Types
+            </span>
+          </div>
+
+          {/* Machine Category Pills */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {machineApplications.map((app, idx) => (
+              <button
+                key={app.id}
+                onClick={() => setActiveAppIndex(idx)}
+                className={`px-4 py-2 rounded-xl text-xs font-mono whitespace-nowrap transition-all border shrink-0 ${
+                  activeAppIndex === idx
+                    ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-glow-sm'
+                    : 'bg-[#06080d] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                }`}
+              >
+                {app.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Active Equipment Deep Dive Card */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-2xl bg-[#06080d] border border-slate-800 p-6 sm:p-8">
+            <div className="lg:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950 text-blue-300 font-mono text-[11px] border border-blue-500/30">
+                <span>CATEGORY: {currentApp.category}</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white">
+                {currentApp.name}
+              </h3>
+              
+              <div className="space-y-3 text-xs text-slate-300">
+                <div>
+                  <span className="text-slate-500 font-mono block text-[10px] uppercase">PRIMARY FAILURE MODES:</span>
+                  <p className="text-slate-200 mt-0.5">{currentApp.failureModes}</p>
+                </div>
+
+                <div>
+                  <span className="text-blue-400 font-mono block text-[10px] uppercase">EARLIEST DETECTABLE SYMPTOM:</span>
+                  <p className="text-slate-300 mt-0.5">{currentApp.earlySymptom}</p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-[#0b0f19] border border-slate-800">
+                  <span className="text-slate-400 font-mono block text-[10px] uppercase">RECOMMENDED SENSOR ARCHITECTURE:</span>
+                  <p className="text-white font-medium mt-1">{currentApp.sensorSetup}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 rounded-xl overflow-hidden border border-slate-800 h-64 sm:h-72">
+              <img 
+                src={currentApp.photo} 
+                alt={currentApp.name} 
+                className="w-full h-full object-cover object-center brightness-90"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* SECTION 8: STEP-BY-STEP RETROFIT WORKFLOW (NEW) */}
+        {/* ============================================================ */}
+        <section id="prod-installation" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
+          <div className="max-w-3xl space-y-3">
+            <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
+              ZERO-DOWNTIME COMMISSIONING
+            </span>
+            <h2 className="text-3xl font-bold text-white tracking-tight">
+              From Unboxing to First Telemetry in 45 Minutes
+            </h2>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              No cable pulling, no drilling into machine casings, and no production line shutdowns required.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-blue-950 border border-blue-500/40 text-blue-400 font-mono font-bold text-xs flex items-center justify-center">
+                01
+              </div>
+              <h3 className="font-bold text-white text-sm">Magnetic Snap-On</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Wipe the cast iron casing clean, apply acoustic couplant, and snap the 120 kg neodymium pod base firmly into place.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-blue-950 border border-blue-500/40 text-blue-400 font-mono font-bold text-xs flex items-center justify-center">
+                02
+              </div>
+              <h3 className="font-bold text-white text-sm">NFC Tap Pairing</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Tap the pod with the setup tablet to assign equipment tags (e.g. Pump 4B) and establish secure encrypted sub-GHz mesh link.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-blue-950 border border-blue-500/40 text-blue-400 font-mono font-bold text-xs flex items-center justify-center">
+                03
+              </div>
+              <h3 className="font-bold text-white text-sm">Autonomous Baseline</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                The local hub monitors the machine across 72 hours of operating cycles, learning normal running frequencies and baseline heat signatures.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#06080d] border border-slate-800 space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-blue-950 border border-blue-500/40 text-blue-400 font-mono font-bold text-xs flex items-center justify-center">
+                04
+              </div>
+              <h3 className="font-bold text-white text-sm">Live Work Orders</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Connect your team's WhatsApp, SMS, or SAP PM endpoints to receive plain-English shift work orders the moment wear is isolated.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* SECTION 9: INDUSTRIAL PROTOCOLS & SCADA INTEGRATION */}
         {/* ============================================================ */}
         <section id="prod-protocols" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
           <div className="max-w-3xl space-y-3">
@@ -449,7 +731,7 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
         </section>
 
         {/* ============================================================ */}
-        {/* SECTION 7: CYBERSECURITY & AIR-GAP POSTURE */}
+        {/* SECTION 10: CYBERSECURITY & AIR-GAP POSTURE */}
         {/* ============================================================ */}
         <section id="prod-security" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -511,7 +793,46 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
         </section>
 
         {/* ============================================================ */}
-        {/* SECTION 8: 30-DAY STARTER EVALUATION KIT */}
+        {/* SECTION 11: ENVIRONMENTAL & STRESS CERTIFICATIONS (NEW) */}
+        {/* ============================================================ */}
+        <section id="prod-environmental" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
+          <div className="max-w-3xl space-y-3">
+            <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
+              RUGGEDIZATION &amp; COMPLIANCE
+            </span>
+            <h2 className="text-3xl font-bold text-white tracking-tight">
+              Tested for Heavy Industrial Environments
+            </h2>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Every sensor enclosure and compute chassis is built and independently certified for continuous exposure to vibration, caustic chemicals, and extreme temperatures.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+            <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 space-y-1.5">
+              <span className="text-blue-400 font-bold block text-sm">IP67 Waterproof</span>
+              <p className="text-slate-400 text-[11px] font-sans">Hermetically sealed against high-pressure washdown and caustic CIP spray.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 space-y-1.5">
+              <span className="text-white font-bold block text-sm">ATEX Zone 2</span>
+              <p className="text-slate-400 text-[11px] font-sans">Certified for hazardous atmospheres with potential flammable vapors or dust.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 space-y-1.5">
+              <span className="text-blue-400 font-bold block text-sm">MIL-STD-810H</span>
+              <p className="text-slate-400 text-[11px] font-sans">Tested to endure 50g operational shock and continuous random chassis vibration.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 space-y-1.5">
+              <span className="text-white font-bold block text-sm">EN 61000-6-2</span>
+              <p className="text-slate-400 text-[11px] font-sans">Heavy industrial electromagnetic immunity protecting against arc welding spikes.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* SECTION 12: 30-DAY STARTER EVALUATION KIT */}
         {/* ============================================================ */}
         <section id="prod-starter-kit" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -559,86 +880,142 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
         </section>
 
         {/* ============================================================ */}
-        {/* SECTION 9: TECHNICAL COMPARISON MATRIX */}
+        {/* SECTION 13: INTERACTIVE PILOT SIZING TOOL (NEW) */}
         {/* ============================================================ */}
-        <section id="prod-comparison" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-6">
-          <div className="max-w-2xl space-y-2">
+        <section id="prod-calculator" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-8 sm:p-12 space-y-8">
+          <div className="max-w-3xl space-y-3">
             <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
-              SPECIFICATIONS MATRIX
+              PILOT CONFIGURATOR
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">
-              System Hardware &amp; Software Specifications
+            <h2 className="text-3xl font-bold text-white tracking-tight">
+              Estimate Your Pilot Deployment Scope
             </h2>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Calculate the recommended hardware configuration for your machine bay or production line.
+            </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-400">
-                  <th className="py-3.5 px-3">Specification</th>
-                  <th className="py-3.5 px-3 text-blue-400">Edge-X1 Hub</th>
-                  <th className="py-3.5 px-3 text-blue-400">Magnetic Pods</th>
-                  <th className="py-3.5 px-3 text-blue-400">Thermal Guard</th>
-                  <th className="py-3.5 px-3 text-blue-400">AI Copilot</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/80 text-slate-300">
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Primary Function</td>
-                  <td className="py-3.5 px-3">Edge compute gateway</td>
-                  <td className="py-3.5 px-3">Vibration &amp; acoustic sensing</td>
-                  <td className="py-3.5 px-3">Radiometric thermal vision</td>
-                  <td className="py-3.5 px-3">Conversational diagnostics</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Silicon &amp; Compute</td>
-                  <td className="py-3.5 px-3">Nvidia Jetson Orin™ (275 TOPS)</td>
-                  <td className="py-3.5 px-3">Ultra-low power Cortex M4</td>
-                  <td className="py-3.5 px-3">Hardware ISP + DeepStream</td>
-                  <td className="py-3.5 px-3">Local TensorRT Runtime</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Sampling Bandwidth</td>
-                  <td className="py-3.5 px-3">Up to 192 kHz IEPE / 24-bit</td>
-                  <td className="py-3.5 px-3">10 Hz to 192,000 Hz</td>
-                  <td className="py-3.5 px-3">30 FPS continuous stream</td>
-                  <td className="py-3.5 px-3">Continuous event trigger</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Mounting Style</td>
-                  <td className="py-3.5 px-3">DIN Rail / Wall bracket</td>
-                  <td className="py-3.5 px-3">120 kg Neodymium magnet</td>
-                  <td className="py-3.5 px-3">Adjustable ball-head clamp</td>
-                  <td className="py-3.5 px-3">Browser / Tablet Web UI</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Operating Temp</td>
-                  <td className="py-3.5 px-3">-40°C to +85°C</td>
-                  <td className="py-3.5 px-3">-40°C to +85°C</td>
-                  <td className="py-3.5 px-3">-20°C to +65°C</td>
-                  <td className="py-3.5 px-3">N/A (Software)</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Cloud Requirement</td>
-                  <td className="py-3.5 px-3">Zero (Air-gapped)</td>
-                  <td className="py-3.5 px-3">Zero (Sub-GHz mesh)</td>
-                  <td className="py-3.5 px-3">Zero (Local RTSP/TCP)</td>
-                  <td className="py-3.5 px-3">Zero (Local LLM/SLM)</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-bold text-white">Ingress Protection</td>
-                  <td className="py-3.5 px-3">IP67 Enclosure</td>
-                  <td className="py-3.5 px-3">IP67 Waterproof</td>
-                  <td className="py-3.5 px-3">IP66 Sealed Aluminum</td>
-                  <td className="py-3.5 px-3">N/A</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-2xl bg-[#06080d] border border-slate-800 p-6 sm:p-8">
+            <div className="lg:col-span-7 space-y-6">
+              <div>
+                <label className="block text-xs font-mono uppercase text-slate-400 mb-2">
+                  Number of Target Machines to Monitor: <span className="text-blue-400 font-bold text-sm">{pilotMachines} Machines</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="2" 
+                  max="30" 
+                  value={pilotMachines} 
+                  onChange={(e) => setPilotMachines(parseInt(e.target.value))}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                />
+                <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                  <span>2 Machines (Single Cell)</span>
+                  <span>15 Machines (Bay)</span>
+                  <span>30 Machines (Plant Wing)</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono uppercase text-slate-400 mb-2">
+                  Primary Equipment Class:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-mono">
+                  {['Pumps & Motors', 'Gearboxes', 'CNC Spindles', 'Compressors', 'Conveyors'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setPilotEquipment(type)}
+                      className={`p-2.5 rounded-xl border text-center transition-all ${
+                        pilotEquipment === type
+                          ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-glow-sm'
+                          : 'bg-[#0b0f19] text-slate-400 border-slate-800 hover:text-white'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 p-6 rounded-2xl bg-[#0b0f19] border border-blue-900/50 space-y-4 font-mono text-xs">
+              <div className="text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800 pb-2">
+                RECOMMENDED PILOT SPECIFICATION
+              </div>
+
+              <div className="space-y-2 text-slate-300">
+                <div className="flex items-center justify-between">
+                  <span>Edge-X1 Hubs:</span>
+                  <span className="text-white font-bold">{Math.max(1, Math.ceil(pilotMachines / 20))} Unit</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Wireless Magnetic Pods:</span>
+                  <span className="text-blue-400 font-bold">{pilotMachines * 2} Pods (Dual-Bearing)</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Thermal Vision Guard:</span>
+                  <span className="text-white font-bold">{Math.max(1, Math.ceil(pilotMachines / 8))} Camera</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Est. Setup Time:</span>
+                  <span className="text-emerald-400 font-bold">&lt; {pilotMachines * 8} Minutes Total</span>
+                </div>
+              </div>
+
+              <button
+                onClick={onRequestDemo}
+                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-glow-sm transition-all text-center block"
+              >
+                Reserve Sized Evaluation Kit
+              </button>
+            </div>
           </div>
         </section>
 
         {/* ============================================================ */}
-        {/* SECTION 10: PROMINENT CTA BANNER TO LIVE DASHBOARD */}
+        {/* SECTION 15: ENGINEERING & TECHNICAL FAQ (NEW) */}
+        {/* ============================================================ */}
+        <section id="prod-faq" className="scroll-mt-36 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 sm:p-12 space-y-6">
+          <div className="max-w-2xl space-y-2">
+            <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
+              ENGINEERING Q&amp;A
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">
+              Frequently Asked Technical Questions
+            </h2>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            {engineeringFaqs.map((faq, idx) => {
+              const isExpanded = expandedFaq === idx;
+              return (
+                <div 
+                  key={idx}
+                  className="rounded-2xl bg-[#06080d] border border-slate-800 overflow-hidden transition-all"
+                >
+                  <button
+                    onClick={() => setExpandedFaq(isExpanded ? null : idx)}
+                    className="w-full p-5 text-left flex items-center justify-between gap-4 text-sm font-bold text-white hover:text-blue-400 transition-colors"
+                  >
+                    <span>{faq.q}</span>
+                    <span className="font-mono text-xs text-blue-400 shrink-0">
+                      {isExpanded ? '−' : '+'}
+                    </span>
+                  </button>
+                  {isExpanded && (
+                    <div className="px-5 pb-5 text-xs text-slate-300 leading-relaxed border-t border-slate-900 pt-3 animate-in fade-in duration-200">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* SECTION 16: PROMINENT CTA BANNER TO LIVE DASHBOARD */}
         {/* ============================================================ */}
         <section className="rounded-3xl bg-gradient-to-r from-blue-950/60 via-[#0b0f19] to-blue-950/60 border border-blue-500/40 p-10 sm:p-14 text-center space-y-5 shadow-glow-sm">
           <div className="w-12 h-12 rounded-2xl bg-blue-600/30 border border-blue-400 flex items-center justify-center mx-auto text-blue-400">
