@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layers, Smartphone, ShieldCheck, TrendingUp, Bell } from 'lucide-react';
 
-export const MasonryBento = () => {
+export const MasonryBento = ({ onOpenDashboard }) => {
   return (
     <section id="bento" className="py-24 bg-[#06080d] border-t border-b border-slate-900">
       <div className="max-w-6xl mx-auto px-6">
@@ -36,24 +36,36 @@ export const MasonryBento = () => {
               </p>
             </div>
 
-            {/* Clean Status Pill Row */}
+            {/* Interactive Clickable Status Pill Row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-800/80 font-mono text-xs">
-              <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                <span className="text-slate-400 block text-[10px]">FEED PUMPS</span>
+              <button
+                onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'PUMP-04', tab: 'sensors' })}
+                className="p-3 rounded-xl bg-[#06080d] hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-left transition-all group"
+              >
+                <span className="text-slate-400 block text-[10px] group-hover:text-blue-300">FEED PUMPS →</span>
                 <span className="text-white font-bold">100% Normal</span>
-              </div>
-              <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                <span className="text-slate-400 block text-[10px]">TURBINES</span>
+              </button>
+              <button
+                onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'TURB-02', tab: 'sensors' })}
+                className="p-3 rounded-xl bg-[#06080d] hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-left transition-all group"
+              >
+                <span className="text-slate-400 block text-[10px] group-hover:text-blue-300">TURBINES →</span>
                 <span className="text-white font-bold">Optimal</span>
-              </div>
-              <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                <span className="text-slate-400 block text-[10px]">CNC CELLS</span>
+              </button>
+              <button
+                onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'CNC-12', tab: 'sensors' })}
+                className="p-3 rounded-xl bg-[#06080d] hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-left transition-all group"
+              >
+                <span className="text-slate-400 block text-[10px] group-hover:text-blue-300">CNC CELLS →</span>
                 <span className="text-white font-bold">All Active</span>
-              </div>
-              <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                <span className="text-slate-400 block text-[10px]">COMPRESSORS</span>
+              </button>
+              <button
+                onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'COMP-01', tab: 'sensors' })}
+                className="p-3 rounded-xl bg-[#06080d] hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-left transition-all group"
+              >
+                <span className="text-slate-400 block text-[10px] group-hover:text-blue-300">COMPRESSORS →</span>
                 <span className="text-blue-400 font-bold">Balanced</span>
-              </div>
+              </button>
             </div>
           </div>
 

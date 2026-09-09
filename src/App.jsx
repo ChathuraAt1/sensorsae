@@ -83,9 +83,27 @@ export function App() {
     navigateTo('products', '/products');
   };
 
-  const handleOpenDashboard = () => {
+  // Dashboard deep link parameters state
+  const [dashboardOptions, setDashboardOptions] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      tab: params.get('tab') || 'overview',
+      assetId: params.get('asset') || null,
+    };
+  });
+
+  const handleOpenDashboard = (opts = {}) => {
+    const nextTab = opts.tab || 'overview';
+    const nextAsset = opts.assetId || null;
+    setDashboardOptions({ tab: nextTab, assetId: nextAsset });
+
+    const query = new URLSearchParams();
+    if (nextTab && nextTab !== 'overview') query.set('tab', nextTab);
+    if (nextAsset) query.set('asset', nextAsset);
+    const path = query.toString() ? `/dashboard?${query.toString()}` : '/dashboard';
+
     if (isAuthenticated) {
-      navigateTo('dashboard', '/dashboard');
+      navigateTo('dashboard', path);
     } else {
       setIntendedRedirect('dashboard');
       setAuthModalMode('login');
@@ -183,6 +201,7 @@ export function App() {
             {/* 5. Creative Masonry / Bento Grid Feature Showcase */}
             <MasonryBento 
               onRequestDemo={handleRequestDemo}
+              onOpenDashboard={handleOpenDashboard}
             />
 
             {/* 6. Transparent Industrial Pricing (Connected to dash.sensorsae.net) */}
@@ -224,6 +243,8 @@ export function App() {
         {currentView === 'dashboard' && (
           <IndustrialDashboard 
             onBackToHome={handleBackToHome}
+            initialTab={dashboardOptions.tab}
+            initialAssetId={dashboardOptions.assetId}
           />
         )}
 

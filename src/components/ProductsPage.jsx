@@ -223,7 +223,7 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
                   Request Hub Evaluation Unit
                 </button>
                 <button
-                  onClick={onOpenDashboard}
+                  onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'sensors' })}
                   className="px-5 py-2.5 rounded-full bg-[#06080d] hover:bg-blue-950 text-blue-300 text-xs font-mono border border-slate-800 hover:border-blue-500 transition-all flex items-center gap-2"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -285,12 +285,19 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
                 </div>
               </div>
 
-              <div className="pt-3">
+              <div className="pt-3 flex flex-wrap gap-3">
                 <button
                   onClick={onRequestDemo}
                   className="px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-glow-sm transition-all"
                 >
                   Order 4-Pod Pilot Starter Pack
+                </button>
+                <button
+                  onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'sensors' })}
+                  className="px-5 py-2.5 rounded-full bg-[#06080d] hover:bg-blue-950 text-blue-300 text-xs font-mono border border-slate-800 hover:border-blue-500 transition-all flex items-center gap-2"
+                >
+                  <Radio className="w-3.5 h-3.5" />
+                  <span>View Mesh Telemetry</span>
                 </button>
               </div>
             </div>
@@ -371,7 +378,7 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
                   Schedule Copilot Demo
                 </button>
                 <button
-                  onClick={onOpenDashboard}
+                  onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'copilot' })}
                   className="px-5 py-2.5 rounded-full bg-[#06080d] hover:bg-blue-950 text-blue-300 text-xs font-mono border border-slate-800 hover:border-blue-500 transition-all flex items-center gap-2"
                 >
                   <Terminal className="w-3.5 h-3.5" />
@@ -417,12 +424,19 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
                 </div>
               </div>
 
-              <div className="pt-3">
+              <div className="pt-3 flex flex-wrap gap-3">
                 <button
                   onClick={onRequestDemo}
                   className="px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-glow-sm transition-all"
                 >
                   Request Thermal Evaluation Unit
+                </button>
+                <button
+                  onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'thermal' })}
+                  className="px-5 py-2.5 rounded-full bg-[#06080d] hover:bg-blue-950 text-blue-300 text-xs font-mono border border-slate-800 hover:border-blue-500 transition-all flex items-center gap-2"
+                >
+                  <Thermometer className="w-3.5 h-3.5" />
+                  <span>Inspect LWIR Stream in Dashboard</span>
                 </button>
               </div>
             </div>
@@ -488,12 +502,19 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex flex-wrap gap-3">
                 <button
                   onClick={onRequestDemo}
                   className="px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-glow-sm transition-all"
                 >
                   Consult an Nvidia Solution Engineer
+                </button>
+                <button
+                  onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'orin' })}
+                  className="px-5 py-2.5 rounded-full bg-[#06080d] hover:bg-blue-950 text-blue-300 text-xs font-mono border border-slate-800 hover:border-blue-500 transition-all flex items-center gap-2"
+                >
+                  <Cpu className="w-3.5 h-3.5" />
+                  <span>Monitor 275 TOPS in Dashboard</span>
                 </button>
               </div>
             </div>
@@ -548,6 +569,20 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
                 Statistical wave-shape analysis calculating peak-to-RMS ratios to distinguish sharp cavitation impacts from normal background motor hum.
               </p>
             </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-white font-bold text-xs block">Inspect Real-Time Harmonic Spectrum</span>
+              <p className="text-slate-400 text-xs">Test real-time peak picking (1X, 2X, BPFO) with dynamic ISO 10816 threshold limits.</p>
+            </div>
+            <button
+              onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'fft' })}
+              className="px-5 py-2.5 rounded-full bg-blue-950/60 hover:bg-blue-900 text-blue-300 text-xs font-mono border border-blue-500/40 hover:border-blue-400 transition-all flex items-center gap-2 shrink-0"
+            >
+              <Activity className="w-3.5 h-3.5 text-blue-400" />
+              <span>Launch FFT Waterfall in Dashboard</span>
+            </button>
           </div>
         </section>
 

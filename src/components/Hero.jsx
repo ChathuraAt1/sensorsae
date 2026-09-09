@@ -38,22 +38,75 @@ export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
           SENSORSAE monitors vibration and heat across your equipment, alerting your team weeks before bearings break.
         </p>
 
+        {/* Interactive Live Machine Telemetry Pills (Deep Links to Dashboard) */}
+        <div className="pt-1">
+          <div className="text-[11px] font-mono text-slate-500 uppercase tracking-widest mb-2.5 flex items-center justify-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>48 NODES STREAMING • CLICK EQUIPMENT FOR LIVE TELEMETRY:</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-xs">
+            <button
+              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'PUMP-04' })}
+              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-blue-500/30 hover:border-blue-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span>PUMP-04: <strong className="text-amber-300">2.4 mm/s</strong> (Cavitation)</span>
+              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
+            </button>
+
+            <button
+              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'TURB-02' })}
+              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-blue-500/30 hover:border-blue-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>TURB-02: <strong className="text-emerald-300">0.6 mm/s</strong> (Optimal)</span>
+              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
+            </button>
+
+            <button
+              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'CNC-12' })}
+              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-blue-500/30 hover:border-blue-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>CNC-12: <strong className="text-emerald-300">0.4 mm/s</strong> (Nominal)</span>
+              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
+            </button>
+
+            <button
+              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'CONV-10' })}
+              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-red-500/40 hover:border-red-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+              <span>CONV-10: <strong className="text-red-300">88.5°C</strong> (Hotspot Alert)</span>
+              <span className="text-red-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
+            </button>
+          </div>
+        </div>
+
         {/* Clean CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <button
             onClick={onRequestDemo}
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-glow-sm hover:shadow-glow-md transition-all flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow-sm hover:shadow-glow-md transition-all flex items-center justify-center gap-2 group"
           >
             <span>Request a Trial</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </button>
 
           <button
             onClick={onExploreProducts}
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 text-slate-200 hover:text-white font-semibold text-sm border border-blue-900/60 hover:border-blue-500/50 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 text-slate-200 hover:text-white font-semibold text-xs border border-blue-900/60 hover:border-blue-500/50 transition-all flex items-center justify-center gap-2"
           >
             <span>Explore Product Line</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'overview' })}
+            className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-blue-300 hover:text-white font-semibold text-xs border border-blue-500/30 hover:border-blue-400 shadow-glow-sm transition-all flex items-center justify-center gap-2 font-mono"
+          >
+            <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
+            <span>Launch Dashboard (/dashboard)</span>
           </button>
         </div>
       </div>

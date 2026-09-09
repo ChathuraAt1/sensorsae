@@ -5,47 +5,89 @@ import {
   User, LogOut, Bot, Sparkles, Key, Lock, ExternalLink,
   LayoutDashboard, Server, Eye, Thermometer, Layers, Wrench,
   Search, Filter, Download, ChevronRight, Sliders, Volume2,
-  Clock, Check, AlertTriangle, Send, Terminal, CornerDownLeft
+  Clock, Check, AlertTriangle, Send, Terminal, CornerDownLeft,
+  Copy, Crosshair, HelpCircle
 } from 'lucide-react';
 import { 
   INDUSTRIAL_FACILITIES, INITIAL_ASSETS, CLUSTER_METRICS, RECENT_LOGS 
 } from '../data/telemetryData';
 import { useAuth } from '../context/AuthContext';
 
-export const IndustrialDashboard = ({ onBackToHome }) => {
+export const IndustrialDashboard = ({ onBackToHome, initialTab = 'overview', initialAssetId = null }) => {
   const { user, token, logout, apiBase } = useAuth();
 
+  // Read URL query params if present for deep linking
+  const urlParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const defaultTab = urlParams.get('tab') || initialTab || 'overview';
+  const defaultAssetId = urlParams.get('asset') || initialAssetId || 'PUMP-04';
+
   // Navigation state
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'sensors' | 'copilot' | 'thermal' | 'orin' | 'fft' | 'incidents'
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [selectedFacility, setSelectedFacility] = useState(INDUSTRIAL_FACILITIES[0]);
   const [assets, setAssets] = useState(INITIAL_ASSETS);
-  const [selectedAsset, setSelectedAsset] = useState(INITIAL_ASSETS[0]);
+  const [selectedAsset, setSelectedAsset] = useState(() => {
+    return INITIAL_ASSETS.find(a => a.id === defaultAssetId) || INITIAL_ASSETS[0];
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [severityFilter, setSeverityFilter] = useState('All');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Time Range state
+  // Time Range & Interactive ISO 10816 Threshold Slider State
   const [timeRange, setTimeRange] = useState('Live');
+  const [isoThresholdLimit, setIsoThresholdLimit] = useState(2.80); // mm/s threshold slider
+  const [hoveredHarmonicIdx, setHoveredHarmonicIdx] = useState(null);
+  const [copyToast, setCopyToast] = useState('');
+
+  // Interactive Thermal Spot-Picker State (Coordinates in %)
+  const [thermalCrosshair, setThermalCrosshair] = useState({ x: 52, y: 48, tempDelta: 0 });
+
+  // Update selectedAsset if defaultAssetId changes
+  useEffect(() => {
+    if (defaultAssetId) {
+      const found = assets.find(a => a.id === defaultAssetId);
+      if (found) setSelectedAsset(found);
+    }
+  }, [defaultAssetId]);
 
   // Real-time live streaming simulation tick
   useEffect(() => {
     const interval = setInterval(() => {
       setAssets(prev => prev.map(mach => {
-        // Minor natural sensor fluctuation
         const jitter = (Math.random() - 0.5) * 0.04;
         const newVibe = Math.max(0.1, Number((mach.vibrationRms + jitter).toFixed(2)));
         const newTemp = Math.max(20, Number((mach.temperature + (Math.random() - 0.5) * 0.2).toFixed(1)));
+        
+        // Re-evaluate status against dynamic ISO threshold limit
+        let dynamicStatus = mach.status;
+        if (newVibe > isoThresholdLimit * 1.25) {
+          dynamicStatus = 'CRITICAL';
+        } else if (newVibe > isoThresholdLimit) {
+          dynamicStatus = 'ATTENTION';
+        } else {
+          dynamicStatus = 'OPTIMAL';
+        }
+
         return {
           ...mach,
           vibrationRms: newVibe,
           temperature: newTemp,
+          status: dynamicStatus,
         };
       }));
     }, 2500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isoThresholdLimit]);
+
+  // Copy to clipboard with visual toast feedback
+  const handleCopy = (text, label = 'Information') => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopyToast(`${label} copied to clipboard`);
+      setTimeout(() => setCopyToast(''), 2200);
+    }
+  };
 
   // Filtered Assets
   const filteredAssets = useMemo(() => {
@@ -73,7 +115,7 @@ export const IndustrialDashboard = ({ onBackToHome }) => {
   const handleExportCsv = () => {
     const headers = "Asset ID,Name,Category,Status,Health Score,Vibration (mm/s),ISO Limit,Temp (°C),RUL (Hours),Edge Hub\n";
     const rows = assets.map(a => 
-      `"${a.id}","${a.name}","${a.category}","${a.status}",${a.healthScore},${a.vibrationRms},${a.isoLimit},${a.temperature},${a.rulHours},"${a.edgeHubId}"`
+      `"${a.id}","${a.name}","${a.category}","${a.status}",${a.healthScore},${a.vibrationRms},${isoThresholdLimit},${a.temperature},${a.rulHours},"${a.edgeHubId}"`
     ).join("\n");
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -91,12 +133,23 @@ export const IndustrialDashboard = ({ onBackToHome }) => {
     setActiveTab('copilot');
   };
 
+  // Interactive thermal canvas click handler
+  const handleThermalClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.max(5, Math.min(95, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
+    const y = Math.max(5, Math.min(95, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
+    // calculate simulated delta from center (50, 50)
+    const dist = Math.sqrt(Math.pow(x - 50, 2) + Math.pow(y - 50, 2));
+    const delta = Number((12 - dist * 0.2).toFixed(1));
+    setThermalCrosshair({ x, y, tempDelta: delta });
+  };
+
   // --- Embedded Copilot AI Chat State ---
   const [chatMessages, setChatMessages] = useState([
     {
       id: 'init',
       role: 'assistant',
-      content: `Operator authenticated. Connected to on-prem Edge-X1 telemetry cluster. Ready to analyze vibration FFT harmonics, RUL forecasts, or generate shift handovers.`,
+      content: `Operator session verified. Connected to on-prem Edge-X1 telemetry cluster. Ready to analyze vibration FFT harmonics, RUL forecasts, or generate shift handovers.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
   ]);
@@ -121,12 +174,11 @@ export const IndustrialDashboard = ({ onBackToHome }) => {
     setIsAiLoading(true);
 
     try {
-      // Build contextual message payload including current selected asset telemetry
       const systemContext = `You are SENSORSAE AI Copilot running in the industrial operations dashboard.
 Current Facility: ${selectedFacility.name}.
 Focused Equipment: ${selectedAsset.name} [${selectedAsset.id}]
 - Status: ${selectedAsset.status}, Health: ${selectedAsset.healthScore}%
-- Vibration: ${selectedAsset.vibrationRms} mm/s RMS (ISO 10816 Limit: ${selectedAsset.isoLimit})
+- Vibration: ${selectedAsset.vibrationRms} mm/s RMS (Simulated ISO Threshold Limit: ${isoThresholdLimit} mm/s)
 - Temperature: ${selectedAsset.temperature} °C (Delta-T: +${selectedAsset.thermalDeltaT} °C)
 - Ultrasonic Acoustic: ${selectedAsset.ultrasonicAcoustic} dB
 - Primary Diagnostic: ${selectedAsset.primaryFault}
@@ -180,7 +232,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
       setChatMessages(prev => [...prev, {
         id: `bot-${Date.now()}`,
         role: 'assistant',
-        content: `[Notice: Edge-X1 Fallback Mode active: ${err.message}]. Automated Rule Diagnostic for ${selectedAsset.id}: Vibration (${selectedAsset.vibrationRms} mm/s) is within ${selectedAsset.isoStandard}. Ultrasonic acoustic spikes suggest verifying lubrication film thickness.`,
+        content: `[Notice: Edge-X1 Fallback Mode active: ${err.message}]. Automated Rule Diagnostic for ${selectedAsset.id}: Vibration (${selectedAsset.vibrationRms} mm/s) evaluated against ${isoThresholdLimit} mm/s threshold. Ultrasonic acoustic spikes suggest verifying lubrication film thickness.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }]);
     } finally {
@@ -190,14 +242,23 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
   };
 
   return (
-    <div className="min-h-screen bg-[#06080d] text-slate-100 flex font-sans overflow-x-hidden selection:bg-blue-500/30">
+    // STRICT VIEWPORT CONTAINER: Locks outer container to exact 100vh window height
+    <div className="h-screen w-full bg-[#06080d] text-slate-100 flex font-sans overflow-hidden selection:bg-blue-500/30 relative">
       
+      {/* Visual Toast Notification for Click-to-Copy */}
+      {copyToast && (
+        <div className="fixed top-5 right-5 z-50 px-4 py-2 rounded-xl bg-blue-600 text-white font-mono text-xs shadow-2xl shadow-blue-500/30 flex items-center gap-2 animate-in fade-in slide-in-from-top-3">
+          <Check className="w-3.5 h-3.5" />
+          <span>{copyToast}</span>
+        </div>
+      )}
+
       {/* ========================================================================= */}
-      {/* 1. DENSE INDUSTRIAL SIDEBAR                                              */}
+      {/* 1. DENSE INDUSTRIAL SIDEBAR (Fixed strictly to window height)             */}
       {/* ========================================================================= */}
       <aside className={`transition-all duration-300 ${
         sidebarCollapsed ? 'w-16' : 'w-64 sm:w-72'
-      } bg-[#080d17] border-r border-blue-900/40 flex flex-col justify-between shrink-0 z-30 min-h-screen`}>
+      } bg-[#080d17] border-r border-blue-900/40 flex flex-col justify-between shrink-0 z-30 h-full overflow-y-auto select-none`}>
         
         {/* Top Sidebar Header */}
         <div className="space-y-4">
@@ -297,7 +358,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
         </div>
 
         {/* Sidebar Footer: User Session & Actions */}
-        <div className="p-3 border-t border-blue-900/40 bg-[#06080d]/60 space-y-2">
+        <div className="p-3 border-t border-blue-900/40 bg-[#06080d]/60 space-y-2 shrink-0">
           {!sidebarCollapsed ? (
             <>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-[#0b0f19] border border-slate-800">
@@ -346,28 +407,29 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
       </aside>
 
       {/* ========================================================================= */}
-      {/* 2. MAIN DASHBOARD CONTENT AREA                                           */}
+      {/* 2. MAIN DASHBOARD CONTENT AREA (Fixed height with scrolling panel)        */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <div className="flex-1 h-full flex flex-col min-w-0 overflow-hidden">
         
-        {/* Top Control Bar */}
-        <header className="bg-[#080d17]/90 backdrop-blur-md border-b border-blue-900/40 px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20">
+        {/* Top Control Bar (Shrink-0) */}
+        <header className="bg-[#080d17]/90 backdrop-blur-md border-b border-blue-900/40 px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 z-20">
           
           <div className="flex items-center gap-3">
             <div>
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                <span>SENSORSAE OS</span>
+                <span>/</span>
+                <span>{selectedFacility.code}</span>
+                <span>/</span>
+                <span className="text-blue-400">{selectedAsset.id}</span>
+              </div>
               <h1 className="text-base font-extrabold text-white flex items-center gap-2">
                 <span>{selectedFacility.name.split('—')[0]}</span>
-                <span className="text-blue-500 font-mono text-xs font-normal">/</span>
+                <span className="text-blue-500 font-mono text-xs font-normal">•</span>
                 <span className="text-blue-400 text-xs uppercase font-mono tracking-wider">
                   {activeTab}
                 </span>
               </h1>
-              <div className="text-[10px] font-mono text-slate-400 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Cluster Ingestion: <strong>184,200 samples/sec</strong></span>
-                <span>•</span>
-                <span>Air-Gapped: <strong>100% Zero Egress</strong></span>
-              </div>
             </div>
           </div>
 
@@ -379,7 +441,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search machine, tag, fault..."
-                className="bg-[#06080d] border border-blue-900/50 rounded-xl px-3 py-1.5 pl-8 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono w-48 sm:w-60"
+                className="bg-[#06080d] border border-blue-900/50 rounded-xl px-3 py-1.5 pl-8 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono w-44 sm:w-56"
               />
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
             </div>
@@ -411,8 +473,8 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
           </div>
         </header>
 
-        {/* Dynamic View Body */}
-        <main className="p-6 space-y-6">
+        {/* Dynamic Scrolling Viewport */}
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
           
           {/* ------------------------------------------------------------- */}
           {/* TAB 1: OVERVIEW & PLANT HEALTH                                */}
@@ -422,7 +484,8 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
               
               {/* Top High-Density Metric Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4.5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-1">
+                <div className="p-4.5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-1 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
                   <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between">
                     <span>OVERALL ASSET HEALTH</span>
                     <span className="text-emerald-400">Nominal</span>
@@ -435,7 +498,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                   </div>
                 </div>
 
-                <div className="p-4.5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-1">
+                <div className="p-4.5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-1 relative overflow-hidden">
                   <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between">
                     <span>ACTIVE ANOMALIES</span>
                     <span className={`text-[10px] font-bold ${criticalCount > 0 ? 'text-red-400 animate-pulse' : 'text-blue-400'}`}>
@@ -478,16 +541,48 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 </div>
               </div>
 
+              {/* Interactive ISO 10816 Limit Slider Control Bar */}
+              <div className="p-4 rounded-2xl bg-[#080d17] border border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 text-white font-bold">
+                    <Sliders className="w-4 h-4 text-blue-400" />
+                    <span>Interactive ISO 10816 Velocity Limit Tester</span>
+                    <span className="px-2 py-0.2 rounded bg-blue-950 text-blue-300 text-[10px] border border-blue-800">
+                      LIVE THRESHOLD
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-sans">
+                    Drag slider to test tighter vibration tolerances. Assets dynamically adapt status between Optimal, Warning, and Critical.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-slate-400 text-xs">Threshold:</span>
+                  <input
+                    type="range"
+                    min="1.0"
+                    max="4.0"
+                    step="0.1"
+                    value={isoThresholdLimit}
+                    onChange={(e) => setIsoThresholdLimit(Number(e.target.value))}
+                    className="w-32 sm:w-44 accent-blue-500 cursor-pointer"
+                  />
+                  <span className="px-2.5 py-1 rounded-lg bg-[#06080d] border border-blue-500/40 text-blue-400 font-bold text-xs min-w-[70px] text-center">
+                    {isoThresholdLimit.toFixed(2)} mm/s
+                  </span>
+                </div>
+              </div>
+
               {/* Machinery Digital Twin Grid */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h2 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono flex items-center gap-2">
                     <Activity className="w-4 h-4 text-blue-400" />
                     <span>Machine Digital Twin Readout ({filteredAssets.length} Assets)</span>
                   </h2>
 
-                  <div className="flex items-center gap-2 text-xs font-mono">
-                    <span className="text-slate-500">Category:</span>
+                  <div className="flex items-center gap-1.5 text-xs font-mono flex-wrap">
+                    <span className="text-slate-500">Filter:</span>
                     {['All', 'Pumps', 'Motors', 'Gearboxes', 'CNC Spindles', 'Compressors', 'Conveyors'].map(c => (
                       <button
                         key={c}
@@ -512,15 +607,25 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                       <div
                         key={mach.id}
                         onClick={() => setSelectedAsset(mach)}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
                           isSelected
                             ? 'bg-[#0f172a] border-blue-400 shadow-glow-sm'
-                            : 'bg-[#080d17] border-blue-900/30 hover:border-blue-700'
+                            : 'bg-[#080d17] border-blue-900/30 hover:border-blue-500/50'
                         }`}
                       >
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-xs text-blue-400 font-bold">{mach.id}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono text-xs text-blue-400 font-bold">{mach.id}</span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleCopy(mach.id, mach.name); }}
+                                title="Copy Asset ID"
+                                className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-500 hover:text-blue-300 transition-opacity"
+                              >
+                                <Copy className="w-3 h-3" />
+                              </button>
+                            </div>
+
                             <span className={`font-mono text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
                               isCrit
                                 ? 'bg-red-950 text-red-300 border border-red-500 animate-pulse'
@@ -537,10 +642,24 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                             <div className="text-[11px] text-slate-400 truncate">{mach.location}</div>
                           </div>
 
+                          {/* Hover Mini Vibration Wave Sparkline */}
+                          <div className="h-6 w-full opacity-30 group-hover:opacity-100 transition-opacity flex items-end justify-between gap-0.5 pt-1">
+                            {[18, 35, 60, 42, 85, 30, 65, 90, 45, 55, 75, 40].map((v, sIdx) => (
+                              <div
+                                key={sIdx}
+                                className="w-full rounded-t-sm"
+                                style={{
+                                  height: `${(v * (mach.vibrationRms / 2.0)) % 100}%`,
+                                  backgroundColor: isCrit ? '#ef4444' : isWarn ? '#f59e0b' : '#3b82f6',
+                                }}
+                              />
+                            ))}
+                          </div>
+
                           <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[11px] font-mono">
                             <div>
                               <span className="text-slate-500 block text-[9px]">VIBRATION</span>
-                              <span className={mach.vibrationRms > mach.isoLimit ? 'text-red-400 font-bold' : 'text-slate-200'}>
+                              <span className={mach.vibrationRms > isoThresholdLimit ? 'text-red-400 font-bold' : 'text-slate-200'}>
                                 {mach.vibrationRms} mm/s
                               </span>
                             </div>
@@ -608,9 +727,18 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                   
                   {/* Col 1: Primary Fault Diagnosis */}
                   <div className="p-4.5 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-3 font-mono text-xs">
-                    <div className="text-[11px] text-blue-400 font-bold uppercase tracking-wider flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" />
-                      <span>Root Cause Classification</span>
+                    <div className="text-[11px] text-blue-400 font-bold uppercase tracking-wider flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>Root Cause Classification</span>
+                      </div>
+                      <button
+                        onClick={() => handleCopy(selectedAsset.primaryFault, 'Diagnosis')}
+                        className="text-slate-500 hover:text-white"
+                        title="Copy Diagnosis"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
                     </div>
                     <div className="text-slate-200 text-xs font-sans leading-relaxed">
                       {selectedAsset.primaryFault}
@@ -631,7 +759,14 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                     </div>
                     <div className="space-y-2">
                       {selectedAsset.fftSpectrum.map((pk, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-xs">
+                        <div 
+                          key={idx} 
+                          onMouseEnter={() => setHoveredHarmonicIdx(idx)}
+                          onMouseLeave={() => setHoveredHarmonicIdx(null)}
+                          className={`flex items-center justify-between text-xs p-1.5 rounded-lg transition-colors cursor-pointer ${
+                            hoveredHarmonicIdx === idx ? 'bg-blue-950/80 border border-blue-500/40' : 'hover:bg-slate-900'
+                          }`}
+                        >
                           <span className="text-slate-400">{pk.freq}</span>
                           <div className="flex items-center gap-2">
                             <span className="text-white font-bold">{pk.amp} mm/s</span>
@@ -648,26 +783,41 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                     </div>
                   </div>
 
-                  {/* Col 3: Thermal Vision Guard Inspection */}
+                  {/* Col 3: Interactive Thermal Vision Spot-Picker */}
                   <div className="p-4.5 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-3 font-mono text-xs">
-                    <div className="text-[11px] text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      <span>Thermal Vision Guard (LWIR)</span>
+                    <div className="text-[11px] text-cyan-400 font-bold uppercase tracking-wider flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Eye className="w-4 h-4" />
+                        <span>Thermal Vision Guard (LWIR)</span>
+                      </div>
+                      <span className="text-[9px] text-slate-500">Click to Sample</span>
                     </div>
-                    <div className="text-xs text-slate-300 font-sans">
-                      Inspection Zone: {selectedAsset.thermalGuardZone}
+
+                    {/* Interactive Clickable Thermal Canvas */}
+                    <div 
+                      onClick={handleThermalClick}
+                      className="h-28 rounded-xl bg-gradient-to-tr from-blue-950 via-purple-900 to-amber-600 relative cursor-crosshair overflow-hidden border border-white/10"
+                      title="Click anywhere to inspect localized thermal gradient"
+                    >
+                      {/* Crosshair Target */}
+                      <div 
+                        className="absolute w-6 h-6 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-all duration-150 flex items-center justify-center"
+                        style={{ left: `${thermalCrosshair.x}%`, top: `${thermalCrosshair.y}%` }}
+                      >
+                        <Crosshair className="w-5 h-5 text-white drop-shadow-md animate-pulse" />
+                      </div>
+                      <div className="absolute bottom-1 right-2 text-[9px] bg-black/50 px-1.5 py-0.5 rounded text-white/80">
+                        Spot Temp: {(selectedAsset.temperature + thermalCrosshair.tempDelta).toFixed(1)}°C
+                      </div>
                     </div>
+
                     <div className="flex items-center justify-between pt-1">
-                      <span className="text-slate-400">Max Enclosure Temp:</span>
-                      <span className="text-white font-bold">{selectedAsset.temperature} °C</span>
-                    </div>
-                    <div className="flex items-center justify-between">
                       <span className="text-slate-400">Baseline Delta-T:</span>
                       <span className={selectedAsset.thermalDeltaT > 15 ? 'text-red-400 font-bold' : 'text-emerald-400'}>
                         +{selectedAsset.thermalDeltaT} °C
                       </span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden mt-2">
+                    <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
                       <div 
                         className={`h-full rounded-full ${
                           selectedAsset.thermalDeltaT > 15 ? 'bg-red-500' : 'bg-blue-500'
@@ -757,10 +907,10 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                           </td>
                           <td className="py-3 px-4 text-emerald-400 font-bold">{mach.healthScore}%</td>
                           <td className="py-3 px-4">
-                            <span className={mach.vibrationRms > mach.isoLimit ? 'text-red-400 font-bold' : 'text-slate-200'}>
+                            <span className={mach.vibrationRms > isoThresholdLimit ? 'text-red-400 font-bold' : 'text-slate-200'}>
                               {mach.vibrationRms}
                             </span>
-                            <span className="text-slate-500 text-[10px]"> / {mach.isoLimit}</span>
+                            <span className="text-slate-500 text-[10px]"> / {isoThresholdLimit}</span>
                           </td>
                           <td className="py-3 px-4 text-slate-300">{mach.peakAcceleration} g</td>
                           <td className="py-3 px-4 text-slate-300">{mach.temperature} °C</td>
@@ -917,11 +1067,16 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                         }`}
                       >
                         <p className="whitespace-pre-wrap">{msg.content}</p>
-                        <span className={`block text-[9px] font-mono mt-2 text-right ${
-                          msg.role === 'user' ? 'text-blue-200' : 'text-slate-500'
-                        }`}>
-                          {msg.timestamp}
-                        </span>
+                        <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/10 text-[9px] font-mono text-slate-500">
+                          <button
+                            onClick={() => handleCopy(msg.content, 'Message')}
+                            className="hover:text-blue-300 transition-colors flex items-center gap-1"
+                          >
+                            <Copy className="w-2.5 h-2.5" />
+                            <span>Copy text</span>
+                          </button>
+                          <span>{msg.timestamp}</span>
+                        </div>
                       </div>
 
                       {msg.role === 'user' && (
@@ -1113,38 +1268,47 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                   </div>
                 </div>
 
-                {/* Animated Graphic Spectrum Waterfall Bars */}
+                {/* Animated Graphic Spectrum Waterfall Bars with Hover Harmonic Feedback */}
                 <div className="h-44 p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 flex items-end justify-between gap-1">
-                  {[12, 28, 42, 65, 88, 54, 38, 22, 45, 95, 110, 48, 30, 68, 72, 85, 34, 45, 60, 28, 55, 78, 92, 40, 25, 48, 70, 85, 38, 52, 64, 98, 45, 30].map((val, idx) => (
-                    <div 
-                      key={idx}
-                      className="w-full rounded-t-sm transition-all duration-300"
-                      style={{
-                        height: `${(val * (selectedAsset.healthScore > 90 ? 0.6 : 1.2)) % 90 + 10}%`,
-                        backgroundColor: (idx === 10 || idx === 31) && selectedAsset.healthScore < 85 ? '#ef4444' : '#3b82f6',
-                        boxShadow: (idx === 10 || idx === 31) && selectedAsset.healthScore < 85 ? '0 0 10px #ef4444' : 'none'
-                      }}
-                    />
-                  ))}
+                  {[12, 28, 42, 65, 88, 54, 38, 22, 45, 95, 110, 48, 30, 68, 72, 85, 34, 45, 60, 28, 55, 78, 92, 40, 25, 48, 70, 85, 38, 52, 64, 98, 45, 30].map((val, idx) => {
+                    const isHarmonicMatch = (hoveredHarmonicIdx === 0 && (idx === 3 || idx === 4)) ||
+                                            (hoveredHarmonicIdx === 1 && (idx === 7 || idx === 8)) ||
+                                            (hoveredHarmonicIdx === 2 && (idx === 10 || idx === 11)) ||
+                                            (hoveredHarmonicIdx === 3 && (idx === 30 || idx === 31));
+
+                    return (
+                      <div 
+                        key={idx}
+                        className="w-full rounded-t-sm transition-all duration-300"
+                        style={{
+                          height: `${(val * (selectedAsset.vibrationRms > isoThresholdLimit ? 1.25 : 0.7)) % 90 + 10}%`,
+                          backgroundColor: isHarmonicMatch ? '#38bdf8' : (idx === 10 || idx === 31) && selectedAsset.vibrationRms > isoThresholdLimit ? '#ef4444' : '#3b82f6',
+                          boxShadow: isHarmonicMatch ? '0 0 14px #38bdf8' : (idx === 10 || idx === 31) && selectedAsset.vibrationRms > isoThresholdLimit ? '0 0 10px #ef4444' : 'none'
+                        }}
+                      />
+                    );
+                  })}
                 </div>
 
-                <div className="grid grid-cols-4 gap-3 text-center font-mono text-xs">
-                  <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                    <div className="text-slate-500 text-[10px]">1X RUNNING SPEED</div>
-                    <div className="text-white font-bold">{(selectedAsset.rpm / 60).toFixed(1)} Hz</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                    <div className="text-slate-500 text-[10px]">2X LINE HARMONIC</div>
-                    <div className="text-white font-bold">{((selectedAsset.rpm / 60) * 2).toFixed(1)} Hz</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                    <div className="text-slate-500 text-[10px]">BEARING BPFO DEFECT</div>
-                    <div className="text-blue-400 font-bold">1,240 Hz</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-[#06080d] border border-slate-800">
-                    <div className="text-slate-500 text-[10px]">ULTRASONIC CAVITATION</div>
-                    <div className="text-cyan-400 font-bold">38 kHz Peak</div>
-                  </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono text-xs">
+                  {[
+                    { label: "1X RUNNING SPEED", value: `${(selectedAsset.rpm / 60).toFixed(1)} Hz` },
+                    { label: "2X LINE HARMONIC", value: `${((selectedAsset.rpm / 60) * 2).toFixed(1)} Hz` },
+                    { label: "BEARING BPFO DEFECT", value: "1,240 Hz", alert: true },
+                    { label: "ULTRASONIC CAVITATION", value: "38 kHz Peak", alert: true },
+                  ].map((hItem, hIdx) => (
+                    <div 
+                      key={hIdx}
+                      onMouseEnter={() => setHoveredHarmonicIdx(hIdx)}
+                      onMouseLeave={() => setHoveredHarmonicIdx(null)}
+                      className={`p-3 rounded-xl bg-[#06080d] border transition-all cursor-pointer ${
+                        hoveredHarmonicIdx === hIdx ? 'border-blue-400 bg-blue-950/40 shadow-glow-sm' : 'border-slate-800'
+                      }`}
+                    >
+                      <div className="text-slate-500 text-[10px]">{hItem.label}</div>
+                      <div className={`font-bold mt-1 ${hItem.alert ? 'text-blue-400' : 'text-white'}`}>{hItem.value}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
