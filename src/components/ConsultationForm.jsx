@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, CheckCircle2, MapPin, Mail, Phone, Clock, ShieldCheck, Sparkles } from 'lucide-react';
+import { Send, CheckCircle2, MapPin, Mail, Phone, Clock, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAEnOVjqrpsm3StEA';
+const API_BASE = 'https://dash.sensorsae.net';
 
 export const ConsultationForm = () => {
   const [formData, setFormData] = useState({
@@ -10,10 +11,12 @@ export const ConsultationForm = () => {
     company: '',
     equipmentType: 'Pumps, Motors & Compressors',
     machineCount: '5 Machines (Pilot Kit)',
+    notes: '',
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const turnstileContainerRef = useRef(null);
   const widgetIdRef = useRef(null);
@@ -26,16 +29,18 @@ export const ConsultationForm = () => {
         try {
           widgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
             sitekey: TURNSTILE_SITE_KEY,
-            action: 'consultation',
+            action: 'contact',
             theme: 'dark',
             callback: (token) => {
               setTurnstileToken(token);
+              setErrorMessage('');
             },
             'expired-callback': () => {
               setTurnstileToken('');
             },
             'error-callback': () => {
               setTurnstileToken('');
+              setErrorMessage('Cloudflare Turnstile verification check encountered an issue. Please refresh or retry.');
             },
           });
         } catch (err) {
@@ -66,18 +71,83 @@ export const ConsultationForm = () => {
     };
   }, [isSubmitted]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+
     if (!turnstileToken) {
-      alert('Please complete the verification check before submitting.');
+      setErrorMessage('Please complete the Cloudflare security verification check before submitting.');
       return;
     }
+
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    try {
+      const messageBody = [
+        `Plant / Company: ${formData.company.trim()}`,
+        `Target Machinery: ${formData.equipmentType}`,
+        `Scope of Pilot: ${formData.machineCount}`,
+        formData.notes?.trim() ? `\nFacility Notes & Requirements:\n${formData.notes.trim()}` : null,
+      ].filter(Boolean).join('\n');
+
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: messageBody,
+        turnstile_token: turnstileToken,
+      };
+
+      const res = await fetch(`${API_BASE}/api/mail/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (json.errors) {
+          const firstErr = Object.values(json.errors).flat()[0];
+          throw new Error(firstErr || json.message || 'Submission failed');
+        }
+        throw new Error(json.message || `Server responded with status ${res.status}`);
+      }
+
       setIsSubmitted(true);
       setTurnstileToken('');
-    }, 800);
+      setErrorMessage('');
+
+    } catch (err) {
+      console.error('Contact submission error:', err);
+      setErrorMessage(err.message || 'Failed to submit reservation. Please check your details and try again.');
+      
+      // Reset Turnstile widget so user can re-verify and retry
+      if (window.turnstile && widgetIdRef.current !== null) {
+        try {
+          window.turnstile.reset(widgetIdRef.current);
+          setTurnstileToken('');
+        } catch (_) {}
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetForm = () => {
+    setIsSubmitted(false);
+    setTurnstileToken('');
+    setErrorMessage('');
+    setFormData({
+      name: '',
+      email: '',
+      company: '',
+      equipmentType: 'Pumps, Motors & Compressors',
+      machineCount: '5 Machines (Pilot Kit)',
+      notes: '',
+    });
   };
 
   return (
@@ -177,23 +247,23 @@ export const ConsultationForm = () => {
           <div className="lg:col-span-7 rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-8 sm:p-12 flex flex-col justify-center shadow-glow-sm">
             {isSubmitted ? (
               <div className="py-10 text-center space-y-5 animate-in fade-in duration-300">
-                <div className="w-14 h-14 rounded-full bg-blue-950 border border-blue-400 flex items-center justify-center mx-auto text-blue-400">
+                <div className="w-14 h-14 rounded-full bg-blue-950 border border-blue-400 flex items-center justify-center mx-auto text-blue-400 shadow-glow-sm">
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <h3 className="text-2xl font-bold text-white">
-                  Trial Reservation Received!
+                  Trial Reservation Transmitted!
                 </h3>
                 <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
-                  Thank you, <strong className="text-white">{formData.name}</strong>. A SENSORSAE Deployment Engineer will review your setup for <strong className="text-white">{formData.company}</strong> and confirm shipment to <span className="font-mono text-blue-400">{formData.email}</span> within 2 hours.
+                  Thank you, <strong className="text-white">{formData.name}</strong>. Your trial kit request for <strong className="text-white">{formData.company}</strong> has been received by our engineering team. A confirmation has been dispatched to <span className="font-mono text-blue-400 font-semibold">{formData.email}</span>.
                 </p>
-                <div className="p-4 rounded-xl bg-[#06080d] border border-slate-800 text-xs font-mono text-slate-300 max-w-sm mx-auto space-y-1 text-left">
-                  <div>TARGET EQUIPMENT: <span className="text-blue-400">{formData.equipmentType}</span></div>
-                  <div>SCOPE: <span className="text-blue-400">{formData.machineCount}</span></div>
-                  <div>TERMS: <span className="text-blue-400">30-Day Risk-Free Trial</span></div>
+                <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 text-xs font-mono text-slate-300 max-w-sm mx-auto space-y-1.5 text-left">
+                  <div>TARGET EQUIPMENT: <span className="text-blue-400 font-bold">{formData.equipmentType}</span></div>
+                  <div>SCOPE: <span className="text-blue-400 font-bold">{formData.machineCount}</span></div>
+                  <div>TERMS: <span className="text-emerald-400 font-bold">30-Day Risk-Free Trial (No Obligation)</span></div>
                 </div>
                 <button
-                  onClick={() => setIsSubmitted(false)}
-                  className="mt-4 px-6 py-2 rounded-full bg-blue-950 text-blue-300 border border-blue-800 text-xs font-mono"
+                  onClick={handleResetForm}
+                  className="mt-4 px-6 py-2.5 rounded-full bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-800 text-xs font-mono transition-colors"
                 >
                   Submit another request
                 </button>
@@ -208,6 +278,13 @@ export const ConsultationForm = () => {
                     Fill out your facility details to receive a complete 4-pod hardware pilot kit.
                   </p>
                 </div>
+
+                {errorMessage && (
+                  <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 text-xs font-mono flex items-start gap-2.5 animate-in fade-in">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
@@ -293,12 +370,25 @@ export const ConsultationForm = () => {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block font-mono text-xs uppercase tracking-wider text-slate-300 mb-2">
+                    Specific Requirements or Machine Details (Optional)
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={formData.notes || ''}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    placeholder="e.g. High ambient temperature environment, Modbus bridge needed..."
+                    className="w-full bg-[#06080d] text-white px-4 py-2.5 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-xs placeholder:text-slate-600 transition-all font-mono resize-none"
+                  />
+                </div>
+
                 {/* Cloudflare Turnstile Verification */}
                 <div className="pt-2 flex flex-col items-center justify-center space-y-2">
                   <div 
                     ref={turnstileContainerRef} 
                     className="min-h-[65px] flex items-center justify-center"
-                    data-action="consultation"
+                    data-action="contact"
                   ></div>
                   <input type="hidden" name="cf-turnstile-response" value={turnstileToken} />
                 </div>
@@ -307,13 +397,16 @@ export const ConsultationForm = () => {
                   type="submit"
                   disabled={isSubmitting || !turnstileToken}
                   className={`w-full py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-                    !turnstileToken
+                    !turnstileToken || isSubmitting
                       ? 'bg-slate-800/80 text-slate-400 border border-slate-700 cursor-not-allowed'
                       : 'bg-blue-600 hover:bg-blue-500 text-white shadow-glow-sm hover:shadow-glow-md'
                   }`}
                 >
                   {isSubmitting ? (
-                    <span>Processing Reservation...</span>
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin text-blue-400" />
+                      <span>Transmitting Reservation to Engineers...</span>
+                    </span>
                   ) : !turnstileToken ? (
                     <span className="flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-blue-400" />
