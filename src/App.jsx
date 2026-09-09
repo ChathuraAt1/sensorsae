@@ -7,6 +7,7 @@ import { MasonryBento } from './components/MasonryBento';
 import { AboutCompany } from './components/AboutCompany';
 import { Testimonials } from './components/Testimonials';
 import { Faq } from './components/Faq';
+import { Pricing } from './components/Pricing';
 import { ConsultationForm } from './components/ConsultationForm';
 import { ProductsPage } from './components/ProductsPage';
 import { DashboardPlaceholder } from './components/DashboardPlaceholder';
@@ -118,7 +119,12 @@ export function App() {
               onRequestDemo={handleRequestDemo}
             />
 
-            {/* 6. Customer Stories & Field Testimonials */}
+            {/* 6. Transparent Industrial Pricing (Connected to dash.sensorsae.net) */}
+            <Pricing 
+              onRequestDemo={handleRequestDemo}
+            />
+
+            {/* 7. Customer Stories & Field Testimonials */}
             <Testimonials />
 
             {/* 7. Customer FAQ Section */}

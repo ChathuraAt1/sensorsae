@@ -4,6 +4,7 @@ import { Cpu, Menu, X, ArrowRight, Package } from 'lucide-react';
 const NAV_ITEMS = [
   { id: 'how-it-works', label: 'How It Works' },
   { id: 'features', label: 'Features' },
+  { id: 'pricing', label: 'Pricing' },
   { id: 'about-company', label: 'About Us' },
   { id: 'testimonials', label: 'Testimonials' },
   { id: 'faq', label: 'FAQ' },

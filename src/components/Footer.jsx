@@ -103,6 +103,11 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
                 </button>
               </li>
               <li>
+                <button onClick={() => onNavigate('pricing')} className="hover:text-blue-400 transition-colors">
+                  Pricing Plans
+                </button>
+              </li>
+              <li>
                 <button onClick={() => onNavigate('testimonials')} className="hover:text-blue-400 transition-colors">
                   Field Testimonials
                 </button>
