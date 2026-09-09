@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Menu, X, ArrowRight, Package } from 'lucide-react';
+import { Cpu, Menu, X, ArrowRight, Package, User, LogIn, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const NAV_ITEMS = [
   { id: 'how-it-works', label: 'How It Works' },
@@ -11,7 +12,8 @@ const NAV_ITEMS = [
   { id: 'consultation', label: 'Contact' },
 ];
 
-export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
+export const Navbar = ({ currentView, setCurrentView, onRequestDemo, onOpenAuth }) => {
+  const { user, isAuthenticated, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
@@ -150,8 +152,34 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
           })}
         </nav>
 
-        {/* MAIN HEADER CTA: Product Page Toggle */}
+        {/* MAIN HEADER CTA & Auth Controls */}
         <div className="hidden lg:flex items-center gap-3">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2 bg-[#0b0f19] border border-blue-900/60 rounded-full px-3 py-1 text-xs">
+              <div className="w-6 h-6 rounded-full bg-blue-600/30 border border-blue-400 flex items-center justify-center text-blue-300">
+                <User className="w-3.5 h-3.5" />
+              </div>
+              <span className="font-mono text-slate-200 text-xs font-semibold max-w-[110px] truncate">
+                {user?.username || user?.email?.split('@')[0] || 'Operator'}
+              </span>
+              <button
+                onClick={logout}
+                title="Sign Out"
+                className="p-1 rounded-full text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors ml-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => onOpenAuth && onOpenAuth('login')}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 border border-blue-800/40 hover:border-blue-500/50 text-slate-300 hover:text-white text-xs font-semibold transition-all duration-300"
+            >
+              <LogIn className="w-3.5 h-3.5 text-blue-400" />
+              <span>Sign In</span>
+            </button>
+          )}
+
           {currentView === 'home' ? (
             <button
               onClick={() => {
@@ -227,6 +255,33 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
               );
             })}
             
+            {/* Mobile Auth Button */}
+            {isAuthenticated ? (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-blue-950/40 border border-blue-900/60 text-xs">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-blue-400" />
+                  <span className="text-white font-mono">{user?.username || user?.email}</span>
+                </div>
+                <button
+                  onClick={() => { logout(); setMobileMenuOpen(false); }}
+                  className="text-red-400 hover:text-red-300 font-semibold"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  if (onOpenAuth) onOpenAuth('login');
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-[#0b0f19] border border-blue-800/50 text-blue-400 font-bold text-xs flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Operator Sign In</span>
+              </button>
+            )}
+
             {/* Primary Mobile CTA */}
             <button 
               onClick={() => {
@@ -239,7 +294,7 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo }) => {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }} 
-              className="w-full mt-3 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-center text-sm shadow-glow-sm flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-center text-sm shadow-glow-sm flex items-center justify-center gap-2"
             >
               <Package className="w-4 h-4" />
               <span>{currentView === 'home' ? 'Explore Product Line' : 'Return to Overview'}</span>

@@ -8,6 +8,9 @@ import { AboutCompany } from './components/AboutCompany';
 import { Testimonials } from './components/Testimonials';
 import { Faq } from './components/Faq';
 import { Pricing } from './components/Pricing';
+import { Checkout } from './components/Checkout';
+import { AuthModal } from './components/AuthModal';
+import { OAuthCallback } from './components/OAuthCallback';
 import { ConsultationForm } from './components/ConsultationForm';
 import { ProductsPage } from './components/ProductsPage';
 import { DashboardPlaceholder } from './components/DashboardPlaceholder';
@@ -16,12 +19,22 @@ import { Footer } from './components/Footer';
 export function App() {
   const getInitialView = () => {
     const path = window.location.pathname;
+    if (path.includes('/auth/complete')) return 'auth/complete';
+    if (path.includes('/checkout')) return 'checkout';
     if (path.includes('/dashboard')) return 'dashboard';
     if (path.includes('/products')) return 'products';
     return 'home';
   };
 
   const [currentView, setCurrentView] = useState(getInitialView);
+
+  // Checkout Plan Selection State
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState('yearly');
+
+  // Auth Modal State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register' | 'forgot'
 
   useEffect(() => {
     const handlePopState = () => {
@@ -62,6 +75,17 @@ export function App() {
     navigateTo('home', '/');
   };
 
+  const handleSelectPlan = (plan, billingCycle = 'yearly') => {
+    setSelectedPlan(plan);
+    setSelectedBillingCycle(billingCycle);
+    navigateTo('checkout', `/checkout?plan=${encodeURIComponent(plan.slug)}&interval=${billingCycle}`);
+  };
+
+  const handleOpenAuth = (mode = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
   const handleSectionNavigate = (sectionId) => {
     if (currentView !== 'home') {
       navigateTo('home', '/');
@@ -75,15 +99,26 @@ export function App() {
     }
   };
 
+  const handleOAuthFinished = ({ planSlug, billingCycle }) => {
+    if (planSlug) {
+      navigateTo('checkout', `/checkout?plan=${encodeURIComponent(planSlug)}&interval=${billingCycle || 'yearly'}`);
+    } else {
+      navigateTo('home', '/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#06080d] text-slate-100 flex flex-col selection:bg-blue-500/30 selection:text-blue-200 font-sans">
-      {/* Navigation */}
-      <Navbar 
-        currentView={currentView}
-        setCurrentView={(v) => navigateTo(v, v === 'home' ? '/' : `/${v}`)}
-        onRequestDemo={handleRequestDemo}
-        onOpenDashboard={handleOpenDashboard}
-      />
+      {/* Navigation (Hidden on standalone OAuth callback screen for seamless flow) */}
+      {currentView !== 'auth/complete' && (
+        <Navbar 
+          currentView={currentView}
+          setCurrentView={(v) => navigateTo(v, v === 'home' ? '/' : `/${v}`)}
+          onRequestDemo={handleRequestDemo}
+          onOpenDashboard={handleOpenDashboard}
+          onOpenAuth={handleOpenAuth}
+        />
+      )}
 
       {/* Main Content View Switcher */}
       <main className="flex-1">
@@ -122,19 +157,29 @@ export function App() {
             {/* 6. Transparent Industrial Pricing (Connected to dash.sensorsae.net) */}
             <Pricing 
               onRequestDemo={handleRequestDemo}
+              onSelectPlan={handleSelectPlan}
             />
 
             {/* 7. Customer Stories & Field Testimonials */}
             <Testimonials />
 
-            {/* 7. Customer FAQ Section */}
+            {/* 8. Customer FAQ Section */}
             <Faq 
               onRequestDemo={handleRequestDemo}
             />
 
-            {/* 8. 30-Day Risk-Free Pilot Booking Form */}
+            {/* 9. 30-Day Risk-Free Pilot Booking Form */}
             <ConsultationForm />
           </>
+        )}
+
+        {currentView === 'checkout' && (
+          <Checkout 
+            selectedPlan={selectedPlan}
+            billingCycle={selectedBillingCycle}
+            onBack={handleBackToHome}
+            onOpenAuth={() => handleOpenAuth('login')}
+          />
         )}
 
         {currentView === 'products' && (
@@ -150,13 +195,36 @@ export function App() {
             onBackToHome={handleBackToHome}
           />
         )}
+
+        {currentView === 'auth/complete' && (
+          <OAuthCallback 
+            onComplete={handleOAuthFinished}
+          />
+        )}
       </main>
 
-      {/* Footer */}
-      <Footer 
-        onNavigate={handleSectionNavigate}
-        onExploreProducts={handleExploreProducts}
-        onRequestDemo={handleRequestDemo}
+      {/* Footer (Hidden on checkout and auth callback for focused flow) */}
+      {currentView !== 'checkout' && currentView !== 'auth/complete' && (
+        <Footer 
+          onNavigate={handleSectionNavigate}
+          onExploreProducts={handleExploreProducts}
+          onRequestDemo={handleRequestDemo}
+        />
+      )}
+
+      {/* Global Auth Modal for Login, Registration & Password Reset */}
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+        planSlug={selectedPlan?.slug}
+        billingCycle={selectedBillingCycle}
+        onSuccess={() => {
+          // If we are currently on checkout, stay on checkout to complete order
+          if (currentView !== 'checkout') {
+            // Can redirect to dashboard or keep on current view
+          }
+        }}
       />
     </div>
   );

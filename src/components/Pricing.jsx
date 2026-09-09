@@ -73,12 +73,12 @@ const DEFAULT_PLANS = [
   }
 ];
 
-export const Pricing = ({ onRequestDemo }) => {
+export const Pricing = ({ onRequestDemo, onSelectPlan }) => {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
   const [plans, setPlans] = useState(DEFAULT_PLANS);
   const [isLoading, setIsLoading] = useState(true);
   const [isBackendConnected, setIsBackendConnected] = useState(false);
-  const [syncMessage, setSyncMessage] = useState('Syncing...');
+  const [syncMessage, setSyncMessage] = useState('Syncing with dash.sensorsae.net...');
 
   useEffect(() => {
     let isMounted = true;
@@ -118,7 +118,7 @@ export const Pricing = ({ onRequestDemo }) => {
             }));
             setPlans(normalized.filter(p => p.is_active));
             setIsBackendConnected(true);
-            setSyncMessage('Live plans synchronized');
+            setSyncMessage('Live plans synchronized with dash.sensorsae.net');
           } else {
             // Backend is reachable but database plans array is currently empty
             setPlans(DEFAULT_PLANS);
@@ -156,7 +156,13 @@ export const Pricing = ({ onRequestDemo }) => {
       return;
     }
 
-    // Direct redirect to live registered subscription flow on dash.sensorsae.net
+    // Launch in-app interactive checkout if handler provided
+    if (onSelectPlan) {
+      onSelectPlan(plan, billingCycle);
+      return;
+    }
+
+    // Fallback: direct redirect to live registered subscription flow on dash.sensorsae.net
     const checkoutUrl = `https://dash.sensorsae.net/register?plan_slug=${encodeURIComponent(plan.slug)}&billing_cycle=${encodeURIComponent(billingCycle)}`;
     window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
   };
