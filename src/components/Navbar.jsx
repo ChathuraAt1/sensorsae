@@ -7,8 +7,6 @@ const NAV_ITEMS = [
   { id: 'features', label: 'Features' },
   { id: 'about-company', label: 'About Us' },
   { id: 'pricing', label: 'Pricing' },
-  { id: 'testimonials', label: 'Testimonials' },
-  { id: 'faq', label: 'FAQ' },
   { id: 'consultation', label: 'Contact' },
 ];
 

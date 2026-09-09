@@ -18,6 +18,7 @@ import { ProductsPage } from './components/ProductsPage';
 import { IndustrialDashboard } from './components/IndustrialDashboard';
 import { Footer } from './components/Footer';
 import { useAuth } from './context/AuthContext';
+import { FALLBACK_PLANS } from './services/subscriptionService';
 
 export function App() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -26,16 +27,29 @@ export function App() {
     const path = window.location.pathname;
     if (path.includes('/auth/complete')) return 'auth/complete';
     if (path.includes('/checkout')) return 'checkout';
-    if (path.includes('/dashboard')) return 'dashboard';
+    if (path.includes('/dashboard') || path.includes('/alerts') || path.includes('/incidents')) return 'dashboard';
     if (path.includes('/products')) return 'products';
     return 'home';
   };
 
   const [currentView, setCurrentView] = useState(getInitialView);
 
-  // Checkout Plan Selection State
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [selectedBillingCycle, setSelectedBillingCycle] = useState('yearly');
+  // Checkout Plan Selection State (with URL param auto-rehydration for initial visit & refresh)
+  const [selectedPlan, setSelectedPlan] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planSlug = (params.get('plan') || '').toLowerCase();
+    if (planSlug) {
+      return FALLBACK_PLANS.find(p => 
+        (p.slug || '').toLowerCase().includes(planSlug) || 
+        (p.name || '').toLowerCase().includes(planSlug)
+      ) || FALLBACK_PLANS[1];
+    }
+    return null;
+  });
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('interval') || params.get('cycle') || 'yearly';
+  });
 
   // Auth Modal State
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -86,8 +100,11 @@ export function App() {
   // Dashboard deep link parameters state
   const [dashboardOptions, setDashboardOptions] = useState(() => {
     const params = new URLSearchParams(window.location.search);
+    const path = window.location.pathname;
+    const isAlertRoute = path.includes('/alerts') || path.includes('/incidents');
+    const tabParam = params.get('tab');
     return {
-      tab: params.get('tab') || 'overview',
+      tab: tabParam || (isAlertRoute ? 'incidents' : 'overview'),
       assetId: params.get('asset') || null,
     };
   });
@@ -184,6 +201,7 @@ export function App() {
             <AlternatingSections 
               onRequestDemo={handleRequestDemo}
               onExploreProducts={handleExploreProducts}
+              onOpenDashboard={handleOpenDashboard}
             />
 
             {/* 3. Interactive Capabilities Studio */}

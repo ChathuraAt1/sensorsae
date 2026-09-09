@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 
-export const AlternatingSections = ({ onRequestDemo, onExploreProducts }) => {
+export const AlternatingSections = ({ onRequestDemo, onExploreProducts, onOpenDashboard }) => {
   return (
     <section id="how-it-works" className="py-24 bg-[#06080d] space-y-28">
       <div className="max-w-6xl mx-auto px-6 space-y-28">
@@ -64,7 +64,7 @@ export const AlternatingSections = ({ onRequestDemo, onExploreProducts }) => {
             </p>
             <div className="pt-2">
               <button
-                onClick={onExploreProducts}
+                onClick={() => onOpenDashboard ? onOpenDashboard({ tab: 'incidents' }) : onExploreProducts()}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
               >
                 <span>See sample alerts</span>

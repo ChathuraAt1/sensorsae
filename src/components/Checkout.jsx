@@ -28,10 +28,16 @@ export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpen
     description: 'Complete predictive intelligence suite for automated production lines.',
   };
 
+  // Robust price normalization supporting camelCase, snake_case, numbers and string numbers
+  const rawMonthly = Number(plan?.monthlyPrice ?? plan?.monthly_price ?? plan?.price ?? 149);
+  const rawYearly = Number(plan?.yearlyPrice ?? plan?.yearly_price ?? (plan?.price ? Math.round(Number(plan.price) * 0.8) : 119));
+  const monthlyPrice = isNaN(rawMonthly) || rawMonthly <= 0 ? 149 : rawMonthly;
+  const yearlyPrice = isNaN(rawYearly) || rawYearly <= 0 ? 119 : rawYearly;
+
   // Pricing calculations
-  const pricePerMonth = cycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
-  const billedAmount = cycle === 'yearly' ? plan.yearlyPrice * 12 : plan.monthlyPrice;
-  const annualSavings = (plan.monthlyPrice - plan.yearlyPrice) * 12;
+  const pricePerMonth = cycle === 'yearly' ? yearlyPrice : monthlyPrice;
+  const billedAmount = cycle === 'yearly' ? yearlyPrice * 12 : monthlyPrice;
+  const annualSavings = Math.max(0, (monthlyPrice - yearlyPrice) * 12);
 
   // Form State
   const [email, setEmail] = useState(user?.email || '');
@@ -716,7 +722,7 @@ export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpen
                     cycle === 'monthly' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  Monthly (${plan.monthlyPrice}/mo)
+                  Monthly (${monthlyPrice}/mo)
                 </button>
                 <button
                   type="button"
@@ -725,7 +731,7 @@ export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpen
                     cycle === 'yearly' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <span>Yearly (${plan.yearlyPrice}/mo)</span>
+                  <span>Yearly (${yearlyPrice}/mo)</span>
                   <span className="text-[10px] bg-emerald-400/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono">
                     Save 20%
                   </span>
