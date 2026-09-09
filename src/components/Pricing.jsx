@@ -78,7 +78,7 @@ export const Pricing = ({ onRequestDemo }) => {
   const [plans, setPlans] = useState(DEFAULT_PLANS);
   const [isLoading, setIsLoading] = useState(true);
   const [isBackendConnected, setIsBackendConnected] = useState(false);
-  const [syncMessage, setSyncMessage] = useState('Syncing with dash.sensorsae.net...');
+  const [syncMessage, setSyncMessage] = useState('Syncing...');
 
   useEffect(() => {
     let isMounted = true;
@@ -118,7 +118,7 @@ export const Pricing = ({ onRequestDemo }) => {
             }));
             setPlans(normalized.filter(p => p.is_active));
             setIsBackendConnected(true);
-            setSyncMessage('Live plans synchronized with dash.sensorsae.net');
+            setSyncMessage('Live plans synchronized');
           } else {
             // Backend is reachable but database plans array is currently empty
             setPlans(DEFAULT_PLANS);
@@ -188,13 +188,7 @@ export const Pricing = ({ onRequestDemo }) => {
             All tiers include industrial sensor connectivity and sub-second anomaly detection.
           </p>
 
-          {/* Live Sync Status Indicator */}
-          <div className="inline-flex items-center gap-2 text-[11px] font-mono text-slate-500 pt-1">
-            <span className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-emerald-400 animate-pulse' : 'bg-blue-400'}`}></span>
-            <span>API: <strong className="text-slate-300">dash.sensorsae.net</strong></span>
-            <span className="text-slate-600">•</span>
-            <span className="text-slate-400">{syncMessage}</span>
-          </div>
+          
 
           {/* Billing Cycle Switcher Toggle */}
           <div className="pt-6 flex items-center justify-center">
