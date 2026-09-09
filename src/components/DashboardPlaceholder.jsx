@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { 
   Cpu, Activity, ArrowLeft, Radio, AlertCircle, CheckCircle2, 
-  TrendingUp, BarChart2, ShieldCheck, RefreshCw, Zap, Bell 
+  TrendingUp, BarChart2, ShieldCheck, RefreshCw, Zap, Bell, 
+  User, LogOut, Bot, Sparkles, Key, Lock, ExternalLink
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-export const DashboardPlaceholder = ({ onBackToHome }) => {
+export const DashboardPlaceholder = ({ onBackToHome, onOpenAiChat }) => {
+  const { user, token, logout, isAuthenticated } = useAuth();
   const [selectedFeed, setSelectedFeed] = useState(0);
 
   const mockMachines = [
@@ -15,54 +18,116 @@ export const DashboardPlaceholder = ({ onBackToHome }) => {
   ];
 
   return (
-    <div className="min-h-screen pt-28 pb-20 bg-[#06080d] text-slate-100">
+    <div className="min-h-screen pt-28 pb-20 bg-[#06080d] text-slate-100 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Top Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-blue-900/30">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-blue-900/30">
+          <div className="flex items-center gap-4 flex-wrap">
             <button
               onClick={onBackToHome}
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0b0f19] border border-blue-900/40 text-slate-300 hover:text-white hover:border-blue-500/50 transition-all font-mono text-xs"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Main Site</span>
+              <span>Back to Overview</span>
             </button>
+
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-ping"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
               <span className="font-mono text-xs text-blue-400 font-bold uppercase tracking-wider">
-                LIVE MACHINE DASHBOARD (/dashboard)
+                AUTHENTICATED OPERATOR DASHBOARD
               </span>
             </div>
           </div>
 
+          {/* Authenticated Operator Profile Header */}
           <div className="flex items-center gap-3 font-mono text-xs">
-            <span className="px-3 py-1.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
-              CLUSTER: ONLINE (4 NODES)
-            </span>
-            <span className="text-slate-400">DEMO SIMULATOR v2.4</span>
+            <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#0b0f19] border border-blue-900/60 shadow-glow-sm">
+              <div className="w-7 h-7 rounded-xl bg-blue-600/30 border border-blue-400 flex items-center justify-center text-blue-300">
+                <User className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <div className="text-white font-bold text-xs truncate max-w-[140px]">
+                  {user?.username || user?.first_name || user?.email?.split('@')[0] || 'Operator'}
+                </div>
+                <div className="text-[10px] text-emerald-400">
+                  {user?.email || 'Authenticated Session'}
+                </div>
+              </div>
+            </div>
+
+            {onOpenAiChat && (
+              <button
+                onClick={onOpenAiChat}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-glow-sm"
+              >
+                <Bot className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">AI Diagnostics</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                logout();
+                if (onBackToHome) onBackToHome();
+              }}
+              title="Sign Out"
+              className="p-2.5 rounded-2xl bg-slate-900 hover:bg-red-950/60 border border-slate-800 hover:border-red-500/40 text-slate-400 hover:text-red-300 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
+        </div>
+
+        {/* Operator Session Alert Banner */}
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-blue-950/50 via-[#0b0f19] to-blue-950/50 border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-blue-950 border border-blue-400/40 flex items-center justify-center text-blue-400 shrink-0 shadow-glow-sm">
+              <Key className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white flex items-center gap-2">
+                <span>Sanctum Bearer Token Synchronized</span>
+                <span className="px-2 py-0.2 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30 font-mono text-[9px]">
+                  VALIDATED
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                Connected to cluster: <strong className="text-blue-300">https://dash.sensorsae.net</strong> • Subscriptions &amp; AI active
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="https://dash.sensorsae.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 rounded-xl bg-[#06080d] hover:bg-slate-800 border border-blue-900/60 text-blue-300 hover:text-white text-xs font-mono font-semibold transition-all flex items-center gap-1.5 shrink-0"
+          >
+            <span>Open Native Backend Console</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
 
         {/* Dashboard Stat Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl bg-[#0b0f19] border border-blue-900/40">
-            <div className="text-xs font-mono text-slate-400 mb-1">TOTAL CONNECTED SENSORS</div>
+          <div className="p-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40">
+            <div className="text-xs font-mono text-slate-400 mb-1">CONNECTED SENSORS</div>
             <div className="text-2xl sm:text-3xl font-bold text-white">48 Pods</div>
             <div className="text-[11px] font-mono text-blue-400 mt-1">100% Signal Strength</div>
           </div>
-          <div className="p-5 rounded-2xl bg-[#0b0f19] border border-blue-900/40">
+          <div className="p-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40">
             <div className="text-xs font-mono text-slate-400 mb-1">AVERAGE PLANT HEALTH</div>
             <div className="text-2xl sm:text-3xl font-bold text-white">98.4%</div>
-            <div className="text-[11px] font-mono text-blue-400 mt-1">Normal Operating State</div>
+            <div className="text-[11px] font-mono text-emerald-400 mt-1">Normal Operating State</div>
           </div>
-          <div className="p-5 rounded-2xl bg-[#0b0f19] border border-blue-900/40">
+          <div className="p-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40">
             <div className="text-xs font-mono text-slate-400 mb-1">PREVENTED ANOMALIES</div>
             <div className="text-2xl sm:text-3xl font-bold text-white">12 This Quarter</div>
             <div className="text-[11px] font-mono text-blue-400 mt-1">Est. $184,000 Saved</div>
           </div>
-          <div className="p-5 rounded-2xl bg-[#0b0f19] border border-blue-900/40">
-            <div className="text-xs font-mono text-slate-400 mb-1">SECURITY STATUS</div>
+          <div className="p-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40">
+            <div className="text-xs font-mono text-slate-400 mb-1">SECURITY CLUSTER</div>
             <div className="text-2xl sm:text-3xl font-bold text-white">Air-Gapped</div>
             <div className="text-[11px] font-mono text-blue-400 mt-1">0 External Egress Packets</div>
           </div>
@@ -153,9 +218,18 @@ export const DashboardPlaceholder = ({ onBackToHome }) => {
               </div>
 
               {/* Diagnostic AI Insight */}
-              <div className="p-4 rounded-2xl bg-blue-950/30 border border-blue-500/30 text-xs sm:text-sm font-sans space-y-1">
-                <div className="font-mono text-[11px] text-blue-400 font-bold uppercase tracking-wider">
-                  AI PREDICTIVE SUMMARY
+              <div className="p-4 rounded-2xl bg-blue-950/30 border border-blue-500/30 text-xs sm:text-sm font-sans space-y-2">
+                <div className="flex items-center justify-between font-mono text-[11px]">
+                  <span className="text-blue-400 font-bold uppercase tracking-wider">
+                    AI PREDICTIVE SUMMARY
+                  </span>
+                  <button
+                    onClick={onOpenAiChat}
+                    className="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-bold underline transition-colors"
+                  >
+                    <span>Analyze with Copilot</span>
+                    <Sparkles className="w-3 h-3" />
+                  </button>
                 </div>
                 <p className="text-slate-200 leading-relaxed">
                   {selectedFeed === 0 

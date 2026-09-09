@@ -11,12 +11,17 @@ import { Pricing } from './components/Pricing';
 import { Checkout } from './components/Checkout';
 import { AuthModal } from './components/AuthModal';
 import { OAuthCallback } from './components/OAuthCallback';
+import { AiChatWidget } from './components/AiChatWidget';
+import { CookieConsent } from './components/CookieConsent';
 import { ConsultationForm } from './components/ConsultationForm';
 import { ProductsPage } from './components/ProductsPage';
 import { DashboardPlaceholder } from './components/DashboardPlaceholder';
 import { Footer } from './components/Footer';
+import { useAuth } from './context/AuthContext';
 
 export function App() {
+  const { isAuthenticated, isLoading } = useAuth();
+
   const getInitialView = () => {
     const path = window.location.pathname;
     if (path.includes('/auth/complete')) return 'auth/complete';
@@ -35,6 +40,7 @@ export function App() {
   // Auth Modal State
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register' | 'forgot'
+  const [intendedRedirect, setIntendedRedirect] = useState('dashboard');
 
   useEffect(() => {
     const handlePopState = () => {
@@ -49,6 +55,16 @@ export function App() {
     window.history.pushState({}, '', path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Protect Dashboard under authentication
+  useEffect(() => {
+    if (!isLoading && currentView === 'dashboard' && !isAuthenticated) {
+      setIntendedRedirect('dashboard');
+      setAuthModalMode('login');
+      setIsAuthModalOpen(true);
+      navigateTo('home', '/');
+    }
+  }, [currentView, isAuthenticated, isLoading]);
 
   const handleRequestDemo = () => {
     if (currentView !== 'home') {
@@ -68,7 +84,13 @@ export function App() {
   };
 
   const handleOpenDashboard = () => {
-    navigateTo('dashboard', '/dashboard');
+    if (isAuthenticated) {
+      navigateTo('dashboard', '/dashboard');
+    } else {
+      setIntendedRedirect('dashboard');
+      setAuthModalMode('login');
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleBackToHome = () => {
@@ -81,7 +103,8 @@ export function App() {
     navigateTo('checkout', `/checkout?plan=${encodeURIComponent(plan.slug)}&interval=${billingCycle}`);
   };
 
-  const handleOpenAuth = (mode = 'login') => {
+  const handleOpenAuth = (mode = 'login', redirectTarget = 'dashboard') => {
+    setIntendedRedirect(redirectTarget);
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
   };
@@ -99,24 +122,32 @@ export function App() {
     }
   };
 
+  // OAuth Finished Handler -> routes to dashboard or specified plan checkout
   const handleOAuthFinished = ({ planSlug, billingCycle }) => {
     if (planSlug) {
       navigateTo('checkout', `/checkout?plan=${encodeURIComponent(planSlug)}&interval=${billingCycle || 'yearly'}`);
     } else {
-      navigateTo('home', '/');
+      // Auth takes directly to the dashboard
+      navigateTo('dashboard', '/dashboard');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#06080d] text-slate-100 flex flex-col selection:bg-blue-500/30 selection:text-blue-200 font-sans">
+    <div className="min-h-screen bg-[#06080d] text-slate-100 flex flex-col selection:bg-blue-500/30 selection:text-blue-200 font-sans relative">
       {/* Navigation (Hidden on standalone OAuth callback screen for seamless flow) */}
       {currentView !== 'auth/complete' && (
         <Navbar 
           currentView={currentView}
-          setCurrentView={(v) => navigateTo(v, v === 'home' ? '/' : `/${v}`)}
+          setCurrentView={(v) => {
+            if (v === 'dashboard') {
+              handleOpenDashboard();
+            } else {
+              navigateTo(v, v === 'home' ? '/' : `/${v}`);
+            }
+          }}
           onRequestDemo={handleRequestDemo}
           onOpenDashboard={handleOpenDashboard}
-          onOpenAuth={handleOpenAuth}
+          onOpenAuth={(mode) => handleOpenAuth(mode, 'dashboard')}
         />
       )}
 
@@ -178,7 +209,7 @@ export function App() {
             selectedPlan={selectedPlan}
             billingCycle={selectedBillingCycle}
             onBack={handleBackToHome}
-            onOpenAuth={() => handleOpenAuth('login')}
+            onOpenAuth={() => handleOpenAuth('login', 'checkout')}
           />
         )}
 
@@ -193,6 +224,11 @@ export function App() {
         {currentView === 'dashboard' && (
           <DashboardPlaceholder 
             onBackToHome={handleBackToHome}
+            onOpenAiChat={() => {
+              // Can trigger AI chat
+              const chatBtn = document.querySelector('button[aria-label="Open AI Telemetry Copilot"]');
+              if (chatBtn) chatBtn.click();
+            }}
           />
         )}
 
@@ -212,6 +248,12 @@ export function App() {
         />
       )}
 
+      {/* Floating AI Telemetry Copilot (Chat interface connected to /api/ai/generate without model) */}
+      <AiChatWidget />
+
+      {/* Industrial Cookie & Telemetry Consent Banner */}
+      <CookieConsent />
+
       {/* Global Auth Modal for Login, Registration & Password Reset */}
       <AuthModal 
         isOpen={isAuthModalOpen}
@@ -220,9 +262,12 @@ export function App() {
         planSlug={selectedPlan?.slug}
         billingCycle={selectedBillingCycle}
         onSuccess={() => {
-          // If we are currently on checkout, stay on checkout to complete order
-          if (currentView !== 'checkout') {
-            // Can redirect to dashboard or keep on current view
+          setIsAuthModalOpen(false);
+          // Auth takes directly to the dashboard (or intended view)
+          if (intendedRedirect === 'checkout' && selectedPlan) {
+            navigateTo('checkout', `/checkout?plan=${encodeURIComponent(selectedPlan.slug)}&interval=${selectedBillingCycle}`);
+          } else {
+            navigateTo('dashboard', '/dashboard');
           }
         }}
       />
