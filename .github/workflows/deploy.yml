@@ -63,4 +63,5 @@ jobs:
                 set net:max-retries 2; \
                 set net:reconnect-interval-base 5; \
                 mirror --reverse --delete --verbose --parallel=2 dist \"$FTP_REMOTE_DIR\"; \
+                put dist/.htaccess -o \"$FTP_REMOTE_DIR/.htaccess\" || true; \
                 bye"
