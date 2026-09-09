@@ -6,14 +6,26 @@ import {
   LayoutDashboard, Server, Eye, Thermometer, Layers, Wrench,
   Search, Filter, Download, ChevronRight, Sliders, Volume2,
   Clock, Check, AlertTriangle, Send, Terminal, CornerDownLeft,
-  Copy, Crosshair, HelpCircle
+  Copy, Crosshair, HelpCircle, ArrowUpRight, X, CreditCard,
+  CheckCircle
 } from 'lucide-react';
 import { 
   INDUSTRIAL_FACILITIES, INITIAL_ASSETS, CLUSTER_METRICS, RECENT_LOGS 
 } from '../data/telemetryData';
 import { useAuth } from '../context/AuthContext';
+import { 
+  fetchBackendPlans, 
+  fetchUserActivePlan, 
+  derivePlanCapabilities, 
+  FALLBACK_PLANS 
+} from '../services/subscriptionService';
 
-export const IndustrialDashboard = ({ onBackToHome, initialTab = 'overview', initialAssetId = null }) => {
+export const IndustrialDashboard = ({ 
+  onBackToHome, 
+  initialTab = 'overview', 
+  initialAssetId = null,
+  onSelectPlan 
+}) => {
   const { user, token, logout, apiBase } = useAuth();
 
   // Read URL query params if present for deep linking
@@ -41,6 +53,97 @@ export const IndustrialDashboard = ({ onBackToHome, initialTab = 'overview', ini
 
   // Interactive Thermal Spot-Picker State (Coordinates in %)
   const [thermalCrosshair, setThermalCrosshair] = useState({ x: 52, y: 48, tempDelta: 0 });
+
+  // Real Subscription & Plan Governance State (Synced live from backend API)
+  const [availablePlans, setAvailablePlans] = useState(FALLBACK_PLANS);
+  const [rawActivePlan, setRawActivePlan] = useState(FALLBACK_PLANS[1]);
+  const [isPlanLoading, setIsPlanLoading] = useState(true);
+  const [upgradeModal, setUpgradeModal] = useState({ isOpen: false, targetPlanSlug: 'professional', reason: '' });
+
+  // Dynamically derive capabilities, quotas, and limits based on backend plan data
+  const planCapabilities = useMemo(() => {
+    return derivePlanCapabilities(rawActivePlan);
+  }, [rawActivePlan]);
+
+  // Fetch subscription plans and user's active plan on mount
+  useEffect(() => {
+    let isMounted = true;
+    const loadSubscription = async () => {
+      try {
+        setIsPlanLoading(true);
+        const plans = await fetchBackendPlans();
+        if (!isMounted) return;
+        setAvailablePlans(plans);
+
+        const active = await fetchUserActivePlan(token, user);
+        if (!isMounted) return;
+
+        const targetSlug = (active?.slug || active?.name || '').toLowerCase();
+        const matched = plans.find(p => {
+          const pSlug = (p.slug || p.name || '').toLowerCase();
+          return pSlug === targetSlug || 
+            (targetSlug.includes('starter') && pSlug.includes('starter')) || 
+            (targetSlug.includes('pro') && pSlug.includes('pro')) || 
+            (targetSlug.includes('enterprise') && pSlug.includes('enterprise'));
+        }) || active || plans[1];
+
+        setRawActivePlan(matched);
+      } catch (err) {
+        console.warn('Subscription loading error:', err);
+      } finally {
+        if (isMounted) setIsPlanLoading(false);
+      }
+    };
+    loadSubscription();
+    return () => { isMounted = false; };
+  }, [token, user]);
+
+  // Handle plan upgrade action
+  const handleUpgrade = (targetSlugOrPlan) => {
+    let target = null;
+    if (typeof targetSlugOrPlan === 'object' && targetSlugOrPlan !== null) {
+      target = targetSlugOrPlan;
+    } else {
+      const slugStr = String(targetSlugOrPlan || 'professional').toLowerCase();
+      target = availablePlans.find(p => (p.slug || '').toLowerCase().includes(slugStr)) || availablePlans[1];
+    }
+
+    setUpgradeModal({ isOpen: false, targetPlanSlug: '', reason: '' });
+    if (onSelectPlan) {
+      onSelectPlan(target, 'yearly');
+    } else {
+      onBackToHome();
+    }
+  };
+
+  // Facility selection with enterprise multi-facility gating
+  const handleSelectFacility = (facilityId) => {
+    const fac = INDUSTRIAL_FACILITIES.find(f => f.id === facilityId);
+    if (!fac) return;
+    if (planCapabilities && !planCapabilities.allowedFacilities.includes(fac.id)) {
+      setUpgradeModal({
+        isOpen: true,
+        targetPlanSlug: 'enterprise-mesh',
+        reason: `Multi-Facility Fleet Telemetry (${fac.name.split('—')[0]}) requires an Enterprise Mesh license. Your current ${planCapabilities.name} plan covers 1 single production facility.`
+      });
+      return;
+    }
+    setSelectedFacility(fac);
+  };
+
+  // Time range selection with tier archive retention gating
+  const handleSelectTimeRange = (range) => {
+    if (planCapabilities && !planCapabilities.allowedHistoryRanges.includes(range)) {
+      const targetSlug = (range === '1-Year' || range === '90d') ? 'professional' : 'enterprise-mesh';
+      setUpgradeModal({
+        isOpen: true,
+        targetPlanSlug: targetSlug,
+        reason: `Extended Historical Telemetry (${range}) requires an upgraded license (${range === '1-Year' || range === '90d' ? 'Professional: 1-Year archive' : 'Enterprise: Unlimited cold storage'}). Your current ${planCapabilities.name} plan includes ${planCapabilities.historyDays}-Day retention.`
+      });
+      return;
+    }
+    setTimeRange(range);
+  };
 
   // Update selectedAsset if defaultAssetId changes
   useEffect(() => {
@@ -75,10 +178,10 @@ export const IndustrialDashboard = ({ onBackToHome, initialTab = 'overview', ini
           status: dynamicStatus,
         };
       }));
-    }, 2500);
+    }, Math.max(800, (planCapabilities?.pollingIntervalSec || 2.5) * 1000));
 
     return () => clearInterval(interval);
-  }, [isoThresholdLimit]);
+  }, [isoThresholdLimit, planCapabilities?.pollingIntervalSec]);
 
   // Copy to clipboard with visual toast feedback
   const handleCopy = (text, label = 'Information') => {
@@ -294,19 +397,25 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
           {/* Facility Selector */}
           {!sidebarCollapsed && (
             <div className="px-4">
-              <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-1.5">
-                Active Industrial Facility
+              <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>Active Industrial Facility</span>
+                {planCapabilities && planCapabilities.allowedFacilities.length === 1 && (
+                  <span className="text-[9px] text-blue-400 font-mono">1/3 Facilities</span>
+                )}
               </label>
               <select
                 value={selectedFacility.id}
-                onChange={(e) => setSelectedFacility(INDUSTRIAL_FACILITIES.find(f => f.id === e.target.value) || INDUSTRIAL_FACILITIES[0])}
+                onChange={(e) => handleSelectFacility(e.target.value)}
                 className="w-full bg-[#06080d] border border-blue-900/50 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
               >
-                {INDUSTRIAL_FACILITIES.map(f => (
-                  <option key={f.id} value={f.id}>
-                    {f.code} • {f.name.split('—')[0]}
-                  </option>
-                ))}
+                {INDUSTRIAL_FACILITIES.map(f => {
+                  const isLocked = planCapabilities && !planCapabilities.allowedFacilities.includes(f.id);
+                  return (
+                    <option key={f.id} value={f.id}>
+                      {f.code} • {f.name.split('—')[0]} {isLocked ? '🔒 (Enterprise)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           )}
@@ -321,6 +430,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
               { id: 'orin', label: 'Nvidia Orin Engine', icon: Cpu, badge: '275 TOPS' },
               { id: 'fft', label: 'Spectral FFT & DSP', icon: Activity, badge: '192 kHz' },
               { id: 'incidents', label: 'Incident Log & Orders', icon: AlertTriangle, badge: `${criticalCount + attentionCount}`, alert: criticalCount > 0 },
+              { id: 'plan', label: 'Subscription & Quotas', icon: ShieldCheck, badge: planCapabilities.name.split(' ')[0] },
             ].map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -361,16 +471,21 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
         <div className="p-3 border-t border-blue-900/40 bg-[#06080d]/60 space-y-2 shrink-0">
           {!sidebarCollapsed ? (
             <>
-              <div className="flex items-center gap-2.5 p-2 rounded-xl bg-[#0b0f19] border border-slate-800">
-                <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400 flex items-center justify-center text-blue-300 text-xs shrink-0">
+              <div 
+                onClick={() => setActiveTab('plan')}
+                className="flex items-center gap-2.5 p-2 rounded-xl bg-[#0b0f19] border border-slate-800 hover:border-blue-500/50 cursor-pointer transition-all group"
+                title="View Subscription & Quotas"
+              >
+                <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400 flex items-center justify-center text-blue-300 text-xs shrink-0 group-hover:scale-105 transition-transform">
                   <User className="w-3.5 h-3.5" />
                 </div>
                 <div className="overflow-hidden">
                   <div className="text-white font-bold text-xs truncate">
                     {user?.username || user?.email?.split('@')[0] || 'Operator'}
                   </div>
-                  <div className="text-[10px] font-mono text-emerald-400 truncate">
-                    Bearer Token Active
+                  <div className="text-[10px] font-mono text-emerald-400 truncate flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                    <span>{planCapabilities.name}</span>
                   </div>
                 </div>
               </div>
@@ -412,9 +527,9 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
       <div className="flex-1 h-full flex flex-col min-w-0 overflow-hidden">
         
         {/* Top Control Bar (Shrink-0) */}
-        <header className="bg-[#080d17]/90 backdrop-blur-md border-b border-blue-900/40 px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 z-20">
+        <header className="bg-[#080d17]/90 backdrop-blur-md border-b border-blue-900/40 px-6 py-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3 shrink-0 z-20">
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-4">
             <div>
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                 <span>SENSORSAE OS</span>
@@ -427,38 +542,114 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 <span>{selectedFacility.name.split('—')[0]}</span>
                 <span className="text-blue-500 font-mono text-xs font-normal">•</span>
                 <span className="text-blue-400 text-xs uppercase font-mono tracking-wider">
-                  {activeTab}
+                  {activeTab === 'plan' ? 'Subscription & Quotas' : activeTab}
                 </span>
               </h1>
             </div>
+
+            {/* Active License Pill (Clickable -> opens Plan Tab) */}
+            <div 
+              onClick={() => setActiveTab('plan')}
+              className="cursor-pointer group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-950/60 hover:bg-blue-900/40 border border-blue-500/30 hover:border-blue-400 transition-all shadow-sm"
+              title="Manage Fleet Quotas & Plan"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
+              <div className="flex flex-col text-left">
+                <span className="text-[8px] font-mono text-slate-400 uppercase tracking-wider">ACTIVE LICENSE</span>
+                <span className="text-xs font-bold font-mono text-white flex items-center gap-1.5">
+                  <span>{planCapabilities.name}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Quota & Telemetry HUD Bar */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Fleet Node Quota Meter */}
+            <div 
+              onClick={() => setActiveTab('plan')}
+              className="cursor-pointer hidden md:flex items-center gap-2 px-3 py-1 rounded-xl bg-[#06080d] border border-slate-800 hover:border-blue-500/40 font-mono text-xs transition-all"
+              title="Click to view full quota breakdown"
+            >
+              <Radio className="w-3 h-3 text-blue-400 shrink-0" />
+              <div>
+                <div className="flex items-center justify-between gap-2 text-[9px] text-slate-400">
+                  <span>FLEET NODES</span>
+                  <span className="text-white font-bold">
+                    {planCapabilities.activeNodesCount} / {planCapabilities.nodeLimit === Infinity ? '∞' : planCapabilities.nodeLimit}
+                  </span>
+                </div>
+                <div className="w-20 h-1 bg-slate-800 rounded-full overflow-hidden mt-0.5">
+                  <div 
+                    className={`h-full rounded-full ${
+                      planCapabilities.nodeLimit === Infinity 
+                        ? 'bg-emerald-400 w-full' 
+                        : (planCapabilities.activeNodesCount / planCapabilities.nodeLimit) > 0.85
+                          ? 'bg-amber-400'
+                          : 'bg-blue-500'
+                    }`}
+                    style={{
+                      width: planCapabilities.nodeLimit === Infinity 
+                        ? '100%' 
+                        : `${Math.min(100, Math.round((planCapabilities.activeNodesCount / planCapabilities.nodeLimit) * 100))}%`
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Polling Speed Indicator */}
+            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#06080d] border border-slate-800 font-mono text-xs text-slate-300">
+              <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+              <div className="flex flex-col text-left">
+                <span className="text-[8px] text-slate-500 uppercase">POLLING RESOLUTION</span>
+                <span className="text-white font-bold text-[10px]">{planCapabilities.pollingLabel.split(' ')[0]}</span>
+              </div>
+            </div>
+
+            {/* Security Architecture Badge */}
+            <div className="hidden 2xl:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#06080d] border border-slate-800 font-mono text-xs text-slate-300">
+              <Lock className={`w-3 h-3 shrink-0 ${planCapabilities.airGapped ? 'text-emerald-400' : 'text-blue-400'}`} />
+              <div className="flex flex-col text-left">
+                <span className="text-[8px] text-slate-500 uppercase">SECURITY</span>
+                <span className="text-white font-bold text-[10px]">
+                  {planCapabilities.airGapped ? 'Air-Gapped IEC 62443' : 'Industrial TLS 1.3'}
+                </span>
+              </div>
+            </div>
+
             {/* Live Search */}
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search machine, tag, fault..."
-                className="bg-[#06080d] border border-blue-900/50 rounded-xl px-3 py-1.5 pl-8 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono w-44 sm:w-56"
+                placeholder="Search telemetry..."
+                className="bg-[#06080d] border border-blue-900/50 rounded-xl px-3 py-1.5 pl-7 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono w-36 sm:w-44"
               />
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3 h-3 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
             </div>
 
-            {/* Time range selector */}
+            {/* Time range selector with tier archive retention gating */}
             <div className="bg-[#06080d] border border-blue-900/50 rounded-xl p-0.5 flex text-[10px] font-mono">
-              {['Live', '15m', '1h', '24h'].map(t => (
-                <button
-                  key={t}
-                  onClick={() => setTimeRange(t)}
-                  className={`px-2.5 py-1 rounded-lg transition-all ${
-                    timeRange === t ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+              {['Live', '24h', '30d', '1-Year', 'Archive'].map(t => {
+                const isLocked = planCapabilities && !planCapabilities.allowedHistoryRanges.includes(t);
+                return (
+                  <button
+                    key={t}
+                    onClick={() => handleSelectTimeRange(t)}
+                    className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
+                      timeRange === t ? 'bg-blue-600 text-white font-bold shadow-sm' : 
+                      isLocked ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-white'
+                    }`}
+                    title={isLocked ? `${t} retention requires an upgraded license` : undefined}
+                  >
+                    <span>{t}</span>
+                    {isLocked && <Lock className="w-2.5 h-2.5 text-blue-400/70" />}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Export Telemetry CSV */}
@@ -467,8 +658,8 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0b0f19] hover:bg-slate-800 border border-blue-900/50 text-slate-300 hover:text-white text-xs font-mono transition-colors"
               title="Export full CSV telemetry snapshot"
             >
-              <Download className="w-3.5 h-3.5 text-blue-400" />
-              <span className="hidden sm:inline">CSV Export</span>
+              <Download className="w-3 h-3 text-blue-400" />
+              <span className="hidden sm:inline">Export</span>
             </button>
           </div>
         </header>
@@ -862,7 +1053,32 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 </div>
               </div>
 
-              {/* Telemetry Table */}
+              {/* Plan Quota Status Banner */}
+              <div className="p-3.5 rounded-2xl bg-[#080d17] border border-blue-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-blue-950 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                    <Radio className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-white font-bold text-xs block">
+                      Licensed Fleet: {planCapabilities.activeNodesCount} / {planCapabilities.nodeLimit === Infinity ? 'Unlimited' : planCapabilities.nodeLimit} Physical Sensor Nodes Active
+                    </span>
+                    <p className="text-slate-400 text-[11px] font-sans">
+                      {planCapabilities.name} Tier • {planCapabilities.pollingLabel} • {planCapabilities.historyDays === Infinity ? 'Unlimited Cold Storage' : `${planCapabilities.historyDays}-Day Telemetry Retention`}
+                    </p>
+                  </div>
+                </div>
+
+                {planCapabilities.nodeLimit !== Infinity && (
+                  <button
+                    onClick={() => handleUpgrade('enterprise-mesh')}
+                    className="px-3.5 py-1.5 rounded-xl bg-blue-950/60 hover:bg-blue-900 border border-blue-500/40 text-blue-300 hover:text-white font-mono text-xs transition-all flex items-center gap-1.5 shrink-0"
+                  >
+                    <span>Expand Fleet Limit</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
               <div className="rounded-2xl bg-[#080d17] border border-blue-900/40 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left font-mono text-xs">
@@ -1268,26 +1484,52 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                   </div>
                 </div>
 
-                {/* Animated Graphic Spectrum Waterfall Bars with Hover Harmonic Feedback */}
-                <div className="h-44 p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 flex items-end justify-between gap-1">
-                  {[12, 28, 42, 65, 88, 54, 38, 22, 45, 95, 110, 48, 30, 68, 72, 85, 34, 45, 60, 28, 55, 78, 92, 40, 25, 48, 70, 85, 38, 52, 64, 98, 45, 30].map((val, idx) => {
-                    const isHarmonicMatch = (hoveredHarmonicIdx === 0 && (idx === 3 || idx === 4)) ||
-                                            (hoveredHarmonicIdx === 1 && (idx === 7 || idx === 8)) ||
-                                            (hoveredHarmonicIdx === 2 && (idx === 10 || idx === 11)) ||
-                                            (hoveredHarmonicIdx === 3 && (idx === 30 || idx === 31));
+                {/* Animated Graphic Spectrum Waterfall Bars with Hover Harmonic Feedback & Tier Gating */}
+                <div className="relative">
+                  <div className={`h-44 p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 flex items-end justify-between gap-1 transition-all ${
+                    !planCapabilities.fftEnabled ? 'filter blur-sm opacity-25 select-none pointer-events-none' : ''
+                  }`}>
+                    {[12, 28, 42, 65, 88, 54, 38, 22, 45, 95, 110, 48, 30, 68, 72, 85, 34, 45, 60, 28, 55, 78, 92, 40, 25, 48, 70, 85, 38, 52, 64, 98, 45, 30].map((val, idx) => {
+                      const isHarmonicMatch = (hoveredHarmonicIdx === 0 && (idx === 3 || idx === 4)) ||
+                                              (hoveredHarmonicIdx === 1 && (idx === 7 || idx === 8)) ||
+                                              (hoveredHarmonicIdx === 2 && (idx === 10 || idx === 11)) ||
+                                              (hoveredHarmonicIdx === 3 && (idx === 30 || idx === 31));
 
-                    return (
-                      <div 
-                        key={idx}
-                        className="w-full rounded-t-sm transition-all duration-300"
-                        style={{
-                          height: `${(val * (selectedAsset.vibrationRms > isoThresholdLimit ? 1.25 : 0.7)) % 90 + 10}%`,
-                          backgroundColor: isHarmonicMatch ? '#38bdf8' : (idx === 10 || idx === 31) && selectedAsset.vibrationRms > isoThresholdLimit ? '#ef4444' : '#3b82f6',
-                          boxShadow: isHarmonicMatch ? '0 0 14px #38bdf8' : (idx === 10 || idx === 31) && selectedAsset.vibrationRms > isoThresholdLimit ? '0 0 10px #ef4444' : 'none'
-                        }}
-                      />
-                    );
-                  })}
+                      return (
+                        <div 
+                          key={idx}
+                          className="w-full rounded-t-sm transition-all duration-300"
+                          style={{
+                            height: `${(val * (selectedAsset.vibrationRms > isoThresholdLimit ? 1.25 : 0.7)) % 90 + 10}%`,
+                            backgroundColor: isHarmonicMatch ? '#38bdf8' : (idx === 10 || idx === 31) && selectedAsset.vibrationRms > isoThresholdLimit ? '#ef4444' : '#3b82f6',
+                            boxShadow: isHarmonicMatch ? '0 0 14px #38bdf8' : (idx === 10 || idx === 31) && selectedAsset.vibrationRms > isoThresholdLimit ? '0 0 10px #ef4444' : 'none'
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Tier Upsell Overlay for Starter Tier */}
+                  {!planCapabilities.fftEnabled && (
+                    <div className="absolute inset-0 bg-[#06080d]/85 backdrop-blur-sm rounded-2xl border border-blue-500/30 flex flex-col items-center justify-center p-6 text-center space-y-3 z-10">
+                      <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center">
+                        <Lock className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1 max-w-md">
+                        <h4 className="text-white font-bold text-sm">192 kHz Sub-Second FFT Spectral Decomposition Locked</h4>
+                        <p className="text-slate-400 text-xs font-sans">
+                          Sub-second high-frequency FFT transforms, acoustic envelope demodulation, and bearing fault frequency tracking (BPFO, BPFI) are features of the <strong>Professional</strong> and <strong>Enterprise Mesh</strong> plans.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleUpgrade('professional')}
+                        className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-glow-sm transition-all flex items-center gap-1.5"
+                      >
+                        <span>Upgrade to Professional ($119/mo)</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono text-xs">
@@ -1319,7 +1561,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
           {/* ------------------------------------------------------------- */}
           {activeTab === 'incidents' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-base font-extrabold text-white">Automated Incident Log &amp; SAP/CMMS Dispatch</h2>
                   <p className="text-xs text-slate-400 font-mono">
@@ -1328,11 +1570,54 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 </div>
 
                 <button
-                  onClick={() => alert('SAP Plant Maintenance (PM) and IBM Maximo integration sync initiated.')}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs font-mono shadow-glow-sm"
+                  onClick={() => {
+                    if (planCapabilities.sapSync) {
+                      handleCopy(`[WORK-ORDER-EXPORT-${Date.now()}] Asset: CONV-10, Severity: CRITICAL, Action: Replace bearing pack`, 'Work Order');
+                      setCopyToast('CMMS Work Orders Dispatched to SAP PM / IBM Maximo');
+                    } else {
+                      setUpgradeModal({
+                        isOpen: true,
+                        targetPlanSlug: 'enterprise-mesh',
+                        reason: 'Direct 2-way SAP PM, Siemens & IBM Maximo automated CMMS work order synchronization requires an Enterprise Mesh license.'
+                      });
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs font-mono shadow-glow-sm flex items-center gap-2"
                 >
-                  Sync CMMS Work Orders
+                  <Workflow className="w-3.5 h-3.5" />
+                  <span>Sync CMMS Work Orders</span>
+                  {!planCapabilities.sapSync && <Lock className="w-3 h-3 text-blue-200" />}
                 </button>
+              </div>
+
+              {/* Active Dispatch Notification Channels Bar */}
+              <div className="p-4 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-slate-400">CONFIGURED DISPATCH CHANNELS:</span>
+                  <span className="text-blue-400 font-bold">{planCapabilities.name} Plan</span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs font-mono">
+                  {['Email', 'SMS', 'WhatsApp', 'Slack', 'Webhooks', 'SAP PM', 'IBM Maximo'].map(channel => {
+                    const isEnabled = planCapabilities.dispatchChannels.includes(channel);
+                    return (
+                      <div
+                        key={channel}
+                        className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 ${
+                          isEnabled
+                            ? 'bg-blue-950/60 border-blue-500/40 text-blue-300'
+                            : 'bg-[#06080d] border-slate-800 text-slate-500 opacity-60'
+                        }`}
+                      >
+                        {isEnabled ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        ) : (
+                          <Lock className="w-3 h-3 text-slate-500" />
+                        )}
+                        <span>{channel}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="rounded-2xl bg-[#080d17] border border-blue-900/40 divide-y divide-slate-800/80">
@@ -1366,8 +1651,286 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
             </div>
           )}
 
+          {/* ------------------------------------------------------------- */}
+          {/* TAB 8: SUBSCRIPTION & FLEET QUOTAS (PLAN TAB)                 */}
+          {/* ------------------------------------------------------------- */}
+          {activeTab === 'plan' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/40 text-blue-400 font-mono text-xs mb-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                    <span>BACKEND-SYNCHRONIZED INDUSTRIAL LICENSE</span>
+                  </div>
+                  <h2 className="text-2xl font-extrabold text-white">Subscription &amp; Fleet Quota Governance</h2>
+                  <p className="text-xs text-slate-400 font-mono mt-1">
+                    Live telemetry parameters synced with <code className="text-blue-400">dash.sensorsae.net/api/subscription-plans</code>.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs font-mono">
+                  <span className="px-3.5 py-2 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center gap-2 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>License Active ({planCapabilities.name})</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* 4 Quota Utilization KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+                {/* Metric 1: Fleet Sensor Nodes */}
+                <div className="p-5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-3">
+                  <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                    <span>FLEET SENSOR NODES</span>
+                    <Radio className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-extrabold text-white">
+                    {planCapabilities.activeNodesCount}{' '}
+                    <span className="text-slate-500 text-sm font-normal">
+                      / {planCapabilities.nodeLimit === Infinity ? 'Unlimited' : planCapabilities.nodeLimit}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full ${
+                        planCapabilities.nodeLimit === Infinity ? 'bg-emerald-400 w-full' : 'bg-blue-500'
+                      }`}
+                      style={{
+                        width: planCapabilities.nodeLimit === Infinity 
+                          ? '100%' 
+                          : `${Math.min(100, Math.round((planCapabilities.activeNodesCount / planCapabilities.nodeLimit) * 100))}%`
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">
+                    {planCapabilities.nodeLimit === Infinity ? 'Zero node capping active' : `${Math.round((planCapabilities.activeNodesCount / planCapabilities.nodeLimit) * 100)}% quota consumed`}
+                  </span>
+                </div>
+
+                {/* Metric 2: Polling Frequency */}
+                <div className="p-5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-3">
+                  <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                    <span>SAMPLING POLLING CYCLE</span>
+                    <Zap className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-2xl font-extrabold text-white">
+                    {planCapabilities.pollingIntervalSec}s{' '}
+                    <span className="text-slate-500 text-sm font-normal">Interval</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#06080d] border border-slate-800 text-[10px] text-slate-300 truncate">
+                    {planCapabilities.pollingLabel}
+                  </div>
+                </div>
+
+                {/* Metric 3: History Retention */}
+                <div className="p-5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-3">
+                  <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                    <span>HISTORICAL ARCHIVE</span>
+                    <Clock className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-extrabold text-white">
+                    {planCapabilities.historyDays === Infinity ? 'Unlimited' : `${planCapabilities.historyDays} Days`}
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">
+                    Full-resolution audit-ready sensor storage
+                  </span>
+                </div>
+
+                {/* Metric 4: Cyber-Physical Architecture */}
+                <div className="p-5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-3">
+                  <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                    <span>SECURITY &amp; COMPLIANCE</span>
+                    <Lock className={`w-4 h-4 ${planCapabilities.airGapped ? 'text-emerald-400' : 'text-blue-400'}`} />
+                  </div>
+                  <div className="text-base font-extrabold text-white truncate">
+                    {planCapabilities.airGapped ? '100% Air-Gapped' : 'Industrial TLS 1.3'}
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">
+                    {planCapabilities.airGapped ? 'IEC 62443 zero data egress' : 'Encrypted cloud & Modbus gateway'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Plan Comparison & 1-Click Upgrade Cards (Loaded directly from backend availablePlans) */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-extrabold text-white">Available Industrial License Plans</h3>
+                  <span className="text-xs font-mono text-slate-400">
+                    Source: <span className="text-blue-400">GET /api/subscription-plans</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {availablePlans.map((plan) => {
+                    const planSlug = (plan.slug || plan.name || '').toLowerCase();
+                    const activeSlug = (rawActivePlan?.slug || rawActivePlan?.name || '').toLowerCase();
+                    const isCurrent = planSlug === activeSlug || 
+                      (planSlug.includes('pro') && activeSlug.includes('pro')) ||
+                      (planSlug.includes('starter') && activeSlug.includes('starter')) ||
+                      (planSlug.includes('enterprise') && activeSlug.includes('enterprise'));
+                    const isPopular = plan.popular;
+
+                    return (
+                      <div
+                        key={plan.id || plan.slug}
+                        className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all relative ${
+                          isCurrent
+                            ? 'bg-blue-950/40 border-2 border-blue-500 shadow-2xl shadow-blue-500/20'
+                            : isPopular
+                              ? 'bg-[#080d17] border border-blue-500/40 hover:border-blue-400'
+                              : 'bg-[#080d17] border border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {isCurrent && (
+                          <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-blue-600 text-white font-mono font-bold text-[10px] tracking-wider uppercase shadow-glow-sm flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            <span>CURRENT ACTIVE PLAN</span>
+                          </div>
+                        )}
+
+                        {!isCurrent && isPopular && (
+                          <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-blue-900 border border-blue-400 text-blue-200 font-mono font-bold text-[10px] tracking-wider uppercase shadow-glow-sm">
+                            MOST POPULAR
+                          </div>
+                        )}
+
+                        <div className="space-y-4 pt-1">
+                          <div className="space-y-1">
+                            <h4 className="text-lg font-bold text-white tracking-tight">{plan.name}</h4>
+                            <p className="text-xs text-slate-400 font-sans leading-relaxed min-h-[36px]">
+                              {plan.description}
+                            </p>
+                          </div>
+
+                          <div className="flex items-baseline gap-1 font-mono">
+                            <span className="text-3xl font-extrabold text-white">
+                              ${plan.yearly_price || plan.price}
+                            </span>
+                            <span className="text-xs text-slate-400">/ month (annual billing)</span>
+                          </div>
+
+                          <div className="border-t border-slate-800/80 pt-4 space-y-2.5">
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-blue-400 block font-bold">
+                              INCLUDED CAPABILITIES
+                            </span>
+                            <ul className="space-y-2 text-xs text-slate-300 font-sans">
+                              {(plan.features || []).map((feat, fIdx) => (
+                                <li key={fIdx} className="flex items-start gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                                  <span className="leading-snug">{feat}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div className="pt-6 border-t border-slate-800/60 mt-6">
+                          {isCurrent ? (
+                            <button
+                              disabled
+                              className="w-full py-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-400 font-mono font-bold text-xs flex items-center justify-center gap-2 cursor-default"
+                            >
+                              <Check className="w-4 h-4" />
+                              <span>Active Licensed Tier</span>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUpgrade(plan)}
+                              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-xs shadow-glow-sm transition-all flex items-center justify-center gap-2 group"
+                            >
+                              <span>Upgrade to {plan.name}</span>
+                              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Backend API Sync Diagnostic Footer */}
+              <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs text-slate-400">
+                <div className="flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                  <span>API Source: <code className="text-white">dash.sensorsae.net</code></span>
+                  <span className="text-slate-600">•</span>
+                  <span>Bearer Token: <span className="text-emerald-400 font-bold">{token ? 'Sanctum Active' : 'Demo Session'}</span></span>
+                </div>
+                <div>
+                  Operator: <span className="text-white">{user?.username || user?.email || 'Field Reliability Engineer'}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
+
+      {/* Interactive Upgrade Modal */}
+      {upgradeModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="max-w-lg w-full bg-[#0b0f19] border border-blue-500/50 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl shadow-blue-500/20">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center shrink-0">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono text-blue-400 uppercase tracking-widest font-bold">LICENSE UPGRADE REQUIRED</span>
+                  <h3 className="text-lg font-extrabold text-white">Unlock Industrial Capability</h3>
+                </div>
+              </div>
+              <button
+                onClick={() => setUpgradeModal({ isOpen: false, targetPlanSlug: '', reason: '' })}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-slate-300 text-xs leading-relaxed font-sans">
+              {upgradeModal.reason}
+            </p>
+
+            {/* Target Plan Quick Preview */}
+            {(() => {
+              const targetPlan = availablePlans.find(p => (p.slug || '').toLowerCase().includes(upgradeModal.targetPlanSlug.toLowerCase())) || availablePlans[1];
+              return (
+                <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/60 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-white font-bold text-sm">{targetPlan.name}</span>
+                      <span className="text-blue-400 font-mono text-xs block">${targetPlan.yearly_price || targetPlan.price} / month (annual)</span>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      Recommended Tier
+                    </span>
+                  </div>
+                  <p className="text-slate-400 text-xs">{targetPlan.description}</p>
+                </div>
+              );
+            })()}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setUpgradeModal({ isOpen: false, targetPlanSlug: '', reason: '' })}
+                className="px-4 py-2 rounded-xl bg-[#06080d] hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-mono border border-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUpgrade(upgradeModal.targetPlanSlug)}
+                className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold font-mono shadow-glow-sm transition-all flex items-center gap-2"
+              >
+                <span>Upgrade License</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

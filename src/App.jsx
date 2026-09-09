@@ -245,6 +245,7 @@ export function App() {
             onBackToHome={handleBackToHome}
             initialTab={dashboardOptions.tab}
             initialAssetId={dashboardOptions.assetId}
+            onSelectPlan={handleSelectPlan}
           />
         )}
 
