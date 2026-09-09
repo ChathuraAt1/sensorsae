@@ -17,6 +17,7 @@ import {
   fetchBackendPlans, 
   fetchUserActivePlan, 
   derivePlanCapabilities, 
+  calculateTrialStatus,
   FALLBACK_PLANS 
 } from '../services/subscriptionService';
 
@@ -59,6 +60,30 @@ export const IndustrialDashboard = ({
   const [rawActivePlan, setRawActivePlan] = useState(FALLBACK_PLANS[1]);
   const [isPlanLoading, setIsPlanLoading] = useState(true);
   const [upgradeModal, setUpgradeModal] = useState({ isOpen: false, targetPlanSlug: 'professional', reason: '' });
+
+  // 14-Day Registration Trial Period Governance
+  const [trialRefreshKey, setTrialRefreshKey] = useState(0);
+  const [isUserPaid, setIsUserPaid] = useState(() => {
+    return Boolean(localStorage.getItem('sensorsae_has_paid') === 'true');
+  });
+
+  // Calculate remaining days from registration date (14-day evaluation period)
+  const trialStatus = useMemo(() => {
+    return calculateTrialStatus(user, isUserPaid);
+  }, [user, isUserPaid, trialRefreshKey]);
+
+  // Developer / Testing toggle to simulate active vs expired trial
+  const handleToggleTrialSim = () => {
+    if (localStorage.getItem('sensorsae_force_trial_expired') === 'true') {
+      localStorage.removeItem('sensorsae_force_trial_expired');
+      localStorage.setItem('sensorsae_trial_start', new Date().toISOString());
+      setCopyToast('Trial reset: 14 Days Remaining restored');
+    } else {
+      localStorage.setItem('sensorsae_force_trial_expired', 'true');
+      setCopyToast('Trial expired mode simulated (Component Access Paused)');
+    }
+    setTrialRefreshKey(k => k + 1);
+  };
 
   // Dynamically derive capabilities, quotas, and limits based on backend plan data
   const planCapabilities = useMemo(() => {
@@ -180,8 +205,13 @@ export const IndustrialDashboard = ({
       }));
     }, Math.max(800, (planCapabilities?.pollingIntervalSec || 2.5) * 1000));
 
+    if (trialStatus.isExpired) {
+      clearInterval(interval);
+      return;
+    }
+
     return () => clearInterval(interval);
-  }, [isoThresholdLimit, planCapabilities?.pollingIntervalSec]);
+  }, [isoThresholdLimit, planCapabilities?.pollingIntervalSec, trialStatus.isExpired]);
 
   // Copy to clipboard with visual toast feedback
   const handleCopy = (text, label = 'Information') => {
@@ -430,33 +460,55 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
               { id: 'orin', label: 'Nvidia Orin Engine', icon: Cpu, badge: '275 TOPS' },
               { id: 'fft', label: 'Spectral FFT & DSP', icon: Activity, badge: '192 kHz' },
               { id: 'incidents', label: 'Incident Log & Orders', icon: AlertTriangle, badge: `${criticalCount + attentionCount}`, alert: criticalCount > 0 },
-              { id: 'plan', label: 'Subscription & Quotas', icon: ShieldCheck, badge: planCapabilities.name.split(' ')[0] },
+              { 
+                id: 'plan', 
+                label: 'Subscription & Quotas', 
+                icon: ShieldCheck, 
+                badge: trialStatus.isExpired ? 'UPGRADE' : planCapabilities.name.split(' ')[0],
+                alert: trialStatus.isExpired 
+              },
             ].map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const isBlocked = trialStatus.isExpired && item.id !== 'plan';
+
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    if (isBlocked) {
+                      setCopyToast('Component Access Blocked: 14-Day Trial Expired. Please upgrade.');
+                    }
+                    setActiveTab(item.id);
+                  }}
                   className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-blue-600 text-white font-bold shadow-glow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-[#0e1626]'
+                      : isBlocked
+                        ? 'text-slate-500 hover:text-slate-300 hover:bg-[#0e1626]/60'
+                        : 'text-slate-300 hover:text-white hover:bg-[#0e1626]'
                   }`}
                   title={sidebarCollapsed ? item.label : undefined}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-blue-400'}`} />
-                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : isBlocked ? 'text-slate-500' : 'text-blue-400'}`} />
+                    {!sidebarCollapsed && (
+                      <span className="truncate flex items-center gap-1.5">
+                        <span>{item.label}</span>
+                        {isBlocked && <Lock className="w-3 h-3 text-red-400/80 inline-block" />}
+                      </span>
+                    )}
                   </div>
 
                   {!sidebarCollapsed && (
                     <span className={`text-[10px] font-mono px-2 py-0.2 rounded-full ${
                       item.alert
-                        ? 'bg-red-500 text-white animate-pulse'
+                        ? 'bg-red-500 text-white animate-pulse font-bold'
                         : isActive
                           ? 'bg-blue-700/60 text-blue-100'
-                          : 'bg-blue-950/80 text-blue-300 border border-blue-900/60'
+                          : isBlocked
+                            ? 'bg-red-950/60 text-red-300 border border-red-900/60'
+                            : 'bg-blue-950/80 text-blue-300 border border-blue-900/60'
                     }`}>
                       {item.badge}
                     </span>
@@ -467,10 +519,46 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
           </nav>
         </div>
 
-        {/* Sidebar Footer: User Session & Actions */}
+        {/* Sidebar Footer: User Session, 14-Day Trial Counter & Actions */}
         <div className="p-3 border-t border-blue-900/40 bg-[#06080d]/60 space-y-2 shrink-0">
           {!sidebarCollapsed ? (
             <>
+              {/* 14-Day Evaluation Period Status Meter */}
+              {trialStatus.isTrial && (
+                <div className={`p-2.5 rounded-xl border font-mono text-xs space-y-1.5 ${
+                  trialStatus.isExpired 
+                    ? 'bg-red-950/40 border-red-500/40 text-red-300' 
+                    : 'bg-amber-950/30 border-amber-500/30 text-amber-300'
+                }`}>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="font-bold uppercase tracking-wider flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-400" />
+                      <span>{trialStatus.isExpired ? 'Trial Expired' : '14-Day Trial'}</span>
+                    </span>
+                    <span className={`font-bold ${trialStatus.isExpired ? 'text-red-400' : 'text-amber-400'}`}>
+                      {trialStatus.isExpired ? '0d Left' : `${trialStatus.remainingDays}d Left`}
+                    </span>
+                  </div>
+                  <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all ${trialStatus.isExpired ? 'bg-red-500 w-full' : 'bg-amber-400'}`}
+                      style={{ width: `${trialStatus.percentRemaining}%` }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleUpgrade('professional')}
+                    className={`w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 ${
+                      trialStatus.isExpired 
+                        ? 'bg-red-600 hover:bg-red-500 text-white shadow-glow-sm animate-pulse' 
+                        : 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm'
+                    }`}
+                  >
+                    <span>{trialStatus.isExpired ? 'Upgrade to Unlock' : 'Upgrade Plan'}</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
               <div 
                 onClick={() => setActiveTab('plan')}
                 className="flex items-center gap-2.5 p-2 rounded-xl bg-[#0b0f19] border border-slate-800 hover:border-blue-500/50 cursor-pointer transition-all group"
@@ -547,19 +635,55 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
               </h1>
             </div>
 
-            {/* Active License Pill (Clickable -> opens Plan Tab) */}
-            <div 
-              onClick={() => setActiveTab('plan')}
-              className="cursor-pointer group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-950/60 hover:bg-blue-900/40 border border-blue-500/30 hover:border-blue-400 transition-all shadow-sm"
-              title="Manage Fleet Quotas & Plan"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
-              <div className="flex flex-col text-left">
-                <span className="text-[8px] font-mono text-slate-400 uppercase tracking-wider">ACTIVE LICENSE</span>
-                <span className="text-xs font-bold font-mono text-white flex items-center gap-1.5">
-                  <span>{planCapabilities.name}</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                </span>
+            <div className="flex items-center gap-2.5">
+              {/* 14-Day Evaluation Status Pill & Upgrade Button */}
+              {trialStatus.isTrial && (
+                <div className={`flex items-center gap-2 px-3 py-1 rounded-xl border font-mono text-xs shadow-sm transition-all ${
+                  trialStatus.isExpired 
+                    ? 'bg-red-950/60 border-red-500/50 text-red-300 animate-pulse'
+                    : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full ${trialStatus.isExpired ? 'bg-red-500' : 'bg-amber-400 animate-ping'}`} />
+                  <div className="flex flex-col text-left">
+                    <span className="text-[8px] uppercase tracking-widest font-bold">
+                      {trialStatus.isExpired ? 'TRIAL EXPIRED' : '14-DAY TRIAL'}
+                    </span>
+                    <span className="font-bold text-white text-[11px]">
+                      {trialStatus.isExpired ? (
+                        <span className="text-red-400 font-extrabold">0 Days Left</span>
+                      ) : (
+                        <span>{trialStatus.remainingDays} {trialStatus.remainingDays === 1 ? 'Day' : 'Days'} Left</span>
+                      )}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleUpgrade('professional')}
+                    className={`ml-1 px-2.5 py-1 rounded-lg text-slate-950 font-bold text-[10px] uppercase tracking-wider transition-all shadow-sm flex items-center gap-1 ${
+                      trialStatus.isExpired 
+                        ? 'bg-red-500 hover:bg-red-400 text-white' 
+                        : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500'
+                    }`}
+                  >
+                    <span>Upgrade</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
+              {/* Active License Pill (Clickable -> opens Plan Tab) */}
+              <div 
+                onClick={() => setActiveTab('plan')}
+                className="cursor-pointer group flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-950/60 hover:bg-blue-900/40 border border-blue-500/30 hover:border-blue-400 transition-all shadow-sm"
+                title="Manage Fleet Quotas & Plan"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
+                <div className="flex flex-col text-left">
+                  <span className="text-[8px] font-mono text-slate-400 uppercase tracking-wider">ACTIVE LICENSE</span>
+                  <span className="text-xs font-bold font-mono text-white flex items-center gap-1.5">
+                    <span>{planCapabilities.name}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -666,11 +790,131 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
 
         {/* Dynamic Scrolling Viewport */}
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          
-          {/* ------------------------------------------------------------- */}
-          {/* TAB 1: OVERVIEW & PLANT HEALTH                                */}
-          {/* ------------------------------------------------------------- */}
-          {activeTab === 'overview' && (
+
+          {/* TRIAL EXPIRED PAYWALL / COMPONENT ACCESS LOCK */}
+          {trialStatus.isExpired && activeTab !== 'plan' ? (
+            <div className="max-w-5xl mx-auto my-8 space-y-8 animate-in fade-in zoom-in-95 duration-300">
+              {/* Lock Alert Banner */}
+              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-red-950/40 via-[#080d17] to-[#06080d] border border-red-500/40 shadow-2xl shadow-red-950/50 text-center space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shadow-glow-sm animate-pulse">
+                  <Lock className="w-8 h-8" />
+                </div>
+
+                <div className="space-y-3 max-w-2xl mx-auto">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 border border-red-500/50 text-red-300 text-xs font-mono">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <span>14-DAY EVALUATION WINDOW HAS CONCLUDED</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    Dashboard Component Access Locked
+                  </h2>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    Your 14-day trial period calculated from your registration date has expired. Real-time telemetry ingestion, AI diagnostics, and asset component access have been safely locked. Upgrade your subscription plan below to restore full continuous telemetry and fleet governance.
+                  </p>
+                </div>
+
+                {/* Key metadata badges */}
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2 font-mono text-xs text-slate-300">
+                  <span className="px-3.5 py-2 rounded-xl bg-[#0b0f19] border border-slate-800">
+                    Registration Date: <span className="text-white font-semibold">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Active Session'}</span>
+                  </span>
+                  <span className="px-3.5 py-2 rounded-xl bg-red-950/50 border border-red-800/50 text-red-300 font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                    <span>Remaining Days: 0 (Expired)</span>
+                  </span>
+                  <button
+                    onClick={handleToggleTrialSim}
+                    className="px-3.5 py-2 rounded-xl bg-slate-800/70 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5"
+                    title="Developer testing toggle"
+                  >
+                    <span>⚙️ Test Simulation Toggle</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Tier Selection Cards for Upgrading */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-extrabold text-white font-mono">
+                      CHOOSE AN INDUSTRIAL LICENSE TO UNLOCK
+                    </h3>
+                    <p className="text-xs text-slate-400">Instantly activate continuous edge ingestion and full fleet controls</p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('plan')}
+                    className="text-xs font-mono text-blue-400 hover:text-blue-300 underline underline-offset-4"
+                  >
+                    View detailed quota specs →
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {availablePlans.map((plan) => {
+                    const isPopular = plan.popular;
+                    const price = plan.monthly_price || plan.price;
+                    return (
+                      <div
+                        key={plan.id || plan.slug}
+                        className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative transition-all ${
+                          isPopular
+                            ? 'bg-[#080d17] border-2 border-blue-500 shadow-xl shadow-blue-500/20'
+                            : 'bg-[#080d17] border border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {isPopular && (
+                          <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-blue-600 text-white font-mono font-bold text-[10px] tracking-wider uppercase">
+                            RECOMMENDED
+                          </div>
+                        )}
+
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-lg font-bold text-white">{plan.name}</h4>
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">{plan.description}</p>
+                          </div>
+
+                          <div className="flex items-baseline gap-1 font-mono">
+                            <span className="text-3xl font-extrabold text-white">${price}</span>
+                            <span className="text-xs text-slate-400">/mo</span>
+                          </div>
+
+                          <ul className="space-y-2 pt-3 border-t border-slate-800/80">
+                            {(plan.features || []).slice(0, 4).map((feat, idx) => (
+                              <li key={idx} className="flex items-center gap-2 text-xs text-slate-300">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                <span className="truncate">{feat}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <button
+                          onClick={() => handleUpgrade(plan.slug)}
+                          className={`mt-6 w-full py-3 rounded-2xl font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            isPopular
+                              ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-glow-sm'
+                              : 'bg-[#0b0f19] hover:bg-blue-900/40 text-blue-300 hover:text-white border border-blue-900/60'
+                          }`}
+                        >
+                          <span>Upgrade to {plan.name}</span>
+                          <ArrowUpRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* ------------------------------------------------------------- */}
+              {/* TAB 1: OVERVIEW & PLANT HEALTH                                */}
+              {/* ------------------------------------------------------------- */}
+              {activeTab === 'overview' && (
             <div className="space-y-6">
               
               {/* Top High-Density Metric Grid */}
@@ -1670,12 +1914,54 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 </div>
 
                 <div className="flex items-center gap-2 text-xs font-mono">
-                  <span className="px-3.5 py-2 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center gap-2 shadow-sm">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>License Active ({planCapabilities.name})</span>
-                  </span>
+                  {trialStatus.isExpired ? (
+                    <span className="px-3.5 py-2 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 flex items-center gap-2 shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+                      <span>Trial Expired (0 Days Left)</span>
+                    </span>
+                  ) : (
+                    <span className="px-3.5 py-2 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center gap-2 shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                      <span>License Active ({planCapabilities.name})</span>
+                    </span>
+                  )}
                 </div>
               </div>
+
+              {/* Expired Trial Warning Banner */}
+              {trialStatus.isExpired && (
+                <div className="p-5 rounded-2xl bg-red-950/40 border border-red-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-red-950/40 animate-in fade-in">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-red-500/20 text-red-400 shrink-0">
+                      <Lock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-white flex items-center gap-2">
+                        <span>14-Day Evaluation Window Concluded</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">LOCKED</span>
+                      </div>
+                      <div className="text-xs text-red-200 mt-0.5">
+                        Access to all asset telemetry, AI diagnostics, and thermal cameras is paused. Select a plan below to upgrade and restore real-time fleet operations.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={handleToggleTrialSim}
+                      className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-slate-300 text-xs font-mono transition-colors"
+                    >
+                      ⚙️ Test Simulation Toggle
+                    </button>
+                    <button
+                      onClick={() => handleUpgrade('professional')}
+                      className="px-4 py-1.5 rounded-xl bg-red-500 hover:bg-red-400 text-white font-mono text-xs font-bold transition-colors shadow-glow-sm flex items-center gap-1.5"
+                    >
+                      <span>Upgrade Now</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* 4 Quota Utilization KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
@@ -1864,6 +2150,8 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
               </div>
             </div>
           )}
+          </>
+        )}
 
         </main>
       </div>

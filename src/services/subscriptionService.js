@@ -224,3 +224,60 @@ export const fetchUserActivePlan = async (token, user = null) => {
   // Default to Professional plan
   return FALLBACK_PLANS[1];
 };
+
+/**
+ * Calculates trial status for a user based on registration date (14-day evaluation period).
+ * Gated: If 14 days elapsed and no paid subscription, isExpired = true.
+ */
+export const calculateTrialStatus = (user = null, hasPaidPlan = false) => {
+  // If user has paid for an active subscription, they are fully licensed (not trial)
+  if (hasPaidPlan) {
+    return {
+      isTrial: false,
+      isExpired: false,
+      remainingDays: 0,
+      totalTrialDays: 14,
+      daysElapsed: 14,
+      percentRemaining: 0,
+      registrationDate: user?.created_at ? new Date(user.created_at) : new Date(),
+    };
+  }
+
+  // Developer/testing override to simulate expired trial
+  const isForceExpired = localStorage.getItem('sensorsae_force_trial_expired') === 'true';
+
+  // Determine user registration date (from backend created_at or persisted local session)
+  let regDate = null;
+  if (user?.created_at) {
+    regDate = new Date(user.created_at);
+  } else {
+    const storedStart = localStorage.getItem('sensorsae_trial_start');
+    if (storedStart) {
+      regDate = new Date(storedStart);
+    } else {
+      regDate = new Date();
+      localStorage.setItem('sensorsae_trial_start', regDate.toISOString());
+    }
+  }
+
+  const TRIAL_DAYS = 14;
+  const trialDurationMs = TRIAL_DAYS * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const elapsedMs = Math.max(0, now - regDate.getTime());
+  const remainingMs = trialDurationMs - elapsedMs;
+
+  const remainingDays = isForceExpired ? 0 : Math.max(0, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)));
+  const daysElapsed = isForceExpired ? 14 : Math.min(TRIAL_DAYS, Math.floor(elapsedMs / (24 * 60 * 60 * 1000)));
+  const isExpired = isForceExpired || remainingMs <= 0;
+
+  return {
+    isTrial: true,
+    isExpired,
+    remainingDays,
+    totalTrialDays: TRIAL_DAYS,
+    daysElapsed,
+    percentRemaining: isExpired ? 0 : Math.max(0, Math.min(100, Math.round((remainingMs / trialDurationMs) * 100))),
+    registrationDate: regDate,
+  };
+};
+
