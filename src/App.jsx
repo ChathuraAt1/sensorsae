@@ -15,7 +15,7 @@ import { AiChatWidget } from './components/AiChatWidget';
 import { CookieConsent } from './components/CookieConsent';
 import { ConsultationForm } from './components/ConsultationForm';
 import { ProductsPage } from './components/ProductsPage';
-import { DashboardPlaceholder } from './components/DashboardPlaceholder';
+import { IndustrialDashboard } from './components/IndustrialDashboard';
 import { Footer } from './components/Footer';
 import { useAuth } from './context/AuthContext';
 
@@ -134,8 +134,8 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#06080d] text-slate-100 flex flex-col selection:bg-blue-500/30 selection:text-blue-200 font-sans relative">
-      {/* Navigation (Hidden on standalone OAuth callback screen for seamless flow) */}
-      {currentView !== 'auth/complete' && (
+      {/* Navigation (Hidden on standalone Dashboard and OAuth callback screen for seamless workspace experience) */}
+      {currentView !== 'auth/complete' && currentView !== 'dashboard' && (
         <Navbar 
           currentView={currentView}
           setCurrentView={(v) => {
@@ -222,13 +222,8 @@ export function App() {
         )}
 
         {currentView === 'dashboard' && (
-          <DashboardPlaceholder 
+          <IndustrialDashboard 
             onBackToHome={handleBackToHome}
-            onOpenAiChat={() => {
-              // Can trigger AI chat
-              const chatBtn = document.querySelector('button[aria-label="Open AI Telemetry Copilot"]');
-              if (chatBtn) chatBtn.click();
-            }}
           />
         )}
 
@@ -239,8 +234,8 @@ export function App() {
         )}
       </main>
 
-      {/* Footer (Hidden on checkout and auth callback for focused flow) */}
-      {currentView !== 'checkout' && currentView !== 'auth/complete' && (
+      {/* Footer (Hidden on checkout, dashboard, and auth callback for focused flow) */}
+      {currentView !== 'checkout' && currentView !== 'auth/complete' && currentView !== 'dashboard' && (
         <Footer 
           onNavigate={handleSectionNavigate}
           onExploreProducts={handleExploreProducts}
