@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { Cpu, ArrowUp, Send, CheckCircle2, Building2, FileText, Download } from 'lucide-react';
-import { FaLinkedinIn, FaXTwitter, FaYoutube, FaGithub } from 'react-icons/fa6';
+import React, { useState } from "react";
+import {
+  Cpu,
+  ArrowUp,
+  Send,
+  CheckCircle2,
+  Building2,
+  FileText,
+  Download,
+} from "lucide-react";
+import { FaLinkedinIn, FaXTwitter, FaYoutube, FaGithub } from "react-icons/fa6";
 
 export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
-  const [emailInput, setEmailInput] = useState('');
+  const [emailInput, setEmailInput] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
   const handleSubscribe = (e) => {
@@ -11,14 +19,13 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
     if (!emailInput.trim()) return;
     setSubscribed(true);
     setTimeout(() => {
-      setEmailInput('');
+      setEmailInput("");
     }, 2000);
   };
 
   return (
     <footer className="bg-[#05070a] border-t border-blue-900/30 pt-16 pb-12 text-slate-400 font-sans text-xs">
       <div className="max-w-7xl mx-auto px-6 space-y-16">
-        
         {/* Custom Top Newsletter / Engineering Briefing Bar */}
         <div className="rounded-3xl bg-gradient-to-r from-blue-950/40 via-[#0b0f19] to-blue-950/40 border border-blue-500/30 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-glow-sm">
           <div className="space-y-1 text-center md:text-left">
@@ -29,11 +36,15 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
               Get monthly predictive maintenance case studies.
             </h3>
             <p className="text-slate-400 text-xs">
-              No spam. Just actionable root-cause teardowns and smart factory insights.
+              No spam. Just actionable root-cause teardowns and smart factory
+              insights.
             </p>
           </div>
 
-          <form onSubmit={handleSubscribe} className="w-full md:w-auto flex items-center gap-2 max-w-md">
+          <form
+            onSubmit={handleSubscribe}
+            className="w-full md:w-auto flex items-center gap-2 max-w-md"
+          >
             {subscribed ? (
               <div className="px-6 py-3 rounded-full bg-blue-950 border border-blue-400 text-blue-300 font-mono text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-400" />
@@ -63,7 +74,6 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
 
         {/* Main Custom Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
-          
           {/* Brand & Mission Column (Spans 4 cols) */}
           <div className="lg:col-span-4 space-y-5">
             <div className="flex items-center gap-2.5">
@@ -74,15 +84,22 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
                 SENSOR<span className="text-blue-500 font-black">SAE</span>
               </span>
             </div>
-            
+
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              Sensor Intelligence &amp; Predictive Monitoring Platform. Zero-downtime manufacturing powered by local on-premises Nvidia Orin AI.
+              Sensor Intelligence &amp; Predictive Monitoring Platform.
+              Zero-downtime manufacturing powered by local on-premises Nvidia
+              Orin AI.
             </p>
 
             {/* Live Mesh Status Tag */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/40 border border-blue-500/20 text-slate-300 font-mono text-[11px]">
               <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
-              <span>Global Industrial Mesh: <strong className="text-blue-400 font-semibold">100% NOMINAL</strong></span>
+              <span>
+                Global Industrial Mesh:{" "}
+                <strong className="text-blue-400 font-semibold">
+                  100% NOMINAL
+                </strong>
+              </span>
             </div>
           </div>
 
@@ -93,32 +110,50 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             </h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <button onClick={() => onNavigate('how-it-works')} className="hover:text-blue-400 transition-colors">
+                <button
+                  onClick={() => onNavigate("how-it-works")}
+                  className="hover:text-blue-400 transition-colors"
+                >
                   How It Works
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('features')} className="hover:text-blue-400 transition-colors">
-                  Product Features
+                <button
+                  onClick={() => onNavigate("features")}
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Capabilities
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('pricing')} className="hover:text-blue-400 transition-colors">
-                  Pricing Plans
+                <button
+                  onClick={() => onNavigate("platform")}
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Platform Highlights
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('testimonials')} className="hover:text-blue-400 transition-colors">
-                  Field Testimonials
+                <button
+                  onClick={() => onNavigate("testimonials")}
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Customer Stories
                 </button>
               </li>
-              <li>
-                <button onClick={() => onNavigate('about-company')} className="hover:text-blue-400 transition-colors">
+              {/* <li>
+                <button
+                  onClick={() => onNavigate("about-company")}
+                  className="hover:text-blue-400 transition-colors"
+                >
                   About SENSORSAE
                 </button>
-              </li>
+              </li> */}
               <li>
-                <button onClick={() => onNavigate('faq')} className="hover:text-blue-400 transition-colors">
+                <button
+                  onClick={() => onNavigate("faq")}
+                  className="hover:text-blue-400 transition-colors"
+                >
                   FAQ
                 </button>
               </li>
@@ -132,27 +167,42 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             </h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <button onClick={onExploreProducts} className="hover:text-blue-400 transition-colors text-left">
+                <button
+                  onClick={onExploreProducts}
+                  className="hover:text-blue-400 transition-colors text-left"
+                >
                   Edge-X1 Smart Sensor Hub
                 </button>
               </li>
               <li>
-                <button onClick={onExploreProducts} className="hover:text-blue-400 transition-colors text-left">
+                <button
+                  onClick={onExploreProducts}
+                  className="hover:text-blue-400 transition-colors text-left"
+                >
                   AI Plant Copilot &amp; Diagnostics
                 </button>
               </li>
               <li>
-                <button onClick={onExploreProducts} className="hover:text-blue-400 transition-colors text-left">
+                <button
+                  onClick={onExploreProducts}
+                  className="hover:text-blue-400 transition-colors text-left"
+                >
                   Thermal Vision Guard
                 </button>
               </li>
               <li>
-                <button onClick={onExploreProducts} className="hover:text-blue-400 transition-colors text-left">
+                <button
+                  onClick={onExploreProducts}
+                  className="hover:text-blue-400 transition-colors text-left"
+                >
                   Nvidia Orin™ Edge Compute Engine
                 </button>
               </li>
               <li>
-                <button onClick={onRequestDemo} className="text-blue-400 hover:text-blue-300 font-bold transition-colors">
+                <button
+                  onClick={onRequestDemo}
+                  className="text-blue-400 hover:text-blue-300 font-bold transition-colors"
+                >
                   → Request 30-Day Evaluation Kit
                 </button>
               </li>
@@ -168,8 +218,8 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
               </h4>
               <ul className="space-y-2.5 text-xs">
                 <li>
-                  <button 
-                    onClick={() => onNavigate('about-company')} 
+                  <button
+                    onClick={() => onNavigate("about-company")}
                     className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors group text-left"
                   >
                     <Building2 className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
@@ -177,22 +227,26 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
                   </button>
                 </li>
                 <li>
-                  <a 
+                  <a
                     href="#download-factsheet"
                     onClick={(e) => {
                       e.preventDefault();
-                      alert('SENSORSAE Enterprise Factsheet & Profile is being prepared for download.');
+                      alert(
+                        "SENSORSAE Enterprise Factsheet & Profile is being prepared for download.",
+                      );
                     }}
                     className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors group text-left"
                   >
                     <FileText className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
                     <span>Download Company Factsheet</span>
-                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-blue-950 border border-blue-500/30 text-blue-400">PDF</span>
+                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-blue-950 border border-blue-500/30 text-blue-400">
+                      PDF
+                    </span>
                   </a>
                 </li>
                 <li className="text-[11px] text-slate-500 flex items-center gap-1.5 pt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span>HQ: Austin, TX • R&amp;D: Detroit, MI</span>
+                  <span>HQ: Austin, TX • Engineering: Dehiwala, Sri Lanka</span>
                 </li>
               </ul>
             </div>
@@ -249,18 +303,18 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
               </p>
             </div>
           </div>
-
         </div>
 
         {/* Bottom Copyright & Back to Top */}
         <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 font-mono text-[11px]">
           <div>
-            © {new Date().getFullYear()} SENSORSAE Technologies Inc. • sensorsae.net • All rights reserved.
+            © {new Date().getFullYear()} SENSORSAE Technologies Inc. •
+            sensorsae.net • All rights reserved.
           </div>
           <div className="flex items-center gap-6">
             <span>Powered by Nvidia Orin™</span>
             <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="flex items-center gap-1.5 text-slate-400 hover:text-blue-400 transition-colors"
             >
               <span>Back to top</span>
@@ -268,7 +322,6 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             </button>
           </div>
         </div>
-
       </div>
     </footer>
   );

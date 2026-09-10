@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   AlertCircle,
   RefreshCw,
+  Building2,
+  Globe,
 } from "lucide-react";
 
 const TURNSTILE_SITE_KEY =
@@ -29,6 +31,7 @@ export const ConsultationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [activeMap, setActiveMap] = useState("usa");
   const turnstileContainerRef = useRef(null);
   const widgetIdRef = useRef(null);
 
@@ -202,86 +205,139 @@ export const ConsultationForm = () => {
         {/* 2-Column Wide Layout: Contact Details & Map (Left) + Booking Form (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
           {/* Left Column: Contact Details & Google Map Embed */}
-          <div className="lg:col-span-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-8 shadow-sm">
+          <div className="lg:col-span-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 shadow-sm">
             <div className="space-y-6">
               <div>
                 <span className="font-mono text-xs uppercase text-blue-400 font-semibold tracking-wider block mb-1">
-                  GLOBAL HEADQUARTERS
+                  Contact &amp; Locations
                 </span>
                 <h3 className="text-2xl font-bold text-white">
-                  SENSORSAE Technologies
+                  Global Operations &amp; Engineering
                 </h3>
                 <p className="text-slate-400 text-sm mt-1">
-                  Industrial IoT &amp; Predictive Sensor Engineering Hub
+                  Industrial IoT &amp; Predictive Sensor Engineering Hubs
                 </p>
               </div>
 
-              {/* Contact Information List */}
-              <div className="space-y-4 text-sm font-sans text-slate-300">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-white block">
-                      Innovation Park
-                    </strong>
-                    <span>
-                      4200 Industrial Parkway, Suite 300
-                      <br />
-                      San Jose, CA 95134
+              {/* Contact Information Cards: USA & Sri Lanka */}
+              <div className="space-y-3.5 text-sm font-sans text-slate-300">
+                {/* USA Address & Phone */}
+                <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-2 hover:border-blue-500/40 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-blue-400 font-bold flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5" />
+                      USA ADDRESS
                     </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+                      Austin, TX
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-start gap-2.5 pt-0.5">
+                    <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <span>600 Congress Avenue, Suite 1400, Austin, TX 78701, USA</span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-center gap-2.5 pt-0.5">
+                    <Phone className="w-4 h-4 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 text-[11px]">USA Phone Number:</span>
+                      <a href="tel:+15125553948" className="font-mono text-white hover:text-blue-400 font-semibold transition-colors">
+                        +1 512 555 3948
+                      </a>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-blue-400 shrink-0" />
-                  <div>
-                    <span className="text-slate-400 text-xs block">
-                      DIRECT INQUIRIES
+                {/* Sri Lanka Address & Phone */}
+                <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-2 hover:border-blue-500/40 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-blue-400 font-bold flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5" />
+                      SL ADDRESS
                     </span>
-                    <a
-                      href="mailto:solutions@sensorsae.net"
-                      className="text-white hover:text-blue-400 font-mono transition-colors"
-                    >
-                      solutions@sensorsae.net
-                    </a>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+                      Dehiwala, Sri Lanka
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-start gap-2.5 pt-0.5">
+                    <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <span>19 Orchid Avenue, Dehiwala, Sri Lanka</span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-center gap-2.5 pt-0.5">
+                    <Phone className="w-4 h-4 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 text-[11px]">SL Phone Number:</span>
+                      <a href="tel:+94114637925" className="font-mono text-white hover:text-blue-400 font-semibold transition-colors">
+                        +94 11 463 7925
+                      </a>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-blue-400 shrink-0" />
-                  <div>
-                    <span className="text-slate-400 text-xs block">
-                      SUPPORT &amp; DISPATCH
-                    </span>
-                    <span className="font-mono text-white">
-                      +1 (800) 492-7367
-                    </span>
+                {/* Direct Inquiries & Response Commitment */}
+                <div className="pt-2 flex flex-col gap-2.5 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <Mail className="w-4 h-4 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 font-mono text-[11px]">DIRECT INQUIRIES:</span>
+                      <a
+                        href="mailto:solutions@sensorsae.net"
+                        className="text-white hover:text-blue-400 font-mono font-medium transition-colors"
+                      >
+                        solutions@sensorsae.net
+                      </a>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-blue-400 shrink-0" />
-                  <div>
-                    <span className="text-slate-400 text-xs block">
-                      RESPONSE COMMITMENT
-                    </span>
-                    <span className="text-slate-200">
-                      Engineer callback within 2 business hours
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-slate-400 font-sans">
+                      Engineer callback within 2 business hours • 24/7 Global Dispatch
                     </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Google Map Embed */}
-            <div className="space-y-2 pt-4 border-t border-slate-800">
-              <span className="font-mono text-[11px] text-slate-400 uppercase tracking-wider block">
-                FACILITY LOCATION MAP:
-              </span>
-              <div className="rounded-2xl overflow-hidden border border-slate-800 h-52 w-full relative">
+            {/* Google Map Embed with Location Switcher */}
+            <div className="space-y-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] text-slate-400 uppercase tracking-wider block">
+                  FACILITY LOCATION MAP:
+                </span>
+                <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#06080d] border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setActiveMap("usa")}
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono transition-colors ${
+                      activeMap === "usa"
+                        ? "bg-blue-600 text-white font-bold shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    USA (Austin)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveMap("sl")}
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono transition-colors ${
+                      activeMap === "sl"
+                        ? "bg-blue-600 text-white font-bold shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Sri Lanka
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl overflow-hidden border border-slate-800 h-44 w-full relative">
                 <iframe
-                  title="SENSORSAE Office Location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d101408.20455855734!2d-122.03099955355447!3d37.38747402809988!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb596e9e188fd%3A0x3b0d8391510688f0!2sSan%20Jose%2C%20CA!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+                  title={`SENSORSAE ${activeMap === "usa" ? "Austin, TX USA" : "Dehiwala, Sri Lanka"} Facility`}
+                  src={
+                    activeMap === "usa"
+                      ? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3445.986060124847!2d-97.74549882361664!3d30.26879850804473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8644b5087341e9bf%3A0xc392db26df332152!2s600%20Congress%20Ave.%2C%20Austin%2C%20TX%2078701!5e0!3m2!1sen!2sus!5m2!1sen!2sus"
+                      : "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.353392476531!2d79.86608937480996!3d6.848149819307779!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1sen!2slk!5m2!1sen!2slk"
+                  }
                   width="100%"
                   height="100%"
                   style={{
