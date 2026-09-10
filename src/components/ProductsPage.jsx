@@ -140,7 +140,7 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
               className="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-500/40 text-xs font-mono font-bold shadow-glow-sm transition-all"
             >
               <LayoutDashboard className="w-4 h-4 text-blue-400" />
-              <span>Launch Live Dashboard (/dashboard)</span>
+              <span>Launch Live Dashboard</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1070,7 +1070,7 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
               onClick={onOpenDashboard}
               className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-glow-sm hover:shadow-glow-md transition-all flex items-center justify-center gap-2"
             >
-              <span>Launch Live Dashboard (/dashboard)</span>
+              <span>Launch Live Dashboard</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
