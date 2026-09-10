@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Cookie, Check, X, ExternalLink } from 'lucide-react';
 
-export const CookieConsent = () => {
+export const CookieConsent = ({ onNavigateLegal }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const CookieConsent = () => {
 
           <button
             onClick={handleAcceptEssential}
-            className="p-1 text-slate-500 hover:text-white transition-colors"
+            className="p-1 text-slate-500 hover:text-white transition-colors cursor-pointer"
             aria-label="Dismiss cookie notice"
           >
             <X className="w-4 h-4" />
@@ -61,7 +61,7 @@ export const CookieConsent = () => {
         <div className="flex flex-col sm:flex-row items-center gap-2 pt-1 font-mono text-xs">
           <button
             onClick={handleAcceptAll}
-            className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-glow-sm flex items-center justify-center gap-1.5"
+            className="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-glow-sm flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Check className="w-3.5 h-3.5" />
             <span>Accept All</span>
@@ -69,14 +69,19 @@ export const CookieConsent = () => {
 
           <button
             onClick={handleAcceptEssential}
-            className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-[#06080d] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold transition-all"
+            className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-[#06080d] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold transition-all cursor-pointer"
           >
             Essential Only
           </button>
         </div>
 
         <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 pt-1 border-t border-slate-900">
-          <span>Zero cloud data egress</span>
+          <button
+            onClick={() => onNavigateLegal ? onNavigateLegal('cookies') : (window.location.href = '/cookies')}
+            className="text-blue-400 hover:underline cursor-pointer"
+          >
+            Read Cookie Policy →
+          </button>
           <span className="text-slate-400">ISO 27001 / IEC 62443</span>
         </div>
 

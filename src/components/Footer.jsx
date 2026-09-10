@@ -9,6 +9,8 @@ import {
   Download,
   AlertCircle,
   RefreshCw,
+  ExternalLink,
+  Globe,
 } from "lucide-react";
 import { FaLinkedinIn, FaXTwitter, FaYoutube, FaGithub } from "react-icons/fa6";
 
@@ -16,7 +18,13 @@ const TURNSTILE_SITE_KEY =
   import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAAEnOVjqrpsm3StEA";
 const API_BASE = "https://dash.sensorsae.net";
 
-export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
+export const Footer = ({
+  onNavigate,
+  onExploreProducts,
+  onRequestDemo,
+  onOpenDashboard,
+  onNavigateLegal,
+}) => {
   const [emailInput, setEmailInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -344,43 +352,74 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
               Product Suite
             </h4>
-            <ul className="space-y-2.5 text-xs">
+            <ul className="space-y-2 text-xs">
               <li>
                 <button
-                  onClick={onExploreProducts}
-                  className="hover:text-blue-400 transition-colors text-left"
+                  onClick={() => onOpenDashboard ? onOpenDashboard({ tab: "sensors" }) : onExploreProducts()}
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
                 >
-                  Edge-X1 Smart Sensor Hub
+                  <span>Edge-X1 Wireless Sensor Pods</span>
+                  <span className="text-[10px] font-mono text-slate-500 group-hover:text-blue-400">Mesh</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={onExploreProducts}
-                  className="hover:text-blue-400 transition-colors text-left"
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
                 >
-                  AI Plant Copilot &amp; Diagnostics
+                  <span>Edge-X1 Smart Gateway Hub</span>
+                  <span className="text-[10px] font-mono text-slate-500 group-hover:text-blue-400">Gateway</span>
                 </button>
               </li>
               <li>
                 <button
-                  onClick={onExploreProducts}
-                  className="hover:text-blue-400 transition-colors text-left"
+                  onClick={() => onOpenDashboard ? onOpenDashboard({ tab: "copilot" }) : onExploreProducts()}
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
                 >
-                  Thermal Vision Guard
+                  <span>AI Copilot Diagnostics Studio</span>
+                  <span className="text-[10px] font-mono text-blue-400">AI</span>
                 </button>
               </li>
               <li>
                 <button
-                  onClick={onExploreProducts}
-                  className="hover:text-blue-400 transition-colors text-left"
+                  onClick={() => onOpenDashboard ? onOpenDashboard({ tab: "thermal" }) : onExploreProducts()}
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
                 >
-                  Nvidia Orin™ Edge Compute Engine
+                  <span>Thermal Vision Guard (LWIR)</span>
+                  <span className="text-[10px] font-mono text-slate-500 group-hover:text-blue-400">Optics</span>
                 </button>
               </li>
               <li>
+                <button
+                  onClick={() => onOpenDashboard ? onOpenDashboard({ tab: "orin" }) : onExploreProducts()}
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
+                >
+                  <span>Nvidia Jetson Orin™ Compute Stack</span>
+                  <span className="text-[10px] font-mono text-slate-500 group-hover:text-blue-400">Edge AI</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onOpenDashboard ? onOpenDashboard({ tab: "fft" }) : onExploreProducts()}
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
+                >
+                  <span>192 kHz Spectral FFT &amp; DSP Engine</span>
+                  <span className="text-[10px] font-mono text-slate-500 group-hover:text-blue-400">DSP</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onOpenDashboard ? onOpenDashboard({ tab: "incidents" }) : onExploreProducts()}
+                  className="hover:text-blue-400 transition-colors text-left flex items-center justify-between w-full group"
+                >
+                  <span>Incident Dispatch &amp; CMMS</span>
+                  <span className="text-[10px] font-mono text-slate-500 group-hover:text-blue-400">ERP</span>
+                </button>
+              </li>
+              <li className="pt-1">
                 <button
                   onClick={onRequestDemo}
-                  className="text-blue-400 hover:text-blue-300 font-bold transition-colors"
+                  className="text-blue-400 hover:text-blue-300 font-bold transition-colors block text-left"
                 >
                   → Request 30-Day Evaluation Kit
                 </button>
@@ -388,112 +427,88 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             </ul>
           </div>
 
-          {/* Company Profile & Social Channels Column (Spans 3 cols) */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Company Profile Section */}
-            <div className="space-y-3">
-              <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
-                Company Profile
-              </h4>
-              <ul className="space-y-2.5 text-xs">
-                <li>
-                  <button
-                    onClick={() => onNavigate("about-company")}
-                    className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors group text-left"
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
-                    <span>Executive Overview &amp; Story</span>
-                  </button>
-                </li>
-                <li>
-                  <a
-                    href="#download-factsheet"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert(
-                        "SENSORSAE Enterprise Factsheet & Profile is being prepared for download.",
-                      );
-                    }}
-                    className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors group text-left"
-                  >
-                    <FileText className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
-                    <span>Download Company Factsheet</span>
-                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-blue-950 border border-blue-500/30 text-blue-400">
-                      PDF
-                    </span>
-                  </a>
-                </li>
-                <li className="text-[11px] text-slate-500 flex items-center gap-1.5 pt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span>HQ: Austin, TX • Engineering: Dehiwala, Sri Lanka</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Social Channels Section */}
-            <div className="space-y-3 pt-3 border-t border-slate-900">
-              <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
-                Social Channels
-              </h4>
-              <div className="flex items-center gap-2.5">
+          {/* Company Profile Column (Spans 3 cols) - strictly LinkedIn, Crunchbase, F6S */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+              Company Profile
+            </h4>
+            <ul className="space-y-3 text-xs">
+              <li>
                 <a
-                  href="https://www.linkedin.com"
+                  href="https://www.linkedin.com/company/sensorsae"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="SENSORSAE LinkedIn"
-                  title="LinkedIn"
-                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-[#06080d] border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/40 text-slate-300 hover:text-white transition-all group"
                 >
-                  <FaLinkedinIn className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-2.5">
+                    <FaLinkedinIn className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <span className="font-semibold text-white">LinkedIn Profile</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-400" />
                 </a>
+              </li>
+              <li>
                 <a
-                  href="https://twitter.com"
+                  href="https://www.crunchbase.com/organization/sensorsae"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="SENSORSAE X (Twitter)"
-                  title="X (Twitter)"
-                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-[#06080d] border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/40 text-slate-300 hover:text-white transition-all group"
                 >
-                  <FaXTwitter className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-2.5">
+                    <Building2 className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                    <span className="font-semibold text-white">Crunchbase Profile</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400" />
                 </a>
+              </li>
+              <li>
                 <a
-                  href="https://youtube.com"
+                  href="https://www.f6s.com/sensorsae"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="SENSORSAE YouTube"
-                  title="YouTube"
-                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-[#06080d] border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/40 text-slate-300 hover:text-white transition-all group"
                 >
-                  <FaYoutube className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-2.5">
+                    <Globe className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+                    <span className="font-semibold text-white">F6S Profile</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400" />
                 </a>
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="SENSORSAE GitHub"
-                  title="GitHub"
-                  className="w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/60 text-slate-400 hover:text-blue-400 flex items-center justify-center transition-all duration-200 group shadow-sm"
-                >
-                  <FaGithub className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                </a>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Engineering dispatches &amp; firmware updates.
-              </p>
-            </div>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Copyright & Back to Top */}
-        <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 font-mono text-[11px]">
+        {/* Bottom Copyright & Legal Links */}
+        <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 font-mono text-[11px]">
           <div>
-            © {new Date().getFullYear()} SENSORSAE Technologies Inc. •
-            sensorsae.net • All rights reserved.
+            © {new Date().getFullYear()} SENSORSAE Technologies Inc. • Austin, TX &amp; Dehiwala, Sri Lanka • All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 font-sans text-xs">
+            <button
+              onClick={() => onNavigateLegal ? onNavigateLegal("terms") : (window.location.href = "/terms")}
+              className="text-slate-400 hover:text-blue-400 transition-colors cursor-pointer"
+            >
+              Terms of Service
+            </button>
+            <span className="text-slate-700">•</span>
+            <button
+              onClick={() => onNavigateLegal ? onNavigateLegal("privacy") : (window.location.href = "/privacy")}
+              className="text-slate-400 hover:text-blue-400 transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-slate-700">•</span>
+            <button
+              onClick={() => onNavigateLegal ? onNavigateLegal("cookies") : (window.location.href = "/cookies")}
+              className="text-slate-400 hover:text-blue-400 transition-colors cursor-pointer"
+            >
+              Cookie Policy
+            </button>
+            <span className="text-slate-700">•</span>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="flex items-center gap-1.5 text-slate-400 hover:text-blue-400 transition-colors"
+              className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               <span>Back to top</span>
               <ArrowUp className="w-3.5 h-3.5" />

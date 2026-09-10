@@ -16,6 +16,7 @@ import { CookieConsent } from "./components/CookieConsent";
 import { ConsultationForm } from "./components/ConsultationForm";
 import { ProductsPage } from "./components/ProductsPage";
 import { IndustrialDashboard } from "./components/IndustrialDashboard";
+import { LegalPage } from "./components/LegalPage";
 import { Footer } from "./components/Footer";
 import { useAuth } from "./context/AuthContext";
 import { FALLBACK_PLANS } from "./services/subscriptionService";
@@ -34,6 +35,9 @@ export function App() {
     )
       return "dashboard";
     if (path.includes("/products")) return "products";
+    if (path.includes("/terms")) return "legal-terms";
+    if (path.includes("/privacy")) return "legal-privacy";
+    if (path.includes("/cookies") || path.includes("/cookie-policy")) return "legal-cookies";
     return "home";
   };
 
@@ -171,6 +175,11 @@ export function App() {
     }
   };
 
+  const handleNavigateLegal = (tab = "terms") => {
+    const cleanTab = tab === "privacy" ? "privacy" : tab === "cookies" ? "cookies" : "terms";
+    navigateTo(`legal-${cleanTab}`, `/${cleanTab}`);
+  };
+
   // OAuth Finished Handler -> routes to dashboard or specified plan checkout
   const handleOAuthFinished = ({ planSlug, billingCycle }) => {
     if (planSlug) {
@@ -286,6 +295,13 @@ export function App() {
         {currentView === "auth/complete" && (
           <OAuthCallback onComplete={handleOAuthFinished} />
         )}
+
+        {currentView.startsWith("legal-") && (
+          <LegalPage
+            initialTab={currentView.replace("legal-", "")}
+            onBackToHome={handleBackToHome}
+          />
+        )}
       </main>
 
       {/* Footer (Hidden on checkout, dashboard, and auth callback for focused flow) */}
@@ -296,6 +312,8 @@ export function App() {
             onNavigate={handleSectionNavigate}
             onExploreProducts={handleExploreProducts}
             onRequestDemo={handleRequestDemo}
+            onOpenDashboard={handleOpenDashboard}
+            onNavigateLegal={handleNavigateLegal}
           />
         )}
 
@@ -303,7 +321,7 @@ export function App() {
       <AiChatWidget />
 
       {/* Industrial Cookie & Telemetry Consent Banner */}
-      <CookieConsent />
+      <CookieConsent onNavigateLegal={handleNavigateLegal} />
 
       {/* Global Auth Modal for Login, Registration & Password Reset */}
       <AuthModal
