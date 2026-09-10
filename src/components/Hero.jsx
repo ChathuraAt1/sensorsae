@@ -21,83 +21,38 @@ export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-950/50 border border-blue-500/25 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-blue-400"></span>
           <span className="font-mono text-xs tracking-widest text-blue-300 uppercase">
-            INDUSTRIAL SENSOR INTELLIGENCE
+            INDUSTRIAL EQUIPMENT INTELLIGENCE
           </span>
         </div>
 
         {/* Big Clean Headline */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12]">
-          Stop Factory Downtime <br />
+          Detect Equipment Issues <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-400">
-            Before It Happens.
+            Before They Disrup Operations
           </span>
         </h1>
 
         {/* Minimalist Subtext (2 lines only) */}
         <p className="max-w-2xl mx-auto text-base sm:text-xl text-slate-300 font-normal leading-relaxed">
-          SENSORSAE monitors vibration and heat across your equipment, alerting your team weeks before bearings break.
+          Sensorsae monitors vibration and temperature data to help teams identify potential equipment issues and plan maintenance earlier.
         </p>
-
-        {/* Interactive Live Machine Telemetry Pills (Deep Links to Dashboard) */}
-        <div className="pt-1">
-          <div className="text-[11px] font-mono text-slate-500 uppercase tracking-widest mb-2.5 flex items-center justify-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>48 NODES STREAMING • CLICK EQUIPMENT FOR LIVE TELEMETRY:</span>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-xs">
-            <button
-              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'PUMP-04' })}
-              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-blue-500/30 hover:border-blue-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
-            >
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span>PUMP-04: <strong className="text-amber-300">2.4 mm/s</strong> (Cavitation)</span>
-              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
-            </button>
-
-            <button
-              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'TURB-02' })}
-              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-blue-500/30 hover:border-blue-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>TURB-02: <strong className="text-emerald-300">0.6 mm/s</strong> (Optimal)</span>
-              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
-            </button>
-
-            <button
-              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'CNC-12' })}
-              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-blue-500/30 hover:border-blue-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>CNC-12: <strong className="text-emerald-300">0.4 mm/s</strong> (Nominal)</span>
-              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
-            </button>
-
-            <button
-              onClick={() => onOpenDashboard && onOpenDashboard({ assetId: 'CONV-10' })}
-              className="px-3.5 py-1.5 rounded-full bg-[#0b0f19] hover:bg-blue-950 border border-red-500/40 hover:border-red-400 text-slate-300 hover:text-white transition-all flex items-center gap-2 group shadow-sm"
-            >
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
-              <span>CONV-10: <strong className="text-red-300">88.5°C</strong> (Hotspot Alert)</span>
-              <span className="text-red-400 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
-            </button>
-          </div>
-        </div>
 
         {/* Clean CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <button
-            onClick={onRequestDemo}
+            onClick={onExploreProducts}
             className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow-sm hover:shadow-glow-md transition-all flex items-center justify-center gap-2 group"
           >
-            <span>Request a Trial</span>
+            <span>Explore SensorGuard S.1</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </button>
 
           <button
-            onClick={onExploreProducts}
+            onClick={onRequestDemo}
             className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#0b0f19] hover:bg-blue-950/60 text-slate-200 hover:text-white font-semibold text-xs border border-blue-900/60 hover:border-blue-500/50 transition-all flex items-center justify-center gap-2"
           >
-            <span>Explore Product Line</span>
+            <span>Request a Demo</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
 

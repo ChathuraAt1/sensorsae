@@ -187,7 +187,7 @@ export const Navbar = ({ currentView, setCurrentView, onRequestDemo, onOpenAuth 
               className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-glow-sm hover:shadow-glow-md transition-all duration-300 group"
             >
               <Package className="w-4 h-4" />
-              <span>Explore Products</span>
+              <span>Explore SensorGuard S.1</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
             </button>
           ) : (
