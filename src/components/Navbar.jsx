@@ -168,7 +168,7 @@ export const Navbar = ({
 
         {/* MAIN HEADER CTA & Auth Controls */}
         <div className="hidden lg:flex items-center gap-3">
-          {isAuthenticated ? (
+          {/* {isAuthenticated ? (
             <div className="flex items-center gap-2 bg-[#0b0f19] border border-blue-900/60 rounded-full px-3 py-1 text-xs">
               <div className="w-6 h-6 rounded-full bg-blue-600/30 border border-blue-400 flex items-center justify-center text-blue-300">
                 <User className="w-3.5 h-3.5" />
@@ -192,7 +192,7 @@ export const Navbar = ({
               <LogIn className="w-3.5 h-3.5 text-blue-400" />
               <span>Sign In</span>
             </button>
-          )}
+          )} */}
 
           {currentView === "home" ? (
             <button

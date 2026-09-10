@@ -1,15 +1,15 @@
-import React from 'react';
-import { ArrowRight, LayoutDashboard } from 'lucide-react';
-import { clientLogos } from '../data/mockData';
+import React from "react";
+import { ArrowRight, LayoutDashboard } from "lucide-react";
+import { clientLogos } from "../data/mockData";
 
 export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
   return (
     <section className="relative min-h-[88vh] pt-36 pb-20 flex flex-col justify-between overflow-hidden bg-[#06080d]">
       {/* Background Image with Dark Moody Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80" 
-          alt="Smart Factory Floor" 
+        <img
+          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80"
+          alt="Smart Factory Floor"
           className="w-full h-full object-cover object-center brightness-[0.18] contrast-125"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#06080d] via-[#06080d]/70 to-[#06080d]/90"></div>
@@ -29,13 +29,14 @@ export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12]">
           Detect Equipment Issues <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-400">
-            Before They Disrup Operations
+            Before They Distrup Operations
           </span>
         </h1>
 
         {/* Minimalist Subtext (2 lines only) */}
         <p className="max-w-2xl mx-auto text-base sm:text-xl text-slate-300 font-normal leading-relaxed">
-          Sensorsae monitors vibration and temperature data to help teams identify potential equipment issues and plan maintenance earlier.
+          Sensorsae monitors vibration and temperature data to help teams
+          identify potential equipment issues and plan maintenance earlier.
         </p>
 
         {/* Clean CTAs */}
@@ -56,24 +57,13 @@ export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
-          <button
+          {/* <button
             onClick={() => onOpenDashboard && onOpenDashboard({ tab: 'overview' })}
             className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-blue-300 hover:text-white font-semibold text-xs border border-blue-500/30 hover:border-blue-400 shadow-glow-sm transition-all flex items-center justify-center gap-2 font-mono"
           >
             <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
             <span>Launch Dashboard (/dashboard)</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Client Logos Bar */}
-      <div className="relative z-10 w-full border-t border-slate-900 bg-[#06080d]/80 backdrop-blur-sm py-6">
-        <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60">
-          {clientLogos.map((logo, idx) => (
-            <span key={idx} className="font-mono text-xs sm:text-sm tracking-wider font-semibold text-slate-400">
-              {logo}
-            </span>
-          ))}
+          </button> */}
         </div>
       </div>
     </section>
