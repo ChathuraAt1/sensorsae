@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Cpu,
   ArrowUp,
@@ -7,69 +7,248 @@ import {
   Building2,
   FileText,
   Download,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { FaLinkedinIn, FaXTwitter, FaYoutube, FaGithub } from "react-icons/fa6";
 
+const TURNSTILE_SITE_KEY =
+  import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAAEnOVjqrpsm3StEA";
+const API_BASE = "https://dash.sensorsae.net";
+
 export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
   const [emailInput, setEmailInput] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
 
-  const handleSubscribe = (e) => {
+  const turnstileContainerRef = useRef(null);
+  const widgetIdRef = useRef(null);
+
+  useEffect(() => {
+    let intervalId = null;
+
+    const renderWidget = () => {
+      if (
+        window.turnstile &&
+        turnstileContainerRef.current &&
+        widgetIdRef.current === null
+      ) {
+        try {
+          widgetIdRef.current = window.turnstile.render(
+            turnstileContainerRef.current,
+            {
+              sitekey: TURNSTILE_SITE_KEY,
+              action: "newsletter",
+              theme: "dark",
+              callback: (token) => {
+                setTurnstileToken(token);
+                setErrorMessage("");
+              },
+              "expired-callback": () => {
+                setTurnstileToken("");
+              },
+              "error-callback": () => {
+                setTurnstileToken("");
+                setErrorMessage(
+                  "Turnstile security verification encountered an issue. Please refresh or retry."
+                );
+              },
+            }
+          );
+        } catch (err) {
+          console.warn("Newsletter Turnstile render warning:", err);
+        }
+      }
+    };
+
+    if (window.turnstile) {
+      renderWidget();
+    } else {
+      intervalId = setInterval(() => {
+        if (window.turnstile) {
+          clearInterval(intervalId);
+          renderWidget();
+        }
+      }, 200);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      if (widgetIdRef.current !== null && window.turnstile) {
+        try {
+          window.turnstile.remove(widgetIdRef.current);
+          widgetIdRef.current = null;
+        } catch (_) {}
+      }
+    };
+  }, []);
+
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!emailInput.trim()) return;
-    setSubscribed(true);
-    setTimeout(() => {
+
+    if (!turnstileToken) {
+      setErrorMessage("Please complete the security check below before subscribing.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/mail/newsletter`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          email: emailInput.trim(),
+          turnstile_token: turnstileToken,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (data.errors) {
+          const firstErr = Object.values(data.errors).flat()[0];
+          throw new Error(firstErr || data.message || "Newsletter subscription failed");
+        }
+        throw new Error(data.message || `Server responded with status ${res.status}`);
+      }
+
+      setSuccessMessage(data.message || "Newsletter signup processed. Please check your email to verify.");
       setEmailInput("");
-    }, 2000);
+      setTurnstileToken("");
+
+      if (window.turnstile && widgetIdRef.current !== null) {
+        try {
+          window.turnstile.reset(widgetIdRef.current);
+        } catch (_) {}
+      }
+    } catch (err) {
+      console.error("Newsletter submission error:", err);
+      setErrorMessage(err.message || "Failed to subscribe to newsletter. Please try again.");
+
+      // Reset Turnstile so user can generate a fresh token
+      if (window.turnstile && widgetIdRef.current !== null) {
+        try {
+          window.turnstile.reset(widgetIdRef.current);
+          setTurnstileToken("");
+        } catch (_) {}
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <footer className="bg-[#05070a] border-t border-blue-900/30 pt-16 pb-12 text-slate-400 font-sans text-xs">
       <div className="max-w-7xl mx-auto px-6 space-y-16">
         {/* Custom Top Newsletter / Engineering Briefing Bar */}
-        <div className="rounded-3xl bg-gradient-to-r from-blue-950/40 via-[#0b0f19] to-blue-950/40 border border-blue-500/30 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-glow-sm">
-          <div className="space-y-1 text-center md:text-left">
-            <span className="font-mono text-[11px] uppercase tracking-widest text-blue-400 font-bold">
-              INDUSTRIAL RELIABILITY DIGEST
+        <div className="rounded-3xl bg-gradient-to-r from-blue-950/40 via-[#0b0f19] to-blue-950/40 border border-blue-500/30 p-8 sm:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 shadow-glow-sm">
+          <div className="space-y-2 max-w-lg text-left">
+            <span className="font-mono text-[11px] uppercase tracking-widest text-blue-400 font-bold px-3 py-1 rounded-full bg-blue-950/70 border border-blue-500/30 inline-block">
+              SENSORSAE UPDATES
             </span>
-            <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              Get monthly predictive maintenance case studies.
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight uppercase">
+              RECEIVE INDUSTRIAL MONITORING INSIGHTS
             </h3>
-            <p className="text-slate-400 text-xs">
-              No spam. Just actionable root-cause teardowns and smart factory
-              insights.
+            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+              Get product updates, maintenance insights, and selected customer stories.
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubscribe}
-            className="w-full md:w-auto flex items-center gap-2 max-w-md"
-          >
-            {subscribed ? (
-              <div className="px-6 py-3 rounded-full bg-blue-950 border border-blue-400 text-blue-300 font-mono text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                <span>Subscribed! Check your inbox soon.</span>
-              </div>
-            ) : (
-              <div className="flex w-full rounded-full bg-[#06080d] border border-slate-800 p-1 focus-within:border-blue-500 transition-all">
-                <input
-                  type="email"
-                  required
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="Enter your work email..."
-                  className="bg-transparent px-4 py-2 text-white placeholder:text-slate-600 focus:outline-none text-xs w-full"
-                />
+          <div className="w-full lg:w-auto flex-1 max-w-md">
+            {successMessage ? (
+              <div className="p-4 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-emerald-300 text-xs font-mono space-y-2 animate-in fade-in">
+                <div className="flex items-center gap-2 font-bold text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Subscription Processed</span>
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  {successMessage}
+                </p>
                 <button
-                  type="submit"
-                  className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shrink-0 flex items-center gap-1.5"
+                  type="button"
+                  onClick={() => {
+                    setSuccessMessage("");
+                    setTurnstileToken("");
+                    if (window.turnstile && widgetIdRef.current !== null) {
+                      try {
+                        window.turnstile.reset(widgetIdRef.current);
+                      } catch (_) {}
+                    }
+                  }}
+                  className="mt-1 text-[11px] text-blue-400 hover:text-blue-300 underline font-sans"
                 >
-                  <span>Subscribe</span>
-                  <Send className="w-3 h-3" />
+                  Subscribe another email
                 </button>
               </div>
+            ) : (
+              <form
+                onSubmit={handleSubscribe}
+                className="space-y-3 w-full"
+              >
+                {errorMessage && (
+                  <div className="p-3 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 text-xs font-mono flex items-start gap-2 animate-in fade-in">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <div className="flex w-full rounded-full bg-[#06080d] border border-slate-800 p-1 focus-within:border-blue-500 transition-all">
+                  <input
+                    type="email"
+                    required
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder="Enter your work email..."
+                    className="bg-transparent px-4 py-2 text-white placeholder:text-slate-600 focus:outline-none text-xs w-full"
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !turnstileToken}
+                    className={`px-5 py-2 rounded-full font-semibold text-xs transition-all shrink-0 flex items-center gap-1.5 ${
+                      !turnstileToken || isSubmitting
+                        ? "bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-500 text-white shadow-glow-sm cursor-pointer"
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw className="w-3 h-3 animate-spin text-blue-300" />
+                        <span>Subscribing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Subscribe</span>
+                        <Send className="w-3 h-3" />
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Cloudflare Turnstile Verification */}
+                <div className="pt-1 flex flex-col items-center sm:items-start justify-center">
+                  <div
+                    ref={turnstileContainerRef}
+                    className="min-h-[65px] flex items-center"
+                    data-action="newsletter"
+                  ></div>
+                  <input
+                    type="hidden"
+                    name="cf-turnstile-response"
+                    value={turnstileToken}
+                  />
+                </div>
+              </form>
             )}
-          </form>
+          </div>
         </div>
 
         {/* Main Custom Grid Layout */}
@@ -312,7 +491,6 @@ export const Footer = ({ onNavigate, onExploreProducts, onRequestDemo }) => {
             sensorsae.net • All rights reserved.
           </div>
           <div className="flex items-center gap-6">
-            <span>Powered by Nvidia Orin™</span>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="flex items-center gap-1.5 text-slate-400 hover:text-blue-400 transition-colors"

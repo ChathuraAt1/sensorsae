@@ -234,13 +234,20 @@ export const ConsultationForm = () => {
                   </div>
                   <div className="text-xs text-slate-300 flex items-start gap-2.5 pt-0.5">
                     <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                    <span>600 Congress Avenue, Suite 1400, Austin, TX 78701, USA</span>
+                    <span>
+                      600 Congress Avenue, Suite 1400, Austin, TX 78701, USA
+                    </span>
                   </div>
                   <div className="text-xs text-slate-300 flex items-center gap-2.5 pt-0.5">
                     <Phone className="w-4 h-4 text-blue-400 shrink-0" />
                     <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400 text-[11px]">USA Phone Number:</span>
-                      <a href="tel:+15125553948" className="font-mono text-white hover:text-blue-400 font-semibold transition-colors">
+                      <span className="text-slate-400 text-[11px]">
+                        USA Phone Number:
+                      </span>
+                      <a
+                        href="tel:+15125553948"
+                        className="font-mono text-white hover:text-blue-400 font-semibold transition-colors"
+                      >
                         +1 512 555 3948
                       </a>
                     </div>
@@ -265,8 +272,13 @@ export const ConsultationForm = () => {
                   <div className="text-xs text-slate-300 flex items-center gap-2.5 pt-0.5">
                     <Phone className="w-4 h-4 text-blue-400 shrink-0" />
                     <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400 text-[11px]">SL Phone Number:</span>
-                      <a href="tel:+94114637925" className="font-mono text-white hover:text-blue-400 font-semibold transition-colors">
+                      <span className="text-slate-400 text-[11px]">
+                        SL Phone Number:
+                      </span>
+                      <a
+                        href="tel:+94114637925"
+                        className="font-mono text-white hover:text-blue-400 font-semibold transition-colors"
+                      >
                         +94 11 463 7925
                       </a>
                     </div>
@@ -278,12 +290,14 @@ export const ConsultationForm = () => {
                   <div className="flex items-center gap-2.5">
                     <Mail className="w-4 h-4 text-blue-400 shrink-0" />
                     <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400 font-mono text-[11px]">DIRECT INQUIRIES:</span>
+                      <span className="text-slate-400 font-mono text-[11px]">
+                        DIRECT INQUIRIES:
+                      </span>
                       <a
-                        href="mailto:solutions@sensorsae.net"
+                        href="mailto:support@sensorsae.net"
                         className="text-white hover:text-blue-400 font-mono font-medium transition-colors"
                       >
-                        solutions@sensorsae.net
+                        support@sensorsae.net
                       </a>
                     </div>
                   </div>
@@ -291,7 +305,8 @@ export const ConsultationForm = () => {
                   <div className="flex items-center gap-2.5">
                     <Clock className="w-4 h-4 text-blue-400 shrink-0" />
                     <span className="text-slate-400 font-sans">
-                      Engineer callback within 2 business hours • 24/7 Global Dispatch
+                      Engineer callback within 2 business hours • 24/7 Global
+                      Dispatch
                     </span>
                   </div>
                 </div>
