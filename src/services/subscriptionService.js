@@ -230,8 +230,12 @@ export const fetchUserActivePlan = async (token, user = null) => {
  * Gated: If 14 days elapsed and no paid subscription, isExpired = true.
  */
 export const calculateTrialStatus = (user = null, hasPaidPlan = false) => {
-  // If user has paid for an active subscription, they are fully licensed (not trial)
-  if (hasPaidPlan) {
+  // If user has paid for an active subscription, or has active plan assigned in backend, they are fully licensed (not trial)
+  const isPaid = hasPaidPlan || 
+    Boolean(user?.current_plan && user.current_plan !== 'free') || 
+    Boolean(localStorage.getItem('sensorsae_has_paid') === 'true');
+
+  if (isPaid) {
     return {
       isTrial: false,
       isExpired: false,

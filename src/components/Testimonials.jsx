@@ -1,35 +1,49 @@
-import React, { useState } from 'react';
-import { Star, ChevronLeft, ChevronRight, Building2, Quote, CheckCircle2 } from 'lucide-react';
-import { marketingCaseStudies } from '../data/mockData';
+import React, { useState } from "react";
+import {
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  Building2,
+  Quote,
+  CheckCircle2,
+} from "lucide-react";
+import { marketingCaseStudies } from "../data/mockData";
 
 export const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? marketingCaseStudies.length - 1 : prev - 1));
+    setActiveIndex((prev) =>
+      prev === 0 ? marketingCaseStudies.length - 1 : prev - 1,
+    );
   };
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev === marketingCaseStudies.length - 1 ? 0 : prev + 1));
+    setActiveIndex((prev) =>
+      prev === marketingCaseStudies.length - 1 ? 0 : prev + 1,
+    );
   };
 
   const current = marketingCaseStudies[activeIndex];
 
   return (
-    <section id="testimonials" className="py-24 bg-[#06080d] border-b border-slate-900">
+    <section
+      id="testimonials"
+      className="py-24 bg-[#06080d] border-b border-slate-900"
+    >
       <div className="max-w-6xl mx-auto px-6 space-y-12">
-        
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div className="space-y-3">
             <span className="font-mono text-xs uppercase tracking-widest text-blue-400 font-semibold">
-              INTERACTIVE FIELD STORIES
+              FIELD SUCCESS STORIES
             </span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Proven in the World's Toughest Plants.
+              Trusted in demanding industrial environments
             </h2>
             <p className="text-slate-400 text-base">
-              Explore verified case studies from operational leaders across different manufacturing sectors.
+              See how industrial teams use SENSORSAE to improve equipment
+              reliability and maintenance planning.
             </p>
           </div>
 
@@ -63,8 +77,8 @@ export const Testimonials = () => {
               onClick={() => setActiveIndex(idx)}
               className={`px-5 py-2.5 rounded-full font-mono text-xs font-semibold whitespace-nowrap transition-all border ${
                 activeIndex === idx
-                  ? 'bg-blue-600 text-white border-blue-400 shadow-glow-sm'
-                  : 'bg-[#0b0f19] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                  ? "bg-blue-600 text-white border-blue-400 shadow-glow-sm"
+                  : "bg-[#0b0f19] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700"
               }`}
             >
               {study.badge}
@@ -75,7 +89,6 @@ export const Testimonials = () => {
         {/* Interactive Main Story Card */}
         <div className="rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-8 sm:p-12 shadow-glow-md relative overflow-hidden transition-all duration-300">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            
             {/* Left Column: Quote and Customer Story */}
             <div className="lg:col-span-8 space-y-6">
               <div className="flex items-center gap-3">
@@ -102,8 +115,12 @@ export const Testimonials = () => {
                   {current.author.charAt(0)}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">{current.author}</div>
-                  <div className="text-xs text-slate-400 font-mono">{current.role}</div>
+                  <div className="text-sm font-bold text-white">
+                    {current.author}
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono">
+                    {current.role}
+                  </div>
                 </div>
               </div>
             </div>
@@ -126,10 +143,8 @@ export const Testimonials = () => {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </section>
   );

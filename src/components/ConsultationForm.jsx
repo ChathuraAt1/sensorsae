@@ -1,23 +1,37 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, CheckCircle2, MapPin, Mail, Phone, Clock, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Send,
+  CheckCircle2,
+  MapPin,
+  Mail,
+  Phone,
+  Clock,
+  ShieldCheck,
+  AlertCircle,
+  RefreshCw,
+  Building2,
+  Globe,
+} from "lucide-react";
 
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAEnOVjqrpsm3StEA';
-const API_BASE = 'https://dash.sensorsae.net';
+const TURNSTILE_SITE_KEY =
+  import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAAEnOVjqrpsm3StEA";
+const API_BASE = "https://dash.sensorsae.net";
 
 export const ConsultationForm = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    company: '',
-    equipmentType: 'Pumps, Motors & Compressors',
-    machineCount: '5 Machines (Pilot Kit)',
-    notes: '',
+    name: "",
+    email: "",
+    company: "",
+    equipmentType: "Pumps, Motors & Compressors",
+    machineCount: "5 Machines (Pilot Kit)",
+    notes: "",
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [turnstileToken, setTurnstileToken] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [activeMap, setActiveMap] = useState("usa");
   const turnstileContainerRef = useRef(null);
   const widgetIdRef = useRef(null);
 
@@ -25,26 +39,35 @@ export const ConsultationForm = () => {
     let intervalId = null;
 
     const renderWidget = () => {
-      if (window.turnstile && turnstileContainerRef.current && widgetIdRef.current === null) {
+      if (
+        window.turnstile &&
+        turnstileContainerRef.current &&
+        widgetIdRef.current === null
+      ) {
         try {
-          widgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
-            sitekey: TURNSTILE_SITE_KEY,
-            action: 'contact',
-            theme: 'dark',
-            callback: (token) => {
-              setTurnstileToken(token);
-              setErrorMessage('');
+          widgetIdRef.current = window.turnstile.render(
+            turnstileContainerRef.current,
+            {
+              sitekey: TURNSTILE_SITE_KEY,
+              action: "contact",
+              theme: "dark",
+              callback: (token) => {
+                setTurnstileToken(token);
+                setErrorMessage("");
+              },
+              "expired-callback": () => {
+                setTurnstileToken("");
+              },
+              "error-callback": () => {
+                setTurnstileToken("");
+                setErrorMessage(
+                  "Cloudflare Turnstile verification check encountered an issue. Please refresh or retry.",
+                );
+              },
             },
-            'expired-callback': () => {
-              setTurnstileToken('');
-            },
-            'error-callback': () => {
-              setTurnstileToken('');
-              setErrorMessage('Cloudflare Turnstile verification check encountered an issue. Please refresh or retry.');
-            },
-          });
+          );
         } catch (err) {
-          console.warn('Turnstile render warning:', err);
+          console.warn("Turnstile render warning:", err);
         }
       }
     };
@@ -73,10 +96,12 @@ export const ConsultationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
+    setErrorMessage("");
 
     if (!turnstileToken) {
-      setErrorMessage('Please complete the Cloudflare security verification check before submitting.');
+      setErrorMessage(
+        "Please complete the Cloudflare security verification check before submitting.",
+      );
       return;
     }
 
@@ -87,8 +112,12 @@ export const ConsultationForm = () => {
         `Plant / Company: ${formData.company.trim()}`,
         `Target Machinery: ${formData.equipmentType}`,
         `Scope of Pilot: ${formData.machineCount}`,
-        formData.notes?.trim() ? `\nFacility Notes & Requirements:\n${formData.notes.trim()}` : null,
-      ].filter(Boolean).join('\n');
+        formData.notes?.trim()
+          ? `\nFacility Notes & Requirements:\n${formData.notes.trim()}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
 
       const payload = {
         name: formData.name.trim(),
@@ -98,10 +127,10 @@ export const ConsultationForm = () => {
       };
 
       const res = await fetch(`${API_BASE}/api/mail/contact`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(payload),
       });
@@ -111,24 +140,28 @@ export const ConsultationForm = () => {
       if (!res.ok) {
         if (json.errors) {
           const firstErr = Object.values(json.errors).flat()[0];
-          throw new Error(firstErr || json.message || 'Submission failed');
+          throw new Error(firstErr || json.message || "Submission failed");
         }
-        throw new Error(json.message || `Server responded with status ${res.status}`);
+        throw new Error(
+          json.message || `Server responded with status ${res.status}`,
+        );
       }
 
       setIsSubmitted(true);
-      setTurnstileToken('');
-      setErrorMessage('');
-
+      setTurnstileToken("");
+      setErrorMessage("");
     } catch (err) {
-      console.error('Contact submission error:', err);
-      setErrorMessage(err.message || 'Failed to submit reservation. Please check your details and try again.');
-      
+      console.error("Contact submission error:", err);
+      setErrorMessage(
+        err.message ||
+          "Failed to submit reservation. Please check your details and try again.",
+      );
+
       // Reset Turnstile widget so user can re-verify and retry
       if (window.turnstile && widgetIdRef.current !== null) {
         try {
           window.turnstile.reset(widgetIdRef.current);
-          setTurnstileToken('');
+          setTurnstileToken("");
         } catch (_) {}
       }
     } finally {
@@ -138,103 +171,194 @@ export const ConsultationForm = () => {
 
   const handleResetForm = () => {
     setIsSubmitted(false);
-    setTurnstileToken('');
-    setErrorMessage('');
+    setTurnstileToken("");
+    setErrorMessage("");
     setFormData({
-      name: '',
-      email: '',
-      company: '',
-      equipmentType: 'Pumps, Motors & Compressors',
-      machineCount: '5 Machines (Pilot Kit)',
-      notes: '',
+      name: "",
+      email: "",
+      company: "",
+      equipmentType: "Pumps, Motors & Compressors",
+      machineCount: "5 Machines (Pilot Kit)",
+      notes: "",
     });
   };
 
   return (
-    <section id="consultation" className="py-24 bg-[#06080d] relative overflow-hidden">
+    <section
+      id="consultation"
+      className="py-24 bg-[#06080d] relative overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-6 space-y-16">
-        
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <span className="font-mono text-xs uppercase tracking-widest text-blue-400 font-semibold">
-            GET IN TOUCH &amp; TRIAL HARDWARE
+            START YOUR TRIAL
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Claim Your 30-Day Trial Kit.
+            Request Your 30-Day Trial Kit.
           </h2>
           <p className="text-slate-400 text-base">
-            Test SENSORSAE on your 5 most critical machines with zero obligations.
+            Evaluate SENSORSAE on selected critical equipment for 30 days.
           </p>
         </div>
 
         {/* 2-Column Wide Layout: Contact Details & Map (Left) + Booking Form (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
-          
           {/* Left Column: Contact Details & Google Map Embed */}
-          <div className="lg:col-span-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-8 shadow-sm">
+          <div className="lg:col-span-5 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 shadow-sm">
             <div className="space-y-6">
               <div>
                 <span className="font-mono text-xs uppercase text-blue-400 font-semibold tracking-wider block mb-1">
-                  GLOBAL HEADQUARTERS
+                  Contact &amp; Locations
                 </span>
                 <h3 className="text-2xl font-bold text-white">
-                  SENSORSAE Technologies
+                  Global Operations &amp; Engineering
                 </h3>
                 <p className="text-slate-400 text-sm mt-1">
-                  Industrial IoT &amp; Predictive Sensor Engineering Hub
+                  Industrial IoT &amp; Predictive Sensor Engineering Hubs
                 </p>
               </div>
 
-              {/* Contact Information List */}
-              <div className="space-y-4 text-sm font-sans text-slate-300">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-white block">Innovation Park</strong>
-                    <span>4200 Industrial Parkway, Suite 300<br />San Jose, CA 95134</span>
+              {/* Contact Information Cards: USA & Sri Lanka */}
+              <div className="space-y-3.5 text-sm font-sans text-slate-300">
+                {/* USA Address & Phone */}
+                <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-2 hover:border-blue-500/40 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-blue-400 font-bold flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5" />
+                      USA ADDRESS
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+                      Austin, TX
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-start gap-2.5 pt-0.5">
+                    <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <span>
+                      600 Congress Avenue, Suite 1400, Austin, TX 78701, USA
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-center gap-2.5 pt-0.5">
+                    <Phone className="w-4 h-4 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 text-[11px]">
+                        USA Phone Number:
+                      </span>
+                      <a
+                        href="tel:+15125553948"
+                        className="font-mono text-white hover:text-blue-400 font-semibold transition-colors"
+                      >
+                        +1 512 555 3948
+                      </a>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-blue-400 shrink-0" />
-                  <div>
-                    <span className="text-slate-400 text-xs block">DIRECT INQUIRIES</span>
-                    <a href="mailto:solutions@sensorsae.net" className="text-white hover:text-blue-400 font-mono transition-colors">
-                      solutions@sensorsae.net
-                    </a>
+                {/* Sri Lanka Address & Phone */}
+                <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-2 hover:border-blue-500/40 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-blue-400 font-bold flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5" />
+                      SL ADDRESS
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+                      Dehiwala, Sri Lanka
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-start gap-2.5 pt-0.5">
+                    <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <span>19 Orchid Avenue, Dehiwala, Sri Lanka</span>
+                  </div>
+                  <div className="text-xs text-slate-300 flex items-center gap-2.5 pt-0.5">
+                    <Phone className="w-4 h-4 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 text-[11px]">
+                        SL Phone Number:
+                      </span>
+                      <a
+                        href="tel:+94114637925"
+                        className="font-mono text-white hover:text-blue-400 font-semibold transition-colors"
+                      >
+                        +94 11 463 7925
+                      </a>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-blue-400 shrink-0" />
-                  <div>
-                    <span className="text-slate-400 text-xs block">SUPPORT &amp; DISPATCH</span>
-                    <span className="font-mono text-white">+1 (800) 492-7367</span>
+                {/* Direct Inquiries & Response Commitment */}
+                <div className="pt-2 flex flex-col gap-2.5 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <Mail className="w-4 h-4 text-blue-400 shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400 font-mono text-[11px]">
+                        DIRECT INQUIRIES:
+                      </span>
+                      <a
+                        href="mailto:support@sensorsae.net"
+                        className="text-white hover:text-blue-400 font-mono font-medium transition-colors"
+                      >
+                        support@sensorsae.net
+                      </a>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-blue-400 shrink-0" />
-                  <div>
-                    <span className="text-slate-400 text-xs block">RESPONSE COMMITMENT</span>
-                    <span className="text-slate-200">Engineer callback within 2 business hours</span>
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-slate-400 font-sans">
+                      Engineer callback within 2 business hours • 24/7 Global
+                      Dispatch
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Google Map Embed */}
-            <div className="space-y-2 pt-4 border-t border-slate-800">
-              <span className="font-mono text-[11px] text-slate-400 uppercase tracking-wider block">
-                FACILITY LOCATION MAP:
-              </span>
-              <div className="rounded-2xl overflow-hidden border border-slate-800 h-52 w-full relative">
+            {/* Google Map Embed with Location Switcher */}
+            <div className="space-y-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] text-slate-400 uppercase tracking-wider block">
+                  FACILITY LOCATION MAP:
+                </span>
+                <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#06080d] border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setActiveMap("usa")}
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono transition-colors ${
+                      activeMap === "usa"
+                        ? "bg-blue-600 text-white font-bold shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    USA (Austin)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveMap("sl")}
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono transition-colors ${
+                      activeMap === "sl"
+                        ? "bg-blue-600 text-white font-bold shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Sri Lanka
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl overflow-hidden border border-slate-800 h-44 w-full relative">
                 <iframe
-                  title="SENSORSAE Office Location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d101408.20455855734!2d-122.03099955355447!3d37.38747402809988!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb596e9e188fd%3A0x3b0d8391510688f0!2sSan%20Jose%2C%20CA!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+                  title={`SENSORSAE ${activeMap === "usa" ? "Austin, TX USA" : "Dehiwala, Sri Lanka"} Facility`}
+                  src={
+                    activeMap === "usa"
+                      ? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3445.986060124847!2d-97.74549882361664!3d30.26879850804473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8644b5087341e9bf%3A0xc392db26df332152!2s600%20Congress%20Ave.%2C%20Austin%2C%20TX%2078701!5e0!3m2!1sen!2sus!5m2!1sen!2sus"
+                      : "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.353392476531!2d79.86608937480996!3d6.848149819307779!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1sen!2slk!5m2!1sen!2slk"
+                  }
                   width="100%"
                   height="100%"
-                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(90%)' }}
+                  style={{
+                    border: 0,
+                    filter: "invert(90%) hue-rotate(180deg) contrast(90%)",
+                  }}
                   allowFullScreen=""
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -254,12 +378,36 @@ export const ConsultationForm = () => {
                   Trial Reservation Transmitted!
                 </h3>
                 <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
-                  Thank you, <strong className="text-white">{formData.name}</strong>. Your trial kit request for <strong className="text-white">{formData.company}</strong> has been received by our engineering team. A confirmation has been dispatched to <span className="font-mono text-blue-400 font-semibold">{formData.email}</span>.
+                  Thank you,{" "}
+                  <strong className="text-white">{formData.name}</strong>. Your
+                  trial kit request for{" "}
+                  <strong className="text-white">{formData.company}</strong> has
+                  been received by our engineering team. A confirmation has been
+                  dispatched to{" "}
+                  <span className="font-mono text-blue-400 font-semibold">
+                    {formData.email}
+                  </span>
+                  .
                 </p>
                 <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 text-xs font-mono text-slate-300 max-w-sm mx-auto space-y-1.5 text-left">
-                  <div>TARGET EQUIPMENT: <span className="text-blue-400 font-bold">{formData.equipmentType}</span></div>
-                  <div>SCOPE: <span className="text-blue-400 font-bold">{formData.machineCount}</span></div>
-                  <div>TERMS: <span className="text-emerald-400 font-bold">30-Day Risk-Free Trial (No Obligation)</span></div>
+                  <div>
+                    TARGET EQUIPMENT:{" "}
+                    <span className="text-blue-400 font-bold">
+                      {formData.equipmentType}
+                    </span>
+                  </div>
+                  <div>
+                    SCOPE:{" "}
+                    <span className="text-blue-400 font-bold">
+                      {formData.machineCount}
+                    </span>
+                  </div>
+                  <div>
+                    TERMS:{" "}
+                    <span className="text-emerald-400 font-bold">
+                      30-Day Risk-Free Trial (No Obligation)
+                    </span>
+                  </div>
                 </div>
                 <button
                   onClick={handleResetForm}
@@ -275,7 +423,8 @@ export const ConsultationForm = () => {
                     Reserve Your Evaluation Unit
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Fill out your facility details to receive a complete 4-pod hardware pilot kit.
+                    Fill out your facility details to receive a complete 4-pod
+                    hardware pilot kit.
                   </p>
                 </div>
 
@@ -295,7 +444,9 @@ export const ConsultationForm = () => {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       placeholder="e.g. Alex Morgan"
                       className="w-full bg-[#06080d] text-white px-4 py-3 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-sm placeholder:text-slate-600 transition-all"
                     />
@@ -309,7 +460,9 @@ export const ConsultationForm = () => {
                       type="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       placeholder="e.g. alex@manufacturing-corp.com"
                       className="w-full bg-[#06080d] text-white px-4 py-3 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-sm placeholder:text-slate-600 transition-all"
                     />
@@ -325,7 +478,9 @@ export const ConsultationForm = () => {
                       type="text"
                       required
                       value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, company: e.target.value })
+                      }
                       placeholder="e.g. Precision Manufacturing Fab 2"
                       className="w-full bg-[#06080d] text-white px-4 py-3 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-sm placeholder:text-slate-600 transition-all"
                     />
@@ -337,13 +492,26 @@ export const ConsultationForm = () => {
                     </label>
                     <select
                       value={formData.equipmentType}
-                      onChange={(e) => setFormData({ ...formData, equipmentType: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          equipmentType: e.target.value,
+                        })
+                      }
                       className="w-full bg-[#06080d] text-white px-4 py-3 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-sm font-mono transition-all"
                     >
-                      <option value="Pumps, Motors & Compressors">Pumps, Motors &amp; Compressors</option>
-                      <option value="CNC Spindles & Milling">CNC Spindles &amp; Milling</option>
-                      <option value="Turbines & Generators">Turbines &amp; Generators</option>
-                      <option value="Conveyors & Robotic Welders">Conveyors &amp; Robotic Welders</option>
+                      <option value="Pumps, Motors & Compressors">
+                        Pumps, Motors &amp; Compressors
+                      </option>
+                      <option value="CNC Spindles & Milling">
+                        CNC Spindles &amp; Milling
+                      </option>
+                      <option value="Turbines & Generators">
+                        Turbines &amp; Generators
+                      </option>
+                      <option value="Conveyors & Robotic Welders">
+                        Conveyors &amp; Robotic Welders
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -353,15 +521,21 @@ export const ConsultationForm = () => {
                     Scope of Pilot
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    {['5 Machines (Pilot)', '15 Machines (Cell)', '50+ Machines (Plant)'].map((opt) => (
+                    {[
+                      "5 Machines (Pilot)",
+                      "15 Machines (Cell)",
+                      "50+ Machines (Plant)",
+                    ].map((opt) => (
                       <button
                         type="button"
                         key={opt}
-                        onClick={() => setFormData({ ...formData, machineCount: opt })}
+                        onClick={() =>
+                          setFormData({ ...formData, machineCount: opt })
+                        }
                         className={`p-3 rounded-xl text-xs font-mono border transition-all text-center ${
                           formData.machineCount === opt
-                            ? 'bg-blue-600 text-white border-blue-400 shadow-glow-sm'
-                            : 'bg-[#06080d] text-slate-400 border-slate-800 hover:text-white'
+                            ? "bg-blue-600 text-white border-blue-400 shadow-glow-sm"
+                            : "bg-[#06080d] text-slate-400 border-slate-800 hover:text-white"
                         }`}
                       >
                         {opt}
@@ -376,8 +550,10 @@ export const ConsultationForm = () => {
                   </label>
                   <textarea
                     rows="2"
-                    value={formData.notes || ''}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    value={formData.notes || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, notes: e.target.value })
+                    }
                     placeholder="e.g. High ambient temperature environment, Modbus bridge needed..."
                     className="w-full bg-[#06080d] text-white px-4 py-2.5 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-xs placeholder:text-slate-600 transition-all font-mono resize-none"
                   />
@@ -385,12 +561,16 @@ export const ConsultationForm = () => {
 
                 {/* Cloudflare Turnstile Verification */}
                 <div className="pt-2 flex flex-col items-center justify-center space-y-2">
-                  <div 
-                    ref={turnstileContainerRef} 
+                  <div
+                    ref={turnstileContainerRef}
                     className="min-h-[65px] flex items-center justify-center"
                     data-action="contact"
                   ></div>
-                  <input type="hidden" name="cf-turnstile-response" value={turnstileToken} />
+                  <input
+                    type="hidden"
+                    name="cf-turnstile-response"
+                    value={turnstileToken}
+                  />
                 </div>
 
                 <button
@@ -398,8 +578,8 @@ export const ConsultationForm = () => {
                   disabled={isSubmitting || !turnstileToken}
                   className={`w-full py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                     !turnstileToken || isSubmitting
-                      ? 'bg-slate-800/80 text-slate-400 border border-slate-700 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-glow-sm hover:shadow-glow-md'
+                      ? "bg-slate-800/80 text-slate-400 border border-slate-700 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-500 text-white shadow-glow-sm hover:shadow-glow-md"
                   }`}
                 >
                   {isSubmitting ? (
@@ -414,21 +594,19 @@ export const ConsultationForm = () => {
                     </span>
                   ) : (
                     <>
-                      <span>Ship 30-Day Risk-Free Trial Kit</span>
+                      <span>Request a Trial Kit</span>
                       <Send className="w-4 h-4" />
                     </>
                   )}
                 </button>
 
                 <div className="flex items-center justify-center gap-6 text-xs font-mono text-slate-500 pt-1">
-                  <span>✓ 100% Free Shipping</span>
                   <span>✓ Remote Onboarding</span>
                   <span>✓ No Credit Card Needed</span>
                 </div>
               </form>
             )}
           </div>
-
         </div>
       </div>
     </section>

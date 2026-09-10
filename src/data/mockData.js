@@ -61,10 +61,10 @@ export const marketingCaseStudies = [
     location: "Dresden, Germany",
     headline: "Prevented cleanroom vacuum pump breakdown before peak production",
     story: "Two weeks before our biggest production run, SENSORSAE detected abnormal acoustic friction in our primary cleanroom exhaust pump. We scheduled a 30-minute bearing swap during planned shift change and avoided an unplanned shutdown.",
-    author: "Marcus V.",
+    author: "Naveen Perera",
     role: "VP of Fab Operations",
     metric: "Zero Production Halts",
-    badge: "High-Volume Silicon"
+    badge: "High Volume Manufacturing"
   },
   {
     id: "automotive",
@@ -72,7 +72,7 @@ export const marketingCaseStudies = [
     location: "Austin, Texas",
     headline: "Reduced robotic welding micro-stoppages across assembly shifts",
     story: "Our welding line used to suffer unexplainable micro-halts every shift. SENSORSAE pinpointed the exact spindle wear causing thermal drift. Technicians love querying the AI copilot during shift handovers.",
-    author: "Kenji T.",
+    author: "Eva Carter",
     role: "Plant Modernization Lead",
     metric: "Predictable Shifts",
     badge: "Robotic Assembly"
@@ -83,10 +83,10 @@ export const marketingCaseStudies = [
     location: "Rotterdam, Netherlands",
     headline: "Eliminated emergency repair runs for remote turbine generators",
     story: "Emergency offshore maintenance dispatches are expensive and hazardous. With SENSORSAE giving us weeks of early warning, our maintenance team only sails for planned, batched overhauls.",
-    author: "Elena R.",
+    author: "Tharindu Jayasinghe",
     role: "Head of Turbine Reliability",
     metric: "Batch Maintenance",
-    badge: "Continuous Energy"
+    badge: "Energy Operations"
   },
   {
     id: "petrochemical",
@@ -94,10 +94,10 @@ export const marketingCaseStudies = [
     location: "Baton Rouge, Louisiana",
     headline: "Zero pump seal blowouts across 18 months of high-pressure cracking",
     story: "Automated cavitation suppression on our hydrocarbon feed pumps extended our mean time between rebuilds from 9 months to 34 months. The system paid for itself on our first scheduled turnaround.",
-    author: "Robert H.",
+    author: "Derek Morgan",
     role: "Chief Reliability Engineer",
     metric: "+320% MTBF Extension",
-    badge: "Petrochemical"
+    badge: "Petrochemical Operations"
   }
 ];
 

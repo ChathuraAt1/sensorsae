@@ -72,7 +72,10 @@ export const IndustrialDashboard = ({
   // 14-Day Registration Trial Period Governance
   const [trialRefreshKey, setTrialRefreshKey] = useState(0);
   const [isUserPaid, setIsUserPaid] = useState(() => {
-    return Boolean(localStorage.getItem('sensorsae_has_paid') === 'true');
+    return Boolean(
+      localStorage.getItem('sensorsae_has_paid') === 'true' ||
+      (user?.current_plan && user.current_plan !== 'free')
+    );
   });
 
   // Calculate remaining days from registration date (14-day evaluation period)
@@ -110,6 +113,15 @@ export const IndustrialDashboard = ({
 
         const active = await fetchUserActivePlan(token, user);
         if (!isMounted) return;
+
+        // If backend reports an active subscribed plan or user has current_plan, set isUserPaid
+        if (active && (active.slug || active.name)) {
+          const activeSlug = (active.slug || active.name || '').toLowerCase();
+          if (!activeSlug.includes('free')) {
+            setIsUserPaid(true);
+            localStorage.setItem('sensorsae_has_paid', 'true');
+          }
+        }
 
         const targetSlug = (active?.slug || active?.name || '').toLowerCase();
         const matched = plans.find(p => {

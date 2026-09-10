@@ -14,8 +14,8 @@ import {
 } from '../utils/cardValidator';
 import { useAuth } from '../context/AuthContext';
 
-export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpenAuth }) => {
-  const { user, token, register, login, isAuthenticated } = useAuth();
+export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpenAuth, onOpenDashboard }) => {
+  const { user, token, register, login, isAuthenticated, refreshUser } = useAuth();
 
   // Plan state
   const [cycle, setCycle] = useState(billingCycle);
@@ -237,6 +237,17 @@ export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpen
         throw new Error(responseData.message || 'Payment processing failed on industrial gateway.');
       }
 
+      // Persist paid status and active plan locally so trial paywall is deactivated immediately
+      localStorage.setItem('sensorsae_has_paid', 'true');
+      localStorage.setItem('sensorsae_subscribed_plan', JSON.stringify(plan));
+
+      // Refresh authenticated user state if available
+      if (refreshUser) {
+        try {
+          await refreshUser();
+        } catch (_) {}
+      }
+
       // Success
       setSuccessResult({
         transactionId: responseData.payment?.transaction_id || `TXN_${Date.now()}_OK`,
@@ -309,15 +320,23 @@ export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpen
           </div>
 
           <div className="pt-2 space-y-3">
-            <a
-              href="https://dash.sensorsae.net"
-              className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-glow-md transition-all"
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenDashboard) {
+                  onOpenDashboard();
+                } else {
+                  window.location.href = '/dashboard';
+                }
+              }}
+              className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-glow-md hover:shadow-glow-lg transition-all cursor-pointer"
             >
               <span>Launch Live Industrial Dashboard</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
+              <ChevronRight className="w-4 h-4" />
+            </button>
 
             <button
+              type="button"
               onClick={onBack}
               className="text-xs text-slate-400 hover:text-white transition-colors"
             >

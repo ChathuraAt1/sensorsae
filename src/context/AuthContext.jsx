@@ -48,6 +48,30 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, [token]);
 
+  const refreshUser = async () => {
+    const activeToken = token || localStorage.getItem('sensorsae_token');
+    if (!activeToken) return null;
+    try {
+      const res = await fetch(`${API_BASE}/api/user`, {
+        headers: {
+          'Authorization': `Bearer ${activeToken}`,
+          'Accept': 'application/json',
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data) {
+          setUser(data.data);
+          localStorage.setItem('sensorsae_user', JSON.stringify(data.data));
+          return data.data;
+        }
+      }
+    } catch (err) {
+      console.warn('Could not refresh user:', err.message);
+    }
+    return null;
+  };
+
   const logoutLocal = () => {
     setToken(null);
     setUser(null);
@@ -276,6 +300,7 @@ export const AuthProvider = ({ children }) => {
         forgotPassword,
         initiateSocialLogin,
         handleOAuthCallback,
+        refreshUser,
         apiBase: API_BASE,
       }}
     >
