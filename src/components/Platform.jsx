@@ -20,11 +20,11 @@ export const Platform = ({ onOpenDashboard }) => {
             PLATFORM HIGHLIGHTS
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Engineered for High Reliability.
+            Built For Reliable Equipment Monitoring
           </h2>
           <p className="text-slate-400 text-base">
-            Everything your operations team needs to eliminate surprise
-            equipment breakdowns.
+            Give operations and maintenance teams a clearer view of equipment
+            conditions and emerging issues.
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export const Platform = ({ onOpenDashboard }) => {
                 <Layers className="w-5 h-5" />
               </div>
               <h3 className="text-2xl font-bold text-white">
-                Live Production Floor Heatmap
+                Live Equipment Health Overview
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed max-w-xl">
                 See the real-time health and status of every machine across your
@@ -106,7 +106,7 @@ export const Platform = ({ onOpenDashboard }) => {
                 <Bell className="w-5 h-5" />
               </div>
               <h3 className="text-xl font-bold text-white">
-                Mobile Phone Alerts
+                Real-Time Operational Alerts
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Direct SMS, Slack, or email notifications sent the moment an
@@ -150,7 +150,7 @@ export const Platform = ({ onOpenDashboard }) => {
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="text-2xl font-bold text-white">
-                Protect Critical Drive Trains &amp; Spindles
+                Support Critical Equipment Reliability
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed max-w-xl">
                 Preventing a single unexpected machine seizure protects
