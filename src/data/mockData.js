@@ -64,7 +64,8 @@ export const marketingCaseStudies = [
     author: "Naveen Perera",
     role: "VP of Fab Operations",
     metric: "Zero Production Halts",
-    badge: "High Volume Manufacturing"
+    badge: "High Volume Manufacturing",
+    photo:"./images/29.webp",
   },
   {
     id: "automotive",
@@ -75,7 +76,8 @@ export const marketingCaseStudies = [
     author: "Eva Carter",
     role: "Plant Modernization Lead",
     metric: "Predictable Shifts",
-    badge: "Robotic Assembly"
+    badge: "Robotic Assembly",
+    photo:"./images/30.webp",
   },
   {
     id: "energy",
@@ -86,7 +88,8 @@ export const marketingCaseStudies = [
     author: "Tharindu Jayasinghe",
     role: "Head of Turbine Reliability",
     metric: "Batch Maintenance",
-    badge: "Energy Operations"
+    badge: "Energy Operations",
+    photo:"./images/31.webp",
   },
   {
     id: "petrochemical",
@@ -97,7 +100,8 @@ export const marketingCaseStudies = [
     author: "Derek Morgan",
     role: "Chief Reliability Engineer",
     metric: "+320% MTBF Extension",
-    badge: "Petrochemical Operations"
+    badge: "Petrochemical Operations",
+    photo:"./images/32.webp",
   }
 ];
 

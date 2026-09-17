@@ -172,7 +172,7 @@ export const AiChatWidget = ({ initialOpen = false }) => {
           aria-label="Open AI Telemetry Copilot"
         >
           <div className="relative">
-            <Cpu className="w-5 h-5 transition-transform group-hover:rotate-12" />
+            <img src="./images/favicon.ico" className="w-5 h-5 transition-transform group-hover:rotate-12" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
           </div>
@@ -195,7 +195,7 @@ export const AiChatWidget = ({ initialOpen = false }) => {
           <div className="p-4 sm:p-4.5 bg-[#06080d]/90 border-b border-blue-900/40 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-blue-950 border border-blue-400/40 flex items-center justify-center text-blue-400 shadow-glow-sm">
-                <Bot className="w-4 h-4" />
+                <img src="./images/favicon.ico" className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export const AiChatWidget = ({ initialOpen = false }) => {
               >
                 {msg.role === 'assistant' && (
                   <div className="w-6 h-6 rounded-lg bg-blue-950 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot className="w-3.5 h-3.5" />
+                    <img src="./images/favicon.ico" className="w-3.5 h-3.5" />
                   </div>
                 )}
 

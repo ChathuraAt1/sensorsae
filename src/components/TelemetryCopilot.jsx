@@ -1,13 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Terminal, Send, Sparkles, AlertCircle, CheckCircle2, RefreshCw, Cpu, Activity } from 'lucide-react';
-import { copilotPresetQueries } from '../data/mockData';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Terminal,
+  Send,
+  Sparkles,
+  AlertCircle,
+  CheckCircle2,
+  RefreshCw,
+  Cpu,
+  Activity,
+} from "lucide-react";
+import { copilotPresetQueries } from "../data/mockData";
 
 export const TelemetryCopilot = () => {
   const [activeQueryIdx, setActiveQueryIdx] = useState(0);
-  const [customInput, setCustomInput] = useState('');
+  const [customInput, setCustomInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentResponse, setCurrentResponse] = useState(copilotPresetQueries[0].response);
+  const [displayedText, setDisplayedText] = useState("");
+  const [currentResponse, setCurrentResponse] = useState(
+    copilotPresetQueries[0].response,
+  );
   const terminalEndRef = useRef(null);
 
   // Trigger simulated streaming when activeQueryIdx changes
@@ -19,7 +30,7 @@ export const TelemetryCopilot = () => {
 
   const startTypingEffect = (text) => {
     setIsTyping(true);
-    setDisplayedText('');
+    setDisplayedText("");
     let i = 0;
     const interval = setInterval(() => {
       if (i < text.length) {
@@ -38,7 +49,7 @@ export const TelemetryCopilot = () => {
 
     // Simulate intelligent answer for custom query
     const customSummary = `Synthesizing multi-variate telemetry for "${customInput}". Cross-referencing 148,000 real-time sensor streams with ISO 10816 vibrational envelopes. All edge gateways reporting zero harmonic deviation.`;
-    
+
     const syntheticResp = {
       status: "NOMINAL EVALUATION",
       statusType: "nominal",
@@ -49,23 +60,27 @@ export const TelemetryCopilot = () => {
         { name: "FFT Spectral Drift", val: "< 0.04%", delta: "Nominal" },
         { name: "Harmonic Coherence", val: "0.998", delta: "Locked" },
         { name: "Node Thermal Margin", val: "+34.2°C", delta: "Optimal" },
-        { name: "Predictive Degradation", val: "0.000%", delta: "Zero Fault" }
+        { name: "Predictive Degradation", val: "0.000%", delta: "Zero Fault" },
       ],
-      recommendation: "Operational envelopes verified within normal manufacturing tolerance limits. Telemetry streaming remains stable."
+      recommendation:
+        "Operational envelopes verified within normal manufacturing tolerance limits. Telemetry streaming remains stable.",
     };
 
     setCurrentResponse(syntheticResp);
     startTypingEffect(customSummary);
-    setCustomInput('');
+    setCustomInput("");
   };
 
   return (
-    <section id="copilot" className="relative py-28 bg-[#06080d] border-b border-blue-900/25">
+    <section
+      id="copilot"
+      className="relative py-28 bg-[#06080d] border-b border-blue-900/25"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/50 border border-blue-500/20 mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            <img src="./images/favicon.ico" className="w-4 h-4" />
             <span className="font-mono text-xs uppercase tracking-widest text-blue-300">
               INTERACTIVE AI TELEMETRY ENGINE
             </span>
@@ -74,7 +89,9 @@ export const TelemetryCopilot = () => {
             Query Machine Sensors in Plain English.
           </h2>
           <p className="text-slate-400 text-base leading-relaxed">
-            Test the live simulated Telemetry Copilot. Ingesting raw vibrational frequencies, temperature gradients, and pressure differentials into actionable engineering diagnostics.
+            Test the live simulated Telemetry Copilot. Ingesting raw vibrational
+            frequencies, temperature gradients, and pressure differentials into
+            actionable engineering diagnostics.
           </p>
         </div>
 
@@ -90,8 +107,8 @@ export const TelemetryCopilot = () => {
               onClick={() => setActiveQueryIdx(idx)}
               className={`px-4 py-2 rounded-full font-mono text-xs font-medium transition-all duration-200 border ${
                 activeQueryIdx === idx
-                  ? 'bg-blue-600 text-white border-blue-400 shadow-glow-sm'
-                  : 'bg-[#0b0f19] text-slate-300 border-blue-900/40 hover:border-blue-700 hover:text-white'
+                  ? "bg-blue-600 text-white border-blue-400 shadow-glow-sm"
+                  : "bg-[#0b0f19] text-slate-300 border-blue-900/40 hover:border-blue-700 hover:text-white"
               }`}
             >
               {item.label}
@@ -113,7 +130,9 @@ export const TelemetryCopilot = () => {
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
-              <span className="text-blue-400 font-semibold">TENSORRT-LLM 14B AWQ</span>
+              <span className="text-blue-400 font-semibold">
+                TENSORRT-LLM 14B AWQ
+              </span>
             </div>
           </div>
 
@@ -123,7 +142,8 @@ export const TelemetryCopilot = () => {
             <div className="flex items-start gap-3 text-sm">
               <span className="text-blue-400 font-bold select-none">&gt;</span>
               <span className="text-white font-medium">
-                {copilotPresetQueries[activeQueryIdx]?.query || "Custom telemetry inspection"}
+                {copilotPresetQueries[activeQueryIdx]?.query ||
+                  "Custom telemetry inspection"}
               </span>
             </div>
 
@@ -134,16 +154,19 @@ export const TelemetryCopilot = () => {
                 <div className="flex items-center gap-3">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase border flex items-center gap-2 ${
-                      currentResponse.statusType === 'alert'
-                        ? 'bg-blue-950 text-blue-200 border-blue-400 animate-pulse-rapid shadow-glow-alert'
-                        : 'bg-blue-950/60 text-blue-300 border-blue-500/50'
+                      currentResponse.statusType === "alert"
+                        ? "bg-blue-950 text-blue-200 border-blue-400 animate-pulse-rapid shadow-glow-alert"
+                        : "bg-blue-950/60 text-blue-300 border-blue-500/50"
                     }`}
                   >
                     <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
                     {currentResponse.status}
                   </span>
                   <span className="text-xs text-slate-400">
-                    Confidence: <span className="text-white font-semibold">{currentResponse.confidence}</span>
+                    Confidence:{" "}
+                    <span className="text-white font-semibold">
+                      {currentResponse.confidence}
+                    </span>
                   </span>
                 </div>
 
@@ -160,7 +183,9 @@ export const TelemetryCopilot = () => {
               {/* Streaming Summary Text */}
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans bg-blue-950/20 p-4 rounded-xl border border-blue-900/30">
                 {displayedText}
-                {isTyping && <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse" />}
+                {isTyping && (
+                  <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse" />
+                )}
               </div>
 
               {/* Telemetry Metric Readouts Table */}
@@ -170,10 +195,19 @@ export const TelemetryCopilot = () => {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {currentResponse.metrics.map((m, mIdx) => (
-                    <div key={mIdx} className="p-3 rounded-xl bg-[#0b0f19] border border-blue-900/40">
-                      <div className="text-[11px] text-slate-400 truncate mb-0.5">{m.name}</div>
-                      <div className="text-sm sm:text-base font-bold text-white">{m.val}</div>
-                      <div className="text-[10px] text-blue-400 mt-0.5 font-medium">{m.delta}</div>
+                    <div
+                      key={mIdx}
+                      className="p-3 rounded-xl bg-[#0b0f19] border border-blue-900/40"
+                    >
+                      <div className="text-[11px] text-slate-400 truncate mb-0.5">
+                        {m.name}
+                      </div>
+                      <div className="text-sm sm:text-base font-bold text-white">
+                        {m.val}
+                      </div>
+                      <div className="text-[10px] text-blue-400 mt-0.5 font-medium">
+                        {m.delta}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -194,7 +228,9 @@ export const TelemetryCopilot = () => {
             {/* Custom Query Input Field */}
             <form onSubmit={handleCustomSubmit} className="relative mt-4">
               <div className="relative flex items-center">
-                <span className="absolute left-4 text-blue-400 font-bold select-none text-sm">&gt;</span>
+                <span className="absolute left-4 text-blue-400 font-bold select-none text-sm">
+                  &gt;
+                </span>
                 <input
                   type="text"
                   value={customInput}

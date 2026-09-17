@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { Activity, Zap, Eye, Check, ChevronRight, BarChart2, Radio, Sliders } from 'lucide-react';
-import { capabilities } from '../data/mockData';
+import React, { useState } from "react";
+import {
+  Activity,
+  Zap,
+  Eye,
+} from "lucide-react";
+import { capabilities } from "../data/mockData";
 
 export const Capabilities = () => {
   const [activeTab, setActiveTab] = useState(0);
 
-  // Icon mapping
-  const iconMap = {
-    Activity: Activity,
-    Zap: Zap,
-    Eye: Eye,
-  };
-
   return (
-    <section id="capabilities" className="relative py-28 bg-[#06080d] border-b border-blue-900/25 overflow-hidden">
+    <section
+      id="capabilities"
+      className="relative py-28 bg-[#06080d] border-b border-blue-900/25 overflow-hidden"
+    >
       {/* Background glow circle */}
       <div className="absolute top-1/2 -right-48 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -22,13 +22,16 @@ export const Capabilities = () => {
         <div className="max-w-3xl mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/50 border border-blue-500/20 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-            <span className="font-mono text-xs uppercase tracking-widest text-blue-300">CORE CAPABILITIES</span>
+            <span className="font-mono text-xs uppercase tracking-widest text-blue-300">
+              CORE CAPABILITIES
+            </span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight mb-4">
             Telemetry Processing at Industrial Extremes.
           </h2>
           <p className="text-slate-400 text-base leading-relaxed">
-            Engineered to process massive high-bandwidth physical sensor feeds directly where data originates.
+            Engineered to process massive high-bandwidth physical sensor feeds
+            directly where data originates.
           </p>
         </div>
 
@@ -37,7 +40,6 @@ export const Capabilities = () => {
           {/* Left Column: Capability Selector Cards */}
           <div className="lg:col-span-6 space-y-4">
             {capabilities.map((item, idx) => {
-              const Icon = iconMap[item.icon] || Activity;
               const isSelected = activeTab === idx;
 
               return (
@@ -45,23 +47,27 @@ export const Capabilities = () => {
                   key={item.id}
                   onClick={() => setActiveTab(idx)}
                   className={`cursor-pointer rounded-3xl p-6 transition-all duration-300 border ${
-                    isSelected 
-                      ? 'bg-[#0b0f19] border-blue-500/50 shadow-glow-md' 
-                      : 'bg-[#0b0f19]/50 border-blue-900/30 hover:border-blue-700/50 hover:bg-[#0b0f19]/80'
+                    isSelected
+                      ? "bg-[#0b0f19] border-blue-500/50 shadow-glow-md"
+                      : "bg-[#0b0f19]/50 border-blue-900/30 hover:border-blue-700/50 hover:bg-[#0b0f19]/80"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
-                        isSelected 
-                          ? 'bg-blue-600 text-white shadow-glow-sm' 
-                          : 'bg-blue-950/40 text-blue-400 border border-blue-900/50'
-                      }`}>
-                        <Icon className="w-6 h-6" />
+                      <div
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+                          isSelected
+                            ? "bg-blue-600 text-white shadow-glow-sm"
+                            : "bg-blue-950/40 text-blue-400 border border-blue-900/50"
+                        }`}
+                      >
+                        <img src={item.icon} className="w-6 h-6" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className={`font-bold text-lg ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                          <h3
+                            className={`font-bold text-lg ${isSelected ? "text-white" : "text-slate-200"}`}
+                          >
                             {item.title}
                           </h3>
                         </div>
@@ -109,14 +115,24 @@ export const Capabilities = () => {
 
                   {/* Simulated Waveform Bars */}
                   <div className="h-28 flex items-end justify-between gap-1 pt-4 pb-1">
-                    {[38, 45, 62, 28, 75, 92, 54, 30, 48, 88, 65, 42, 50, 78, 35, 60, 82, 49, 31, 70, 95, 44, 25, 58].map((val, i) => (
-                      <div key={i} className="w-full flex flex-col items-center gap-1 group relative">
-                        <div 
+                    {[
+                      38, 45, 62, 28, 75, 92, 54, 30, 48, 88, 65, 42, 50, 78,
+                      35, 60, 82, 49, 31, 70, 95, 44, 25, 58,
+                    ].map((val, i) => (
+                      <div
+                        key={i}
+                        className="w-full flex flex-col items-center gap-1 group relative"
+                      >
+                        <div
                           className="w-full rounded-t-sm transition-all duration-500 group-hover:brightness-125"
                           style={{
                             height: `${((val * (activeTab + 1) * 37) % 90) + 10}%`,
-                            backgroundColor: i === 12 || i === 20 ? '#93c5fd' : '#3b82f6',
-                            boxShadow: i === 12 || i === 20 ? '0 0 10px #93c5fd' : '0 0 4px rgba(59, 130, 246, 0.4)'
+                            backgroundColor:
+                              i === 12 || i === 20 ? "#93c5fd" : "#3b82f6",
+                            boxShadow:
+                              i === 12 || i === 20
+                                ? "0 0 10px #93c5fd"
+                                : "0 0 4px rgba(59, 130, 246, 0.4)",
                           }}
                         />
                       </div>
@@ -137,9 +153,16 @@ export const Capabilities = () => {
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {capabilities[activeTab].specs.map((s, idx) => (
-                      <div key={idx} className="p-3.5 rounded-2xl bg-blue-950/20 border border-blue-900/40">
-                        <div className="text-[11px] font-mono text-slate-400 mb-1">{s.label}</div>
-                        <div className="text-sm font-mono font-bold text-white">{s.val}</div>
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-2xl bg-blue-950/20 border border-blue-900/40"
+                      >
+                        <div className="text-[11px] font-mono text-slate-400 mb-1">
+                          {s.label}
+                        </div>
+                        <div className="text-sm font-mono font-bold text-white">
+                          {s.val}
+                        </div>
                       </div>
                     ))}
                   </div>

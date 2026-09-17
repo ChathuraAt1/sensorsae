@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Layers,
-  Smartphone,
-  ShieldCheck,
-  TrendingUp,
-  Bell,
-} from "lucide-react";
+import { ShieldCheck, TrendingUp, Bell } from "lucide-react";
 
 export const Platform = ({ onOpenDashboard }) => {
   return (
@@ -34,7 +28,7 @@ export const Platform = ({ onOpenDashboard }) => {
           <div className="lg:col-span-2 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 hover:border-blue-500/40 transition-all">
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                <Layers className="w-5 h-5" />
+                <img src="./images/22.webp" className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-white">
                 Live Equipment Health Overview
@@ -103,7 +97,7 @@ export const Platform = ({ onOpenDashboard }) => {
           <div className="rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 hover:border-blue-500/40 transition-all">
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                <Bell className="w-5 h-5" />
+                <img src="./images/23.webp" className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-white">
                 Real-Time Operational Alerts
@@ -128,7 +122,7 @@ export const Platform = ({ onOpenDashboard }) => {
           <div className="rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 hover:border-blue-500/40 transition-all">
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                <ShieldCheck className="w-5 h-5" />
+                <img src="./images/24.webp" className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-white">100% On-Premise</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
@@ -147,7 +141,7 @@ export const Platform = ({ onOpenDashboard }) => {
           <div className="lg:col-span-2 rounded-3xl bg-[#0b0f19] border border-blue-900/40 p-8 flex flex-col justify-between space-y-6 hover:border-blue-500/40 transition-all">
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                <TrendingUp className="w-5 h-5" />
+                <img src="./images/25.webp" className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-white">
                 Support Critical Equipment Reliability

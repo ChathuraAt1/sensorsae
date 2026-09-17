@@ -8,11 +8,10 @@ export const Hero = ({ onExploreProducts, onOpenDashboard, onRequestDemo }) => {
       {/* Background Image with Dark Moody Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80"
+          src="./images/3.webp"
           alt="Smart Factory Floor"
-          className="w-full h-full object-cover object-center brightness-[0.18] contrast-125"
+          className="w-full h-full object-cover object-center contrast-225"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06080d] via-[#06080d]/70 to-[#06080d]/90"></div>
       </div>
 
       {/* Hero Content */}

@@ -111,8 +111,8 @@ export const Testimonials = () => {
               </p>
 
               <div className="pt-2 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-blue-950 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold font-mono text-xs">
-                  {current.author.charAt(0)}
+                <div className="w-10 h-10 rounded-full bg-blue-950 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold font-mono text-xs overflow-hidden">
+                  <img src={current.photo} />
                 </div>
                 <div>
                   <div className="text-sm font-bold text-white">

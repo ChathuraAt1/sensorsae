@@ -15,7 +15,7 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
     {
       id: "ultrasonic",
       tabTitle: "Acoustic & Vibration",
-      icon: Activity,
+      icon: "./images/14.webp",
       kicker: "01 / CONTINUOUS VISIBILITY",
       title: "High-Frequency Acoustic & Vibration Telemetry",
       tagline: "Detect micro-friction weeks before parts overheat or seize.",
@@ -27,16 +27,13 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
         "Tri-axial accelerometer with integrated acoustic sensor",
         "Automated ISO 10816 / 20816 velocity severity guidelines",
       ],
-      benefitSummary:
-        "Tri-Axial Vibration • Acoustic Sensor • Early Wear Detection",
-      image:
-        "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/18.webp",
       imageAlt: "Vibration monitoring on precision industrial machinery",
     },
     {
       id: "ai-copilot",
       tabTitle: "Plain-English Alerts",
-      icon: BrainCircuit,
+      icon: "./images/15.webp",
       kicker: "02 / ACTIONABLE INTELLIGENCE",
       title: "Plain-English Diagnostics Instead of Complex Charts",
       tagline: "Translates complex frequency spectrums into clear work orders.",
@@ -48,16 +45,13 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
         "Clear fault isolation: cavitation, unbalance, or shaft misalignment",
         "100% on-premise evaluation with zero cloud dependence",
       ],
-      benefitSummary:
-        "Actionable Work Orders • Multi-Channel Dispatch • Zero Cloud Required",
-      image:
-        "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/19.webp",
       imageAlt: "Technician reviewing plain-English alert on mobile tablet",
     },
     {
       id: "thermal-vision",
       tabTitle: "Thermal Vision Guard",
-      icon: Eye,
+      icon: "./images/16.webp",
       kicker: "03 / NON-CONTACT OPTICS",
       title: "Radiometric Hot-Spot & Thermal Boundary Inspection",
       tagline:
@@ -70,16 +64,13 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
         "Automated hot-spot bounding boxes and temperature boundary alerts",
         "Designed for hazardous industrial plant environments",
       ],
-      benefitSummary:
-        "Non-Contact Stand-Off • Hot-Spot Tracking • Thermal Boundary Alerts",
-      image:
-        "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/20.webp",
       imageAlt: "Radiometric thermal inspection of electrical and pump systems",
     },
     {
       id: "magnetic-pods",
       tabTitle: "Magnetic Snap-On",
-      icon: Zap,
+      icon: "./images/17.webp",
       kicker: "04 / RAPID DEPLOYMENT",
       title: "Quick Snap-On Deployment with Zero Downtime",
       tagline:
@@ -92,16 +83,12 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
         "IP67 sealed waterproof, chemical, and vibration-resistant chassis",
         "Industrial wireless mesh with long-range plant coverage",
       ],
-      benefitSummary:
-        "Magnetic Mount • Multi-Year Battery • IP67 Industrial Chassis",
-      image:
-        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/21.webp",
       imageAlt: "Industrial technician mounting magnetic edge sensor pod",
     },
   ];
 
   const current = capabilities[activeTab];
-  const IconComponent = current.icon;
 
   return (
     <section
@@ -126,7 +113,6 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
         {/* Interactive Capability Tabs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
           {capabilities.map((cap, idx) => {
-            const TabIcon = cap.icon;
             const isSelected = activeTab === idx;
             return (
               <button
@@ -141,11 +127,11 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
                 <div
                   className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all ${
                     isSelected
-                      ? "bg-blue-600 text-white shadow-glow-sm"
+                      ? "border-blue-600 border text-white shadow-glow-sm"
                       : "bg-slate-900 text-blue-400 group-hover:bg-blue-950/80"
                   }`}
                 >
-                  <TabIcon className="w-4 h-4" />
+                  <img src={cap.icon} className="w-7 h-7" />
                 </div>
                 <div>
                   <span className="text-xs font-bold block leading-snug">
@@ -167,7 +153,7 @@ export const ProductFeatures = ({ onRequestDemo, onExploreProducts }) => {
             <div className="lg:col-span-6 space-y-5">
               <div className="space-y-2.5">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950 border border-blue-500/30 text-blue-400 font-mono text-xs">
-                  <IconComponent className="w-3.5 h-3.5" />
+                  <img src={current.icon} alt="" className="w-3.5 h-3.5" />
                   <span>{current.kicker}</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">

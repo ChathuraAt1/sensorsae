@@ -8,8 +8,7 @@ export const AboutCompany = ({ onRequestDemo }) => {
       title: "Built from Industrial Experience",
       description:
         "Developed by professionals with experience in plant maintenance, industrial hardware, and equipment monitoring.",
-      image:
-        "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/26.webp",
       tag: "Engineered by Operators",
     },
     {
@@ -17,8 +16,7 @@ export const AboutCompany = ({ onRequestDemo }) => {
       title: "Designed for Controlled Environments",
       description:
         "Supports locally managed deployment options designed to give manufacturers greater control over operational data.",
-      image:
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/27.webp",
       tag: "Zero Cloud Exposure",
     },
     {
@@ -26,8 +24,7 @@ export const AboutCompany = ({ onRequestDemo }) => {
       title: "Clear Maintenance Information",
       description:
         "Converts equipment-condition data into clear alerts that help technicians plan inspections and maintenance actions.",
-      image:
-        "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+      image: "./images/28.webp",
       tag: "Actionable Maintenance",
     },
   ];
