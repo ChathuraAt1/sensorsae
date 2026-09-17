@@ -13,6 +13,7 @@ import {
   validateExpiry, formatCVC, validateLuhn 
 } from '../utils/cardValidator';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from './Logo';
 
 export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpenAuth, onOpenDashboard }) => {
   const { user, token, register, login, isAuthenticated, refreshUser } = useAuth();
@@ -354,13 +355,18 @@ export const Checkout = ({ selectedPlan, billingCycle = 'yearly', onBack, onOpen
         
         {/* Top Breadcrumb & Navigation */}
         <div className="flex items-center justify-between pb-4 border-b border-blue-900/30">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 text-blue-400" />
-            <span>Back to Plans</span>
-          </button>
+          <div className="flex items-center gap-4">
+            <div onClick={onBack} className="cursor-pointer group" title="Return to Plans">
+              <Logo size="sm" className="group-hover:scale-105 transition-transform" />
+            </div>
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors group"
+            >
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 text-blue-400" />
+              <span>Back to Plans</span>
+            </button>
+          </div>
 
           <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
             <FaShieldHalved className="w-3.5 h-3.5 text-blue-400" />

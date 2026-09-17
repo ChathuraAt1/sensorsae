@@ -13,6 +13,7 @@ import {
   Globe,
 } from "lucide-react";
 import { FaLinkedinIn, FaXTwitter, FaYoutube, FaGithub } from "react-icons/fa6";
+import { Logo } from "./Logo";
 
 const TURNSTILE_SITE_KEY =
   import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAAEnOVjqrpsm3StEA";
@@ -264,12 +265,7 @@ export const Footer = ({
           {/* Brand & Mission Column (Spans 4 cols) */}
           <div className="lg:col-span-4 space-y-5">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-blue-950 border border-blue-500/40 flex items-center justify-center text-blue-400 shadow-glow-sm">
-                <Cpu className="w-5 h-5" />
-              </div>
-              <span className="font-extrabold text-xl tracking-wider text-white">
-                SENSOR<span className="text-blue-500 font-black">SAE</span>
-              </span>
+              <Logo size="lg" className="hover:opacity-90 transition-opacity" />
             </div>
 
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">

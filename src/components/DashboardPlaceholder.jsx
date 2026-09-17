@@ -5,6 +5,7 @@ import {
   User, LogOut, Bot, Sparkles, Key, Lock, ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from './Logo';
 
 export const DashboardPlaceholder = ({ onBackToHome, onOpenAiChat }) => {
   const { user, token, logout, isAuthenticated } = useAuth();
@@ -24,6 +25,14 @@ export const DashboardPlaceholder = ({ onBackToHome, onOpenAiChat }) => {
         {/* Top Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-blue-900/30">
           <div className="flex items-center gap-4 flex-wrap">
+            <div 
+              onClick={onBackToHome}
+              className="cursor-pointer group mr-2"
+              title="Return to Overview"
+            >
+              <Logo size="sm" className="group-hover:scale-105 transition-transform" />
+            </div>
+
             <button
               onClick={onBackToHome}
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0b0f19] border border-blue-900/40 text-slate-300 hover:text-white hover:border-blue-500/50 transition-all font-mono text-xs"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const OAuthCallback = ({ onComplete }) => {
   const { handleOAuthCallback } = useAuth();
@@ -43,6 +44,9 @@ export const OAuthCallback = ({ onComplete }) => {
   return (
     <div className="min-h-screen bg-[#06080d] flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-[#0b0f19] border border-blue-900/50 rounded-3xl p-8 text-center space-y-5 shadow-2xl shadow-blue-500/10">
+        <div className="flex justify-center mb-2">
+          <Logo size="md" />
+        </div>
         {status === 'processing' && (
           <div className="space-y-4">
             <Loader2 className="w-12 h-12 text-blue-400 animate-spin mx-auto" />

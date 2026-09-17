@@ -13,6 +13,7 @@ import {
   Mail,
   Phone
 } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -33,13 +34,18 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
         
         {/* Top Header & Navigation */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-blue-900/30">
-          <button
-            onClick={onBackToHome}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors group cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform text-blue-400" />
-            <span>Return to Overview</span>
-          </button>
+          <div className="flex items-center gap-4">
+            <div onClick={onBackToHome} className="cursor-pointer group" title="Return to Overview">
+              <Logo size="sm" className="group-hover:scale-105 transition-transform" />
+            </div>
+            <button
+              onClick={onBackToHome}
+              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors group cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform text-blue-400" />
+              <span>Return to Overview</span>
+            </button>
+          </div>
 
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>

@@ -23,6 +23,7 @@ import { DashboardCopilot } from './dashboard/DashboardCopilot';
 import { DashboardThermal } from './dashboard/DashboardThermal';
 import { DashboardOrin } from './dashboard/DashboardOrin';
 import { DashboardFft } from './dashboard/DashboardFft';
+import { Logo } from './Logo';
 import { DashboardIncidents } from './dashboard/DashboardIncidents';
 import { DashboardPlan } from './dashboard/DashboardPlan';
 import { DashboardPaywall } from './dashboard/DashboardPaywall';
@@ -413,29 +414,28 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
         
         {/* Top Sidebar Header */}
         <div className="space-y-4">
-          <div className="p-4 border-b border-blue-900/30 flex items-center justify-between">
-            {!sidebarCollapsed && (
+          <div className="p-4 border-b border-blue-900/30 flex items-center justify-between gap-2">
+            {!sidebarCollapsed ? (
               <div 
                 onClick={onBackToHome}
-                className="flex items-center gap-2.5 cursor-pointer group"
+                className="flex items-center cursor-pointer group py-0.5"
+                title="Return to Public Site"
               >
-                <div className="w-8 h-8 rounded-xl bg-blue-950 border border-blue-500/40 flex items-center justify-center text-blue-400 group-hover:shadow-glow-sm transition-all">
-                  <Cpu className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="font-extrabold text-sm tracking-wider text-white">
-                    SENSOR<span className="text-blue-500 font-black">SAE</span>
-                  </div>
-                  <div className="text-[9px] font-mono text-blue-400 uppercase tracking-widest -mt-0.5">
-                    OPERATING SYSTEM v3.2
-                  </div>
-                </div>
+                <Logo size="sm" className="group-hover:scale-105 transition-transform" />
+              </div>
+            ) : (
+              <div
+                onClick={onBackToHome}
+                className="mx-auto cursor-pointer group flex items-center justify-center"
+                title="Return to Public Site"
+              >
+                <Logo size="xs" className="group-hover:scale-110 transition-transform" />
               </div>
             )}
 
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors mx-auto"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
               title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
               <Sliders className="w-3.5 h-3.5" />

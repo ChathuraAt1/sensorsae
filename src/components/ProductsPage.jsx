@@ -5,6 +5,7 @@ import {
   Sliders, Wrench, Settings, AlertTriangle, FileText, Check, RotateCcw, Compass, Server, Workflow,
   Thermometer, Volume2, HelpCircle
 } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) => {
   const [activeAppIndex, setActiveAppIndex] = useState(0);
@@ -126,13 +127,18 @@ export const ProductsPage = ({ onBackToHome, onOpenDashboard, onRequestDemo }) =
         {/* ============================================================ */}
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <button
-              onClick={onBackToHome}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-full bg-[#0b0f19] border border-slate-800 text-slate-300 hover:text-white hover:border-blue-500/50 transition-all font-mono text-xs"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Return to Overview</span>
-            </button>
+            <div className="flex items-center gap-4">
+              <div onClick={onBackToHome} className="cursor-pointer group" title="Return to Overview">
+                <Logo size="sm" className="group-hover:scale-105 transition-transform" />
+              </div>
+              <button
+                onClick={onBackToHome}
+                className="self-start flex items-center gap-2 px-4 py-2 rounded-full bg-[#0b0f19] border border-slate-800 text-slate-300 hover:text-white hover:border-blue-500/50 transition-all font-mono text-xs"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Overview</span>
+              </button>
+            </div>
 
             {/* Direct Link to Dashboard */}
             <button

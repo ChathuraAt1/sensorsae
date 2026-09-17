@@ -10,6 +10,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Logo } from "./Logo";
 
 const NAV_ITEMS = [
   { id: "how-it-works", label: "How It Works" },
@@ -124,25 +125,12 @@ export const Navbar = ({
             setActiveSection("");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-3 cursor-pointer group py-1"
         >
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-950/70 border border-blue-500/40 group-hover:border-blue-400 group-hover:shadow-glow-md transition-all duration-300">
-            <Cpu className="w-5 h-5 text-blue-400 transition-transform group-hover:scale-110" />
-            <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-extrabold text-lg sm:text-xl tracking-wider text-white flex items-center gap-1">
-              SENSOR<span className="text-blue-500 font-black">SAE</span>
-            </span>
-            <span className="font-mono text-[9px] tracking-widest text-slate-400 uppercase -mt-1 flex items-center gap-1">
-              <span>PREDICTIVE IOT</span>
-              <span className="text-blue-500">•</span>
-              <span className="text-blue-400">SENSOR INTELLIGENCE</span>
-            </span>
-          </div>
+          <Logo
+            size="xl"
+            className="group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
 
         {/* Desktop Navigation Links with Active Scroll Highlighting */}

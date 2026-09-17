@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2, Shield, Cpu } from 'lucide-react';
 import { FaGoogle, FaGithub } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from './Logo';
 
 export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = null, billingCycle = null, onSuccess }) => {
   const { login, register, forgotPassword, initiateSocialLogin } = useAuth();
@@ -117,8 +118,8 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = n
 
         {/* Brand Header */}
         <div className="text-center space-y-2 mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-950/80 border border-blue-500/40 text-blue-400 mb-1 shadow-glow-sm">
-            <Cpu className="w-6 h-6" />
+          <div className="flex justify-center mb-3">
+            <Logo size="lg" className="hover:scale-105 transition-transform" />
           </div>
           <h2 className="text-2xl font-bold text-white tracking-tight">
             {mode === 'login' && 'Operator Login'}
