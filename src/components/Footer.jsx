@@ -532,7 +532,7 @@ export const Footer = ({
             <ul className="space-y-3 text-xs">
               <li>
                 <a
-                  href="https://www.linkedin.com/company/sensorsae"
+                  href="https://www.linkedin.com/company/sensorsae/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-[#06080d] border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/40 text-slate-300 hover:text-white transition-all group"
