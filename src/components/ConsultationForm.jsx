@@ -350,8 +350,8 @@ export const ConsultationForm = () => {
                   title={`SENSORSAE ${activeMap === "usa" ? "Austin, TX USA" : "Dehiwala, Sri Lanka"} Facility`}
                   src={
                     activeMap === "usa"
-                      ? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3445.986060124847!2d-97.74549882361664!3d30.26879850804473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8644b5087341e9bf%3A0xc392db26df332152!2s600%20Congress%20Ave.%2C%20Austin%2C%20TX%2078701!5e0!3m2!1sen!2sus!5m2!1sen!2sus"
-                      : "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.353392476531!2d79.86608937480996!3d6.848149819307779!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1sen!2slk!5m2!1sen!2slk"
+                      ? "https://maps.google.com/maps?q=600%20Congress%20Avenue,%20Suite%201400,%20Austin,%20TX%2078701&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                      : "https://maps.google.com/maps?q=19%20Orchid%20Avenue,%20Dehiwala,%20Sri%20Lanka&t=&z=15&ie=UTF8&iwloc=&output=embed"
                   }
                   width="100%"
                   height="100%"
