@@ -19,6 +19,10 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
 
@@ -133,7 +137,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                 Terms of Service
               </h1>
               <p className="text-xs font-mono text-slate-400">
-                Effective Date: September 10, 2026 • Version 3.4
+                Effective Date: October 15, 2026 • Version 3.5
               </p>
             </div>
 
@@ -190,7 +194,27 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
               </section>
 
               <section className="space-y-3 pt-4 border-t border-slate-800">
-                <h2 className="text-lg font-bold text-white">5. Governing Law &amp; Dispute Resolution</h2>
+                <h2 className="text-lg font-bold text-white">5. Account Security &amp; Customer Responsibilities</h2>
+                <p>Customers are responsible for keeping account credentials confidential, assigning access only to authorized personnel, and promptly removing access when a person no longer needs it. Notify SENSORSAE through the published support channel if you suspect unauthorized access. Customers must maintain appropriate network, physical, and operational safeguards for their own facilities and connected equipment.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">6. Acceptable Use &amp; Customer Materials</h2>
+                <p>You may use the service for lawful monitoring and maintenance of equipment you own or are authorized to manage. You must not probe or disrupt the service, bypass access controls, upload malicious code, or use the platform to infringe another party’s rights. You retain rights to the data and materials you submit; you grant SENSORSAE permission to process them only as needed to provide, secure, and support the service.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">7. Service Availability &amp; Changes</h2>
+                <p>We may maintain, update, or temporarily limit parts of the service to address security, reliability, or technical needs. We will make reasonable efforts to communicate material planned changes through the service or the customer’s registered contact channel. Connectivity, power, environmental conditions, third-party networks, and equipment configuration can affect data availability and alert timing.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">8. Suspension, Termination &amp; Effect</h2>
+                <p>Either party may end a subscription as provided by the selected plan or order form. SENSORSAE may suspend access when reasonably necessary to protect the service or users, address suspected misuse, or comply with law. On termination, access ends and customer data may be deleted under the applicable retention schedule, subject to legal obligations and backup cycles. Contact support to request an export before access ends.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">9. Governing Law &amp; Dispute Resolution</h2>
                 <p>
                   Agreements with SENSORSAE Technologies Inc. are governed by the laws of the State of Texas, USA, without regard to conflicts of law principles. Any dispute shall be resolved through binding commercial arbitration in Austin, Texas. Agreements with SENSORSAE Technologies (Pvt) Ltd are governed by the laws of the Democratic Socialist Republic of Sri Lanka, with jurisdiction in Colombo.
                 </p>
@@ -211,7 +235,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                 Privacy Policy
               </h1>
               <p className="text-xs font-mono text-slate-400">
-                Effective Date: September 10, 2026 • Version 3.4
+                Effective Date: October 15, 2026 • Version 3.5
               </p>
             </div>
 
@@ -229,7 +253,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                   <div className="p-4 rounded-xl bg-[#06080d] border border-blue-900/40 space-y-1.5">
                     <span className="font-mono text-xs text-blue-400 font-bold">INDUSTRIAL TELEMETRY (IOT)</span>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Triaxial acceleration (g), 192 kHz acoustic waveforms, radiometric thermal matrices (°C), FFT harmonic bins, and rotational speed (RPM). This data contains zero personal identifiers and belongs exclusively to your operating facility.
+                      Triaxial acceleration (g), 192 kHz acoustic waveforms, radiometric thermal matrices (°C), FFT harmonic bins, and rotational speed (RPM). This data describes equipment conditions rather than people. Sensor labels, facility context, or operator annotations can nevertheless identify or be linked to individuals, so customers should avoid including personal details unless needed and authorized.
                     </p>
                   </div>
 
@@ -269,6 +293,26 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                 </div>
               </section>
 
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">5. How We Use and Share Information</h2>
+                <p>We use account and contact information to create and administer accounts, respond to requests, provide alerts, process subscriptions, protect the service, and meet legal obligations. We may share information with service providers that help operate hosting, payments, communications, and security, under arrangements appropriate to their role. We do not sell personal information. We may disclose information when required by law or when necessary to protect users, customers, or the service.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">6. Data Retention &amp; Deletion</h2>
+                <p>We retain information for as long as needed to provide the service, maintain account and security records, resolve disputes, and meet applicable legal or contractual requirements. Retention periods can vary by data type, customer configuration, and service plan. When information is no longer required, it is deleted or de-identified according to applicable procedures, subject to backup and legal retention requirements.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">7. Security &amp; International Processing</h2>
+                <p>We use administrative, technical, and organizational safeguards designed to protect information against unauthorized access, loss, or alteration. No transmission or storage method can be guaranteed completely secure. Depending on the service configuration and support needs, information may be processed in the countries where SENSORSAE and its service providers operate, with safeguards appropriate to applicable transfer requirements.</p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">8. Choices, Children &amp; Policy Updates</h2>
+                <p>You may request access to, correction of, or deletion of personal information, subject to applicable law and verification of your identity. The service is intended for business use and is not directed to children. We may update this policy as our services or obligations change; the effective date above identifies the latest version. Material changes will be communicated through the service or another appropriate channel.</p>
+              </section>
+
             </div>
           </div>
         )}
@@ -284,7 +328,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                 Cookie &amp; Telemetry Policy
               </h1>
               <p className="text-xs font-mono text-slate-400">
-                Effective Date: September 10, 2026 • Version 3.4
+                Effective Date: October 15, 2026 • Version 3.5
               </p>
             </div>
 
@@ -296,7 +340,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                   1. How SENSORSAE Uses Cookies &amp; Local Storage
                 </h2>
                 <p>
-                  SENSORSAE uses minimal, high-efficiency client-side cookies and browser local storage strictly necessary for industrial system operation, session persistence, and cyber defense:
+                  This site uses browser local storage for sign-in state and consent preferences. It also loads Cloudflare Turnstile when a protected form is used. Local storage is not a cookie: it is kept by the browser for this site and is not automatically sent with each network request. The site currently does not use analytics or advertising cookies.
                 </p>
 
                 <div className="space-y-3 pt-2">
@@ -306,17 +350,17 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                       <span className="text-emerald-400 uppercase">Strictly Necessary</span>
                     </div>
                     <p className="text-xs text-slate-400">
-                      Stores encrypted Sanctum bearer tokens and operator profile sessions to authenticate API requests with the industrial telemetry gateway.
+                      Stores an authentication token and a cached operator profile in browser local storage so the dashboard can maintain sign-in state and authenticate API requests. These values remain on the device until sign-out, expiration handling, or browser storage is cleared.
                     </p>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-[#06080d] border border-slate-800 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-blue-400 font-bold">__cf_bm / cf-turnstile-response</span>
-                      <span className="text-emerald-400 uppercase">Security &amp; Bot Defense</span>
+                      <span className="text-blue-400 font-bold">Cloudflare Turnstile</span>
+                      <span className="text-emerald-400 uppercase">Form Security</span>
                     </div>
                     <p className="text-xs text-slate-400">
-                      Cloudflare Turnstile token validation and security heuristics protecting consultation requests, newsletter updates, and login forms from automated exploitation.
+                      Turnstile is loaded from Cloudflare when protected forms are used. A short-lived verification response is submitted with the form; it is not saved by this app as a persistent local-storage item. Cloudflare may process technical request data to provide bot protection.
                     </p>
                   </div>
 
@@ -326,7 +370,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                       <span className="text-emerald-400 uppercase">Operator Preference</span>
                     </div>
                     <p className="text-xs text-slate-400">
-                      Records your operational telemetry and cookie consent choice from the bottom banner.
+                      The banner saves your choice (“all” or “essential”) in local storage so it does not reappear on every visit. The site currently does not load analytics or advertising trackers, so the two choices do not enable different tracking scripts.
                     </p>
                   </div>
                 </div>
@@ -340,9 +384,37 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
               </section>
 
               <section className="space-y-3 pt-4 border-t border-slate-800">
-                <h2 className="text-lg font-bold text-white">3. Managing Your Preferences</h2>
+                <h2 className="text-lg font-bold text-white">3. Consent Choices &amp; Preference Storage</h2>
                 <p>
-                  You can clear or modify stored tokens at any time via your browser developer tools or settings. Note that disabling strictly necessary authentication tokens will require re-authenticating to access the live operations dashboard.
+                  The banner records either “all” or “essential” in the <code>sensorsae_cookie_consent</code> local-storage item. This remembers that you responded; it does not currently activate analytics or advertising technologies because those are not used by the site. You can change your choice by clearing this site’s browser storage, after which the banner will appear again.
+                </p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">4. Retention &amp; Clearing Browser Data</h2>
+                <p>
+                  Local-storage entries remain on your device until the app removes them or you clear this site’s data. Signing out removes the saved authentication token and cached account profile. Clearing all site storage also removes the saved consent choice and may sign you out or reset saved app preferences. Browser controls for clearing site data differ by browser and device.
+                </p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">5. Third-Party Form Protection</h2>
+                <p>
+                  Cloudflare Turnstile is used to reduce automated submissions on selected forms. Its widget communicates with Cloudflare when loaded, and verification data is sent with the form submission. Cloudflare processes technical information under its own privacy terms; consult Cloudflare’s privacy materials for details. If the widget is unavailable, the protected form may not be submitted.
+                </p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">6. Device &amp; Browser Controls</h2>
+                <p>
+                  You can block or clear local storage and cookies using your browser’s site settings. Blocking essential storage can prevent account sign-in from persisting between visits. Blocking third-party scripts or network requests can prevent Turnstile from verifying protected form submissions. These controls are managed by your browser and may vary by device.
+                </p>
+              </section>
+
+              <section className="space-y-3 pt-4 border-t border-slate-800">
+                <h2 className="text-lg font-bold text-white">7. Policy Updates &amp; Contact</h2>
+                <p>
+                  We may revise this policy when the site’s storage or security practices change. The effective date above identifies the current version. Questions about storage or privacy can be sent to <a href="mailto:support@sensorsae.net" className="text-blue-400 hover:underline">support@sensorsae.net</a>.
                 </p>
               </section>
 

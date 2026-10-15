@@ -54,7 +54,7 @@ export const CookieConsent = ({ onNavigateLegal }) => {
 
         {/* Description */}
         <p className="text-slate-400 text-xs leading-relaxed">
-          We use essential cookies to keep the site working. With your permission, we may also use optional cookies to understand site usage and improve your experience.
+          We use browser storage to support sign-in and remember your choice. Cloudflare Turnstile helps protect selected forms. We do not currently use analytics or advertising cookies.
         </p>
 
         {/* Buttons */}
