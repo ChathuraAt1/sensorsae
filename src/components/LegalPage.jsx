@@ -71,7 +71,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
               <strong className="text-white block font-semibold">SENSORSAE Technologies Inc.</strong>
               600 Congress Avenue, Suite 1400, Austin, TX 78701, USA<br />
               Corporate Phone: <a href="tel:+15125553948" className="text-blue-400 hover:underline">+1 512 555 3948</a><br />
-              Legal Dispatch: <a href="mailto:legal@sensorsae.net" className="text-blue-400 hover:underline">legal@sensorsae.net</a>
+              Legal Dispatch: <a href="mailto:support@sensorsae.net" className="text-blue-400 hover:underline">support@sensorsae.net</a>
             </p>
             <span className="text-[10px] font-mono text-slate-500 block pt-1">
               Governing Jurisdiction: State of Texas &amp; US Federal Law
@@ -264,8 +264,8 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
                   You have the right to inspect, export, correct, or delete operator account details at any time. For privacy inquiries or to contact our Data Protection Officer:
                 </p>
                 <div className="p-4 rounded-xl bg-[#06080d] border border-slate-800 font-mono text-xs space-y-1 text-slate-300">
-                  <div>USA DPO: <span className="text-blue-400">dpo@sensorsae.net</span> • 600 Congress Ave, Suite 1400, Austin, TX</div>
-                  <div>Sri Lanka DPO: <span className="text-blue-400">dpo-sl@sensorsae.net</span> • 19 Orchid Avenue, Dehiwala, Sri Lanka</div>
+                  <div>USA DPO: <a href="mailto:support@sensorsae.net" className="text-blue-400 hover:underline">support@sensorsae.net</a> • 600 Congress Ave, Suite 1400, Austin, TX</div>
+                  <div>Sri Lanka DPO: <a href="mailto:support@sensorsae.net" className="text-blue-400 hover:underline">support@sensorsae.net</a> • 19 Orchid Avenue, Dehiwala, Sri Lanka</div>
                 </div>
               </section>
 

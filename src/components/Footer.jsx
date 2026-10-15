@@ -556,13 +556,13 @@ export const Footer = ({
                   className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-[#06080d] border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/40 text-slate-300 hover:text-white transition-all group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Building2 className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <img src="https://www.crunchbase.com/favicon.ico" alt="" aria-hidden="true" className="w-4 h-4 object-contain group-hover:scale-110 transition-transform shrink-0" />
                     <span className="font-semibold text-white truncate">
                       Crunchbase Profile
                     </span>
                   </div>
 
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-400 shrink-0" />
                 </a>
               </li>
 
@@ -574,7 +574,7 @@ export const Footer = ({
                   className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-[#06080d] border border-slate-800 hover:border-blue-500/50 hover:bg-blue-950/40 text-slate-300 hover:text-white transition-all group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Globe className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <img src="https://www.f6s.com/favicon.ico" alt="" aria-hidden="true" className="w-4 h-4 object-contain group-hover:scale-110 transition-transform shrink-0" />
                     <span className="font-semibold text-white truncate">
                       F6S Profile
                     </span>
