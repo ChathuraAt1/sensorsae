@@ -1,24 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2, Shield, Cpu } from 'lucide-react';
 import { FaGoogle, FaGithub } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from './Logo';
 
+const createEmptyFormData = () => ({
+  email: '',
+  password: '',
+  confirmPassword: '',
+  username: '',
+  firstName: '',
+  lastName: '',
+});
+
 export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = null, billingCycle = null, onSuccess }) => {
   const { login, register, forgotPassword, initiateSocialLogin } = useAuth();
 
   const [mode, setMode] = useState(initialMode); // 'login' | 'register' | 'forgot'
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    username: '',
-    firstName: '',
-    lastName: '',
-  });
+  const [formData, setFormData] = useState(createEmptyFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+    } else {
+      setMode('login');
+    }
+    setFormData(createEmptyFormData());
+    setErrorMessage('');
+    setSuccessMessage('');
+  }, [isOpen, initialMode]);
+
+  const handleClose = () => {
+    if (mode === 'forgot') {
+      setMode('login');
+      setErrorMessage('');
+      setSuccessMessage('');
+      return;
+    }
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -109,7 +132,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = n
 
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           aria-label="Close"
         >
@@ -224,7 +247,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = n
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="Marcus"
+                  placeholder="First name"
                   className="w-full bg-[#06080d] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -235,7 +258,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = n
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Chen"
+                  placeholder="Last name"
                   className="w-full bg-[#06080d] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -249,7 +272,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = n
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="m_chen_ops"
+                  placeholder="your_username"
                   className="w-full bg-[#06080d] border border-slate-800 rounded-xl px-3 py-2 pl-9 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                 />
                 <User className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -265,7 +288,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login', planSlug = n
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="marcus@facility.com"
+                  placeholder="you@company.com"
                   className="w-full bg-[#06080d] border border-slate-800 rounded-xl px-3 py-2 pl-9 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                 />
                 <Mail className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
