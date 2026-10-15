@@ -447,7 +447,7 @@ export const ConsultationForm = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      placeholder="e.g. Alex Morgan"
+                      placeholder="Your name"
                       className="w-full bg-[#06080d] text-white px-4 py-3 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-sm placeholder:text-slate-600 transition-all"
                     />
                   </div>
@@ -463,7 +463,7 @@ export const ConsultationForm = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      placeholder="e.g. alex@manufacturing-corp.com"
+                      placeholder="you@company.com"
                       className="w-full bg-[#06080d] text-white px-4 py-3 rounded-xl border border-slate-800 focus:border-blue-400 focus:outline-none text-sm placeholder:text-slate-600 transition-all"
                     />
                   </div>

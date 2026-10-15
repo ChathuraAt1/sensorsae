@@ -77,7 +77,7 @@ export const marketingCaseStudies = [
     role: "Plant Modernization Lead",
     metric: "Predictable Shifts",
     badge: "Robotic Assembly",
-    photo:"./images/30.webp",
+    photo:"./images/32.webp",
   },
   {
     id: "energy",
@@ -101,7 +101,7 @@ export const marketingCaseStudies = [
     role: "Chief Reliability Engineer",
     metric: "+320% MTBF Extension",
     badge: "Petrochemical Operations",
-    photo:"./images/32.webp",
+    photo:"./images/30.webp",
   }
 ];
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Cookie, Check, X, ExternalLink } from 'lucide-react';
+import { Cookie, Check, X } from 'lucide-react';
 
 export const CookieConsent = ({ onNavigateLegal }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -38,8 +38,8 @@ export const CookieConsent = ({ onNavigateLegal }) => {
               <Cookie className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-sm">Industrial Privacy &amp; Cookies</h4>
-              <span className="text-[10px] font-mono text-blue-400">IEC 62443 COMPLIANT TELEMETRY</span>
+              <h4 className="font-bold text-white text-sm">Cookie preferences</h4>
+              <span className="text-[10px] font-mono text-blue-400">YOUR PRIVACY MATTERS</span>
             </div>
           </div>
 
@@ -54,7 +54,7 @@ export const CookieConsent = ({ onNavigateLegal }) => {
 
         {/* Description */}
         <p className="text-slate-400 text-xs leading-relaxed">
-          SENSORSAE uses essential session tokens and encrypted telemetry cookies to maintain operator authentication, secure live sensor feeds, and prevent cyber-physical anomalies.
+          We use essential cookies to keep the site working. With your permission, we may also use optional cookies to understand site usage and improve your experience.
         </p>
 
         {/* Buttons */}
@@ -82,7 +82,7 @@ export const CookieConsent = ({ onNavigateLegal }) => {
           >
             Read Cookie Policy →
           </button>
-          <span className="text-slate-400">ISO 27001 / IEC 62443</span>
+          <span className="text-slate-400">Cookie choices</span>
         </div>
 
       </div>
