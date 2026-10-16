@@ -34,30 +34,9 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
 
   return (
     <div className="min-h-screen bg-[#06080d] text-slate-200 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-5xl mx-auto space-y-10">
+      <div className="max-w-5xl mx-auto space-y-10 pt-20">
         
-        {/* Top Header & Navigation */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-blue-900/30">
-          <div className="flex items-center gap-4">
-            <div onClick={onBackToHome} className="cursor-pointer group" title="Return to Overview">
-              <Logo size="sm" className="group-hover:scale-105 transition-transform" />
-            </div>
-            <button
-              onClick={onBackToHome}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors group cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform text-blue-400" />
-              <span>Return to Overview</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-            <span className="font-mono text-[10px] sm:text-xs leading-relaxed text-slate-400">
-              LEGAL &amp; COMPLIANCE FRAMEWORK • DUAL-JURISDICTION
-            </span>
-          </div>
-        </div>
+        
 
         {/* Dual Branch Entity Header Banner */}
         <div className="rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-6 sm:p-8 shadow-glow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
