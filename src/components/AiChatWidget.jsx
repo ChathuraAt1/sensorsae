@@ -15,6 +15,141 @@ const INITIAL_MESSAGES = [
   }
 ];
 
+const renderInlineMarkdown = (text, keyPrefix) => {
+  const tokenPattern = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)|`([^`]+)`|\*\*([^*]+)\*\*|__([^_]+)__|\*([^*\n]+)\*|_([^_\n]+)_)/g;
+  const nodes = [];
+  let lastIndex = 0;
+  let match;
+  let tokenIndex = 0;
+
+  while ((match = tokenPattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+
+    const key = `${keyPrefix}-${tokenIndex++}`;
+    if (match[2] && match[3]) {
+      nodes.push(
+        <a key={key} href={match[3]} target="_blank" rel="noopener noreferrer" className="text-blue-300 underline underline-offset-2 break-all">
+          {match[2]}
+        </a>,
+      );
+    } else if (match[4]) {
+      nodes.push(<code key={key} className="rounded bg-slate-800 px-1 py-0.5 font-mono text-[0.92em] text-cyan-200">{match[4]}</code>);
+    } else if (match[5] || match[6]) {
+      nodes.push(<strong key={key} className="font-bold text-white">{match[5] || match[6]}</strong>);
+    } else {
+      nodes.push(<em key={key}>{match[7] || match[8]}</em>);
+    }
+
+    lastIndex = tokenPattern.lastIndex;
+  }
+
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+  return nodes;
+};
+
+const isMarkdownBlockStart = (line) =>
+  /^\s*(#{1,6}\s|```|>\s?|[-*+]\s+|\d+[.)]\s+)/.test(line);
+
+const MarkdownMessage = ({ content }) => {
+  const lines = String(content || '').replace(/\r\n?/g, '\n').split('\n');
+  const blocks = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    if (/^\s*```/.test(line)) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !/^\s*```/.test(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+      blocks.push({ type: 'code', content: codeLines.join('\n') });
+      continue;
+    }
+
+    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+    if (heading) {
+      blocks.push({ type: 'heading', level: heading[1].length, content: heading[2] });
+      index += 1;
+      continue;
+    }
+
+    if (/^\s*>/.test(line)) {
+      const quoteLines = [];
+      while (index < lines.length && /^\s*>/.test(lines[index])) {
+        quoteLines.push(lines[index].replace(/^\s*>\s?/, ''));
+        index += 1;
+      }
+      blocks.push({ type: 'quote', content: quoteLines.join('\n') });
+      continue;
+    }
+
+    if (/^\s*[-*+]\s+/.test(line)) {
+      const items = [];
+      while (index < lines.length && /^\s*[-*+]\s+/.test(lines[index])) {
+        items.push(lines[index].replace(/^\s*[-*+]\s+/, ''));
+        index += 1;
+      }
+      blocks.push({ type: 'ul', items });
+      continue;
+    }
+
+    if (/^\s*\d+[.)]\s+/.test(line)) {
+      const items = [];
+      while (index < lines.length && /^\s*\d+[.)]\s+/.test(lines[index])) {
+        items.push(lines[index].replace(/^\s*\d+[.)]\s+/, ''));
+        index += 1;
+      }
+      blocks.push({ type: 'ol', items });
+      continue;
+    }
+
+    const paragraph = [line];
+    index += 1;
+    while (index < lines.length && lines[index].trim() && !isMarkdownBlockStart(lines[index])) {
+      paragraph.push(lines[index]);
+      index += 1;
+    }
+    blocks.push({ type: 'paragraph', content: paragraph.join('\n') });
+  }
+
+  return (
+    <div className="space-y-2.5 break-words">
+      {blocks.map((block, blockIndex) => {
+        const inline = (text) => renderInlineMarkdown(text, `block-${blockIndex}`);
+        if (block.type === 'heading') {
+          const Tag = `h${Math.min(block.level + 2, 6)}`;
+          return <Tag key={blockIndex} className="font-bold text-white leading-snug">{inline(block.content)}</Tag>;
+        }
+        if (block.type === 'ul' || block.type === 'ol') {
+          const Tag = block.type === 'ul' ? 'ul' : 'ol';
+          return (
+            <Tag key={blockIndex} className={`${block.type === 'ul' ? 'list-disc' : 'list-decimal'} pl-5 space-y-1`}>
+              {block.items.map((item, itemIndex) => <li key={itemIndex}>{inline(item)}</li>)}
+            </Tag>
+          );
+        }
+        if (block.type === 'code') {
+          return <pre key={blockIndex} className="overflow-x-auto rounded-lg bg-slate-900 p-2.5 font-mono text-[11px] text-cyan-100"><code>{block.content}</code></pre>;
+        }
+        if (block.type === 'quote') {
+          return <blockquote key={blockIndex} className="border-l-2 border-blue-500 pl-3 text-slate-400">{block.content.split('\n').map((quoteLine, lineIndex) => <React.Fragment key={lineIndex}>{lineIndex > 0 && <br />}{inline(quoteLine)}</React.Fragment>)}</blockquote>;
+        }
+        return <p key={blockIndex} className="whitespace-pre-wrap">{block.content.split('\n').map((paragraphLine, lineIndex) => <React.Fragment key={lineIndex}>{lineIndex > 0 && <br />}{inline(paragraphLine)}</React.Fragment>)}</p>;
+      })}
+    </div>
+  );
+};
+
 const SUGGESTED_QUERIES = [
   "How to detect pump cavitation before thermal failure?",
   "What are ISO 10816-3 vibration limits for Class I motors?",
@@ -172,7 +307,7 @@ export const AiChatWidget = ({ initialOpen = false }) => {
           aria-label="Open AI Telemetry Copilot"
         >
           <div className="relative">
-            <img src="./images/favicon.ico" className="w-5 h-5 transition-transform group-hover:rotate-12" />
+            <img src="/images/favicon.ico" className="w-5 h-5 transition-transform group-hover:rotate-12" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
           </div>
@@ -195,7 +330,7 @@ export const AiChatWidget = ({ initialOpen = false }) => {
           <div className="p-4 sm:p-4.5 bg-[#06080d]/90 border-b border-blue-900/40 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-blue-950 border border-blue-400/40 flex items-center justify-center text-blue-400 shadow-glow-sm">
-                <img src="./images/favicon.ico" className="w-4 h-4" />
+                <img src="/images/favicon.ico" className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -247,7 +382,7 @@ export const AiChatWidget = ({ initialOpen = false }) => {
               >
                 {msg.role === 'assistant' && (
                   <div className="w-6 h-6 rounded-lg bg-blue-950 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <img src="./images/favicon.ico" className="w-3.5 h-3.5" />
+                    <img src="/images/favicon.ico" className="w-3.5 h-3.5" />
                   </div>
                 )}
 
@@ -258,7 +393,11 @@ export const AiChatWidget = ({ initialOpen = false }) => {
                       : 'bg-[#06080d] border border-blue-900/40 text-slate-200 rounded-tl-none'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  {msg.role === 'assistant' ? (
+                    <MarkdownMessage content={msg.content} />
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  )}
                   <span className={`block text-[9px] font-mono mt-1.5 text-right ${
                     msg.role === 'user' ? 'text-blue-200' : 'text-slate-500'
                   }`}>

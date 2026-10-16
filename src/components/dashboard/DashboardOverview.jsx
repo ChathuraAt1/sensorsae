@@ -27,7 +27,7 @@ export const DashboardOverview = ({
     <div className="space-y-6">
       
       {/* Top High-Density Metric Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-4.5 rounded-2xl bg-[#080d17] border border-blue-900/40 space-y-1 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
           <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -109,7 +109,7 @@ export const DashboardOverview = ({
             step="0.1"
             value={isoThresholdLimit}
             onChange={(e) => setIsoThresholdLimit(Number(e.target.value))}
-            className="w-32 sm:w-44 accent-blue-500 cursor-pointer"
+            className="w-24 sm:w-44 accent-blue-500 cursor-pointer"
           />
           <span className="px-2.5 py-1 rounded-lg bg-[#06080d] border border-blue-500/40 text-blue-400 font-bold text-xs min-w-[70px] text-center">
             {isoThresholdLimit.toFixed(2)} mm/s
@@ -142,6 +142,11 @@ export const DashboardOverview = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filteredAssets.length === 0 && (
+            <div className="sm:col-span-2 lg:col-span-4 rounded-2xl border border-slate-800 bg-[#080d17] p-6 text-center text-sm text-slate-400">
+              No assets match this search. Try an asset name, ID, location, status, or fault.
+            </div>
+          )}
           {filteredAssets.map(mach => {
             const isSelected = selectedAsset.id === mach.id;
             const isCrit = mach.status === 'CRITICAL';
@@ -239,7 +244,7 @@ export const DashboardOverview = ({
       </div>
 
       {/* Focused Asset Deep Dive Card */}
-      <div className="rounded-3xl bg-[#080d17] border border-blue-500/40 p-6 space-y-6">
+      <div className="rounded-3xl bg-[#080d17] border border-blue-500/40 p-4 sm:p-6 space-y-5 sm:space-y-6 min-w-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 text-xs font-mono text-blue-400 uppercase tracking-widest font-bold">

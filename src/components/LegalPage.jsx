@@ -37,7 +37,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
       <div className="max-w-5xl mx-auto space-y-10">
         
         {/* Top Header & Navigation */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-blue-900/30">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-blue-900/30">
           <div className="flex items-center gap-4">
             <div onClick={onBackToHome} className="cursor-pointer group" title="Return to Overview">
               <Logo size="sm" className="group-hover:scale-105 transition-transform" />
@@ -51,9 +51,9 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="font-mono text-xs text-slate-400">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span className="font-mono text-[10px] sm:text-xs leading-relaxed text-slate-400">
               LEGAL &amp; COMPLIANCE FRAMEWORK • DUAL-JURISDICTION
             </span>
           </div>
@@ -62,8 +62,8 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
         {/* Dual Branch Entity Header Banner */}
         <div className="rounded-3xl bg-[#0b0f19] border border-blue-500/30 p-6 sm:p-8 shadow-glow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs text-blue-400 font-bold flex items-center gap-1.5 uppercase">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <span className="min-w-0 font-mono text-xs text-blue-400 font-bold flex items-center gap-1.5 uppercase">
                 <Building2 className="w-4 h-4" />
                 United States Operations (HQ)
               </span>
@@ -83,8 +83,8 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
           </div>
 
           <div className="p-4 rounded-2xl bg-[#06080d] border border-blue-900/40 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs text-blue-400 font-bold flex items-center gap-1.5 uppercase">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <span className="min-w-0 font-mono text-xs text-blue-400 font-bold flex items-center gap-1.5 uppercase">
                 <Globe className="w-4 h-4" />
                 Sri Lanka Operations (Engineering)
               </span>
@@ -96,7 +96,7 @@ export const LegalPage = ({ initialTab = 'terms', onBackToHome }) => {
               <strong className="text-white block font-semibold">SENSORSAE Technologies (Private) Limited</strong>
               19 Orchid Avenue, Dehiwala, Sri Lanka<br />
               Engineering Dispatch: <a href="tel:+94114637925" className="text-blue-400 hover:underline">+94 11 463 7925</a><br />
-              Regional Legal: <a href="mailto:legal-sl@sensorsae.net" className="text-blue-400 hover:underline">legal-sl@sensorsae.net</a>
+              Regional Legal: <a href="mailto:support@sensorsae.net" className="text-blue-400 hover:underline">support@sensorsae.net</a>
             </p>
             <span className="text-[10px] font-mono text-slate-500 block pt-1">
               Governing Jurisdiction: Democratic Socialist Republic of Sri Lanka

@@ -112,8 +112,8 @@ export const Navbar = ({
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-[#06080d]/90 backdrop-blur-xl border-b border-blue-900/40 shadow-glow-sm py-3.5"
+        isScrolled || mobileMenuOpen
+          ? "bg-[#06080d] border-b border-blue-900/40 shadow-glow-sm py-3.5"
           : "bg-transparent py-5"
       }`}
     >
@@ -220,7 +220,7 @@ export const Navbar = ({
             }}
             className="px-3.5 py-1.5 text-xs font-bold rounded-full bg-blue-600 text-white"
           >
-            {currentView === "home" ? "Products" : "Home"}
+            {currentView === "home" ? "SensorGuard S.1" : "Home"}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -238,7 +238,7 @@ export const Navbar = ({
 
       {/* Mobile Drawer Menu with Active Highlighting */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#06080d]/98 border-b border-blue-900/60 px-6 py-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
+        <div className="md:hidden bg-[#06080d] border-b border-blue-900/60 px-6 py-6 space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200">
           <div className="flex flex-col space-y-2 font-medium text-sm">
             {NAV_ITEMS.map((item) => {
               const isActive =

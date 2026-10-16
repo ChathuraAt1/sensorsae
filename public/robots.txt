@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /alerts
+Disallow: /incidents
+Disallow: /checkout
+Disallow: /auth/
+
+Sitemap: https://sensorsae.net/sitemap.xml

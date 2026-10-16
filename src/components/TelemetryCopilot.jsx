@@ -80,7 +80,7 @@ export const TelemetryCopilot = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/50 border border-blue-500/20 mb-4">
-            <img src="./images/favicon.ico" className="w-4 h-4" />
+            <img src="/images/favicon.ico" className="w-4 h-4" />
             <span className="font-mono text-xs uppercase tracking-widest text-blue-300">
               INTERACTIVE AI TELEMETRY ENGINE
             </span>

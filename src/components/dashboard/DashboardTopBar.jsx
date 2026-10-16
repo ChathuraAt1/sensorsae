@@ -88,7 +88,8 @@ export const DashboardTopBar = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search telemetry..."
+            placeholder="Search assets..."
+            aria-label="Search assets by name, ID, location, status, or fault"
             className="bg-[#06080d] border border-blue-900/50 rounded-xl px-2.5 py-1 pl-7 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono w-32 sm:w-40 transition-all"
           />
           <Search className="w-3 h-3 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />

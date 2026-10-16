@@ -53,7 +53,12 @@ export const IndustrialDashboard = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [severityFilter, setSeverityFilter] = useState('All');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth < 768);
+  const dashboardScrollRef = useRef(null);
+
+  useEffect(() => {
+    if (dashboardScrollRef.current) dashboardScrollRef.current.scrollTop = 0;
+  }, [activeTab]);
 
   // Time Range & Interactive ISO 10816 Threshold Slider State
   const [timeRange, setTimeRange] = useState('Live');
@@ -246,9 +251,20 @@ export const IndustrialDashboard = ({
   // Filtered Assets
   const filteredAssets = useMemo(() => {
     return assets.filter(item => {
-      const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.location.toLowerCase().includes(searchQuery.toLowerCase());
+      const normalizedQuery = searchQuery.trim().toLowerCase();
+      const searchableFields = [
+        item.name,
+        item.id,
+        item.location,
+        item.category,
+        item.status,
+        item.primaryFault,
+        item.recommendedAction,
+        ...(item.podIds || []),
+      ];
+      const matchSearch = !normalizedQuery || searchableFields.some((field) =>
+        String(field || '').toLowerCase().includes(normalizedQuery)
+      );
       const matchCategory = categoryFilter === 'All' || item.category === categoryFilter;
       const matchSeverity = severityFilter === 'All' || item.status === severityFilter;
       return matchSearch && matchCategory && matchSeverity;
@@ -421,7 +437,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 className="flex items-center cursor-pointer group py-0.5"
                 title="Return to Public Site"
               >
-                <Logo size="sm" className="group-hover:scale-105 transition-transform" />
+                <Logo size="md" className="group-hover:scale-105 transition-transform" />
               </div>
             ) : (
               <div
@@ -429,7 +445,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
                 className="mx-auto cursor-pointer group flex items-center justify-center"
                 title="Return to Public Site"
               >
-                <Logo size="xs" className="group-hover:scale-110 transition-transform" />
+                <Logo size="sm" className="group-hover:scale-110 transition-transform" />
               </div>
             )}
 
@@ -633,7 +649,12 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
           trialStatus={trialStatus}
           planCapabilities={planCapabilities}
           searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+          setSearchQuery={(query) => {
+            setSearchQuery(query);
+            if (query.trim() && activeTab !== 'overview' && activeTab !== 'sensors') {
+              setActiveTab('overview');
+            }
+          }}
           timeRange={timeRange}
           handleSelectTimeRange={handleSelectTimeRange}
           handleExportCsv={handleExportCsv}
@@ -642,7 +663,7 @@ Provide actionable, highly technical, concise industrial engineering diagnostics
         />
 
         {/* Dynamic Scrolling Viewport */}
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <main ref={dashboardScrollRef} className="flex-1 min-w-0 overflow-y-auto p-3 sm:p-6 space-y-5 sm:space-y-6">
 
           {/* TRIAL EXPIRED PAYWALL / COMPONENT ACCESS LOCK */}
           {trialStatus.isExpired && activeTab !== 'plan' ? (

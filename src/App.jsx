@@ -10,6 +10,7 @@ import { Faq } from "./components/Faq";
 import { Pricing } from "./components/Pricing";
 import { Checkout } from "./components/Checkout";
 import { AuthModal } from "./components/AuthModal";
+import { PasswordResetPage } from "./components/PasswordResetPage";
 import { OAuthCallback } from "./components/OAuthCallback";
 import { AiChatWidget } from "./components/AiChatWidget";
 import { CookieConsent } from "./components/CookieConsent";
@@ -21,12 +22,15 @@ import { Footer } from "./components/Footer";
 import { useAuth } from "./context/AuthContext";
 import { FALLBACK_PLANS } from "./services/subscriptionService";
 
+const SITE_ORIGIN = "https://sensorsae.net";
+
 export function App() {
   const { isAuthenticated, isLoading } = useAuth();
 
   const getInitialView = () => {
     const path = window.location.pathname;
     if (path.includes("/auth/complete")) return "auth/complete";
+    if (/\/(reset-password|password\/reset)(\/|$)/.test(path)) return "password-reset";
     if (path.includes("/checkout")) return "checkout";
     if (
       path.includes("/dashboard") ||
@@ -42,6 +46,20 @@ export function App() {
   };
 
   const [currentView, setCurrentView] = useState(getInitialView);
+
+  useEffect(() => {
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
+    const canonicalUrl = `${SITE_ORIGIN}${path}`;
+    let canonical = document.querySelector('link[rel="canonical"]');
+
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+
+    canonical.setAttribute("href", canonicalUrl);
+  }, [currentView]);
 
   // Checkout Plan Selection State (with URL param auto-rehydration for initial visit & refresh)
   const [selectedPlan, setSelectedPlan] = useState(() => {
@@ -196,7 +214,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#06080d] text-slate-100 flex flex-col selection:bg-blue-500/30 selection:text-blue-200 font-sans relative">
       {/* Navigation (Hidden on standalone Dashboard and OAuth callback screen for seamless workspace experience) */}
-      {currentView !== "auth/complete" && currentView !== "dashboard" && (
+      {currentView !== "auth/complete" && currentView !== "password-reset" && currentView !== "dashboard" && (
         <Navbar
           currentView={currentView}
           setCurrentView={(v) => {
@@ -296,6 +314,13 @@ export function App() {
           <OAuthCallback onComplete={handleOAuthFinished} />
         )}
 
+        {currentView === "password-reset" && (
+          <PasswordResetPage
+            onBackToHome={handleBackToHome}
+            onOpenLogin={() => handleOpenAuth("login", "dashboard")}
+          />
+        )}
+
         {currentView.startsWith("legal-") && (
           <LegalPage
             initialTab={currentView.replace("legal-", "")}
@@ -307,6 +332,7 @@ export function App() {
       {/* Footer (Hidden on checkout, dashboard, and auth callback for focused flow) */}
       {currentView !== "checkout" &&
         currentView !== "auth/complete" &&
+        currentView !== "password-reset" &&
         currentView !== "dashboard" && (
           <Footer
             onNavigate={handleSectionNavigate}

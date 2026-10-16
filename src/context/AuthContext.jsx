@@ -209,7 +209,7 @@ export const AuthProvider = ({ children }) => {
   // Request password reset link
   const forgotPassword = async (email, turnstileToken = null) => {
     try {
-      const payload = { email };
+      const payload = { email: email.trim().toLowerCase() };
       if (turnstileToken) payload.turnstile_token = turnstileToken;
 
       const res = await fetch(`${API_BASE}/api/auth/password/forgot`, {
@@ -221,15 +221,61 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const firstError = data.errors ? Object.values(data.errors).flat()[0] : null;
+        return {
+          success: false,
+          error: firstError || data.message || `Password reset request failed (${res.status}).`,
+        };
+      }
+
       return {
-        success: res.ok,
-        message: data.message || 'Password reset link sent if account exists',
+        success: true,
+        message: data.message || 'If an account exists, password reset instructions have been sent.',
       };
     } catch (err) {
       return {
         success: false,
         error: err.message || 'Could not send reset request',
+      };
+    }
+  };
+
+  const resetPassword = async ({ email, token, password }) => {
+    try {
+      const passwordHash = await sha256Hex(password);
+      const res = await fetch(`${API_BASE}/api/auth/password/reset`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          token: token.trim(),
+          password_hash: passwordHash,
+          password_hash_confirmation: passwordHash,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const firstError = data.errors ? Object.values(data.errors).flat()[0] : null;
+        return {
+          success: false,
+          error: firstError || data.message || `Password reset failed (${res.status}).`,
+        };
+      }
+
+      return {
+        success: true,
+        message: data.message || 'Your password has been reset. You can now sign in.',
+      };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.message || 'Could not reset your password',
       };
     }
   };
@@ -298,6 +344,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         forgotPassword,
+        resetPassword,
         initiateSocialLogin,
         handleOAuthCallback,
         refreshUser,
